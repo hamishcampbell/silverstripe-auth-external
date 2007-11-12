@@ -1,0 +1,14 @@
+External Authenticator Changelog
+--------------------------------
+
+0.1-pre3
+- Fixed 1 bug and cleaned up _config.php based on Markus's comments
+
+0.1-pre2
+- Indentation cleanup
+- Renamed Simple Authentication to External Authentication
+- Added lang dir and translation entities to the code
+- Added dutch translation
+
+0.1-pre1
+ - Initial working state

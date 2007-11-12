@@ -1,0 +1,30 @@
+------------------------------
+External Authentication Module
+------------------------------
+
+November 3, 2007
+
+This module enables you to use external authentication sources for password
+verification. At the moment this module has 3 drivers. LDAP, FTP and IMAP. The
+IMAP driver also supports FTP. All drivers support SSL, TLS is only supported
+by the LDAP and IMAP drivers.
+
+When you use this module you will still need to create accounts within 
+SilverStripe. There will be an extra field for each account, specifying the 
+username in the external authentication source.
+
+If you run your website at your ISP which also hosts your mailbox, you can use
+the ISP's IMAP/POP3 server to validate your logon. Other users at the ISP 
+cannot login when you do that, because the accounts also need to be registered
+within SilverStripe.
+
+
+INSTALL
+-------
+
+1) Copy the externalauth directory into your mail SilverStripe directory
+2) Create a proper _config.php file. You can start with the annotated examples
+   from the doc directory
+3) run /db/build  (like http://www.yourdomain.com/db/build)
+
+You should now have an "External Account" tab on the admin page

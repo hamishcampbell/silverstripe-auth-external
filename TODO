@@ -1,0 +1,6 @@
+To do list for the External Authenticator
+-----------------------------------------
+
+- SMTP and/or other drivers (all)
+- Auto create users with certain permissions if they don't exist (0.2)
+- Create wiki page @silverstripe (0.1)
