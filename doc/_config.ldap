@@ -1,0 +1,80 @@
+<?php
+
+/**
+  * External Authentication server definitions
+  * Change the parameters below to suit your authentication server, or disable 
+  * this authentication method altogether
+  */
+Authenticator::register_authenticator("ExternalAuthenticator");
+
+/**
+ * The type of our authentication server
+ * At the moment FTP, LDAP and IMAP are supported
+ */
+ExternalAuthenticator::setAuthType("LDAP");
+
+/**
+ * Hostname of the authentication server
+ * you can specify it like a normal hostname or IP number.
+ * If you use SSL or TLS, use the name matching the server certificate here  
+ */
+ExternalAuthenticator::setAuthServer("localhost.localdomain"); 
+
+/**
+ * Authentication server port, normally 389 for normal LDAP or 636 for LDAPS
+ * 110 for POP3, 995 for POP3/SSL, 143 for IMAP and 993 for IMAPS
+ * If you comment this out, it will use the default.
+ */
+//ExternalAuthenticator::setAuthPort(389); 
+
+/**
+ * You can use TLS or SSL for encryption, for the methods that support it.
+ * Don't set it, or set it to TLS or SSL
+ */
+//ExternalAuthenticator::setAuthEnc("tls");
+
+/**
+ * How does our authenticator source call a user account
+ * This string is informational and will appear on the login page
+ */
+ExternalAuthenticator::setIdDesc("User ID");
+
+/**
+ * The DN where your users reside. Be as specific as possible
+ * to prevent unexpected guests in the CMS, so typically your
+ * directory's base dn (o=.... or dc=....,dc=....) augmented with
+ * the ou where the accounts are
+ **/
+ExternalAuthenticator::setOption("basedn", "ou=People,dc=silverstripe,dc=com");
+
+/**
+ * LDAP protocol version to use
+ * If yor have enabled, the version must be 3. The default is 3
+ **/
+//ExternalAuthenticator::setOption("ldapversion",3); 
+
+/**
+ * You can use any unique attribute to authenticate as, this
+ * mail, or uid, or any other unique attribute. 
+ *
+ * SilverStripe will search the ldap for this attribute set to the ID entered
+ * on the basedn and below 
+ **/
+ExternalAuthenticator::setOption("attribute", "uid");
+
+/**
+ * If your LDAP has POSIX style user accounts with shadow support
+ * (your LDAP is probably also used to authenticate users on UNIX
+ * boxes, you can set expiration to yes. That way, when a user
+ * account expires, ha can also not login to silverstripe
+ **/
+//ExternalAuthenticator::setOption("passwd_expiration", true); 
+
+/**
+  * If your directory doesn't support anonymous searches you can
+  * specify an account below that will be used to search for the
+  * attribute containing the user ID as (dn, passwd)
+  **/
+//ExternalAuthenticator::setOption("bind_as",'cn="Directory Manager"'); 
+//ExternalAuthenticator::setOption("bind_pw",'secret'); 
+
