@@ -22,7 +22,7 @@ within SilverStripe.
 INSTALL
 -------
 
-1) Copy the externalauth directory into your mail SilverStripe directory
+1) Copy the auth_external directory into your mail SilverStripe directory
 2) Create a proper _config.php file. You can start with the annotated examples
    from the doc directory
 3) run /db/build  (like http://www.yourdomain.com/db/build)
