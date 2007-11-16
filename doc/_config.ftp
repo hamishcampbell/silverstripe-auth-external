@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * External Authentication server definitions
+ * Change the parameters below to suit your authentication server, or disable 
+ * this authentication method altogether
+ */
+Authenticator::register_authenticator("ExternalAuthenticator");
+
+/**
+ * The type of our authentication server
+ * At the moment FTP, LDAP, POP3 and IMAP are supported
+ */
+ExternalAuthenticator::setAuthType("FTP");
+
+/**
+ * Hostname of the authentication server
+ * you can specify it like a normal hostname or IP number.
+ * If you use SSL or TLS, use the name matching the server certificate here  
+ */
+ExternalAuthenticator::setAuthServer("localhost.localdomain"); 
+
+/**
+ * Authentication server port, normally 21 for FTP
+ * Note that we don't care for active or passive FTP since we only use the
+ * control channel.
+ */
+//ExternalAuthenticator::setAuthPort(21); 
+
+/**
+ * You can use SSL for encryption
+ * Don't set it, or set it to SSL (TLS is not supported)
+ */
+//ExternalAuthenticator::setAuthEnc("ssl");
+
+/**
+ * How does our authenticator source call a user account
+ */
+ExternalAuthenticator::setIdDesc("User ID");
+
+/**
+ * You have to possibility to auto create non existing users that do exists
+ * within the LDAP database. Set the option below to the group name you want
+ * to add the user to (case sensitive) or to false if users should not be
+ * created automatically
+ *
+ * WARNING WARNING WARNING
+ * If you do not have control over the external authentication source, you no
+ * longer control who can log in. USE WITH CARE
+ **/
+//ExternalAuthenticator::setAutoAdd("Testgroup");
+ExternalAuthenticator::setAutoAdd(false);
+

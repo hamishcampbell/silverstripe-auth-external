@@ -1,0 +1,69 @@
+<?php
+
+/**
+  * External Authentication server definitions
+  * Change the parameters below to suit your authentication server, or disable 
+  * this authentication method altogether
+  */
+Authenticator::register_authenticator("ExternalAuthenticator");
+
+/**
+ * The type of our authentication server
+ * At the moment FTP, LDAP and IMAP are supported
+ */
+ExternalAuthenticator::setAuthType("IMAP");
+
+/**
+ * Hostname of the authentication server
+ * you can specify it like a normal hostname or IP number.
+ * If you use SSL or TLS, use the name matching the server certificate here  
+ */
+ExternalAuthenticator::setAuthServer("localhost.localdomain"); 
+
+/**
+ * Authentication server port, normally 389 for normal LDAP or 636 for LDAPS
+ * 110 for POP3, 995 for POP3/SSL, 143 for IMAP and 993 for IMAPS
+ * If you comment this out, it will use the default.
+ */
+//ExternalAuthenticator::setAuthPort(143); 
+
+/**
+ * You can use TLS or SSL for encryption, for the methods that support it.
+ * Don't set it, or set it to TLS or SSL
+ */
+//ExternalAuthenticator::setAuthEnc("tls");
+
+/**
+ * You have to possibility to auto create non existing users that do exists
+ * within the LDAP database. Set the option below to the group name you want
+ * to add the user to (case sensitive) or to false if users should not be
+ * created automatically
+ *
+ * WARNING WARNING WARNING
+ * If you do not have control over the external authentication source, you no
+ * longer control who can log in. USE WITH CARE
+ **/
+//ExternalAuthenticator::setAutoAdd("Testgroup");
+ExternalAuthenticator::setAutoAdd(false);
+
+/**
+ * How does our authenticator source call a user account
+ */
+ExternalAuthenticator::setIdDesc("User ID");
+
+/**
+ * Protocol to use. You must set this to imap or pop3
+ */
+ExternalAuthenticator::setOption("protocol","imap");
+
+
+/**
+ * If you use TLS or SSL, it could be that the server certificate does not
+ * match the hostname (e.g. if you use the default self signed certificate
+ * installed by default on many Linuxes. You can turn off certificate 
+ * validation in this case.
+ *
+ * BE CAREFUL: Someone may replace the POP3/IMAP server you use without you
+ *             noticing
+ */
+//ExternalAuthenticator::setOption("certnovalidate",true);
