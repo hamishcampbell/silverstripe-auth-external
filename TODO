@@ -2,5 +2,4 @@ To do list for the External Authenticator
 -----------------------------------------
 
 - SMTP and/or other drivers, like Google/Yahoo mail (all)
-- Auto create users with certain permissions if they don't exist (0.2)
 - PHP unit test

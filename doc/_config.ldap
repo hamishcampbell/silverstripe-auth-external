@@ -71,6 +71,28 @@ ExternalAuthenticator::setOption("attribute", "uid");
 //ExternalAuthenticator::setOption("passwd_expiration", true); 
 
 /**
+ * You have to possibility to auto create non existing users that do exists
+ * within the LDAP database. Set the option below to the group name you want
+ * to add the user to (case sensitive) or to false if users should not be
+ * created automatically
+ *
+ * WARNING WARNING WARNING
+ * If you do not have control over the external authentication source, you no
+ * longer control who can log in. USE WITH CARE
+ **/
+//ExternalAuthenticator::setAutoAdd("Testgroup");
+ExternalAuthenticator::setAutoAdd(false);
+
+/**
+ * If you have auto adding of users enabled, you can automatically set some
+ * properties of their user accounts. The options below link the attribute 
+ * names in your LDAP directory to parameters in the LDAP driver.
+ **/
+ExternalAuthenticator::setOption("firstname_attr", "givenName");
+ExternalAuthenticator::setOption("surname_attr", "sn");
+ExternalAuthenticator::setOption("email_attr", "mail");
+
+/**
   * If your directory doesn't support anonymous searches you can
   * specify an account below that will be used to search for the
   * attribute containing the user ID as (dn, passwd)

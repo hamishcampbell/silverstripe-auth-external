@@ -18,6 +18,10 @@ the ISP's IMAP/POP3 server to validate your logon. Other users at the ISP
 cannot login when you do that, because the accounts also need to be registered
 within SilverStripe.
 
+REQUIREMENTS
+------------
+At least SilverStripe 2.2.0
+
 
 INSTALL
 -------

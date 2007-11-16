@@ -1,6 +1,10 @@
 External Authenticator Changelog
 --------------------------------
 
+0.1
+- Auto creation of users if set
+- Removed add_role from ExternalAuthenticator::on_register
+
 0.1-pre3
 - Fixed 1 bug and cleaned up _config.php based on Markus's comments
 

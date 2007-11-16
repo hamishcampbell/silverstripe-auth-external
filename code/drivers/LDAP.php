@@ -151,46 +151,71 @@ class LDAP_Authenticator {
 
 
     /**
-     * Checks for shadowLastChange and shadowMin/Max support and returns their
-     * values.  We will also check for pwdLastSet if Active Directory is
-     * support is requested.  For this check to succeed we need to be bound
+     * Gets additional user record details such as name and expirery
+     * settings
+     * For this lookup to succeed we need to be bound
      * to the directory
      *
      * @param string $dn     The dn of the user
      *
      * @return array  array with keys being "shadowlastchange", "shadowmin"
-     *                "shadowmax", "shadowwarning" and containing their
-     *                respective values or false for no support.
+     *                "shadowmax", "shadowwarning", "firstname", "surname",
+     *                and "email" and containing their
+     *                respective values.
      */
-    private function lookupShadow($dn) {
+    private function lookupDetails($dn) {
         /* Init the return array. */
-        $lookupshadow = array('shadowlastchange' => false,
-                              'shadowmin' => false,
-                              'shadowmax' => false,
-                              'shadowwarning' => false);
+        $lookupdetails = array('shadowlastchange' => false,
+                               'shadowmin'        => false,
+                               'shadowmax'        => false,
+                               'shadowwarning'    => false,
+                               'firstname'        => 'unknown',
+                               'surname'          => 'unknown',
+                               'email'            => 'root@localhost');
 
         $result = @ldap_read(self::$ds, $dn, 'objectClass=*');
         if ($result) {
             $information = @ldap_get_entries(self::$ds, $result);
 
             if (isset($information[0]['shadowmax'][0])) {
-                $lookupshadow['shadowmax'] = $information[0]['shadowmax'][0];
-            }
+                $lookupdetails['shadowmax'] = $information[0]['shadowmax'][0];
+            } 
 
             if (isset($information[0]['shadowmin'][0])) {
-                $lookupshadow['shadowmin'] = $information[0]['shadowmin'][0];
+                $lookupdetails['shadowmin'] = $information[0]['shadowmin'][0];
             }
 
             if (isset($information[0]['shadowlastchange'][0])) {
-                $lookupshadow['shadowlastchange'] = $information[0]['shadowlastchange'][0];
+                $lookupdetails['shadowlastchange'] = $information[0]['shadowlastchange'][0];
             }
 
             if (isset($information[0]['shadowwarning'][0])) {
-                $lookupshadow['shadowwarning'] = $information[0]['shadowwarning'][0];
+                $lookupdetails['shadowwarning'] = $information[0]['shadowwarning'][0];
+            }
+
+            $firstname_attr = strtolower(ExternalAuthenticator::getOption("firstname_attr"));
+            if (!is_null($firstname_attr)) {
+                if (isset($information[0][$firstname_attr][0])) {
+                    $lookupdetails['firstname'] = $information[0][$firstname_attr][0];
+                }
+            }
+
+            $surname_attr = strtolower(ExternalAuthenticator::getOption("surname_attr"));
+            if (!is_null($surname_attr)) {
+                if (isset($information[0][$surname_attr][0])) {
+                    $lookupdetails['surname'] = $information[0][$surname_attr][0];
+                }
+            }
+
+            $email_attr = strtolower(ExternalAuthenticator::getOption("email_attr"));
+            if (!is_null($email_attr)) {
+                if (isset($information[0][$email_attr][0])) {
+                    $lookupdetails['email'] = $information[0][$email_attr][0];
+                }
             }
         }
 
-        return $lookupshadow;
+        return $lookupdetails;
     }
 
 
@@ -202,21 +227,20 @@ class LDAP_Authenticator {
      * @param string $external_uid    The ID entered
      * @param string $external_passwd The password of the user
      *
-     * @return boolean  True if the authentication was a success, false 
-     *                  otherwise
+     * @return mixed    Account details if succesful , false if not 
      */
     public function Authenticate($external_uid, $external_passwd) {
         // A password should have some lenght. An empty password will result
         // in a succesfull anonymous bind. A password should not be all spaces 
-		  if (strlen(trim($external_passwd)) == 0) {
+        if (strlen(trim($external_passwd)) == 0) {
             ExternalAuthenticator::setAuthMessage(_t('LDAP_Authenticator.NoPasswd','Please enter a password'));
             return false;
-		  }
+        }
 
         // Do we support password expiration?
         $expire = ExternalAuthenticator::getOption("passwd_expiration");
         
-		  $result = self::Connect();
+        $result = self::Connect();
         if (is_string($result)) {
             ExternalAuthenticator::setAuthMessage($result);
             return false;
@@ -231,34 +255,34 @@ class LDAP_Authenticator {
 
         // Restore the default error handler. We dont want a red bordered 
         // screen on error, but a civilized message to the user
-		  restore_error_handler();
+        restore_error_handler();
 		  
         $success = false;    //Initialize the result of the authentication        
         $bind = @ldap_bind(self::$ds, $dn, $external_passwd);
         if ($bind != false) {
-            if (!is_null($expire) && $expire) {
-                $shadow = self::lookupShadow($dn);
+            $accountdetails = self::lookupDetails($dn);
 
+            if (!is_null($expire) && $expire) {
                 // Reset the SilverStripe error handler
                 Debug::loadErrorHandlers();
 
                 // Do some calculations on the attributes to convert them
                 // to the interval [now]-[axpires at]                
-                if (isset($shadow['shadowmax']) && isset($shadow['shadowlastchange']) &&
-                    isset($shadow['shadowwarning'])) {
+                if ($accountdetails['shadowmax'] && $accountdetails['shadowlastchange'] &&
+                    $accountdetails['shadowwarning']) {
 
                     $today = floor(time() / 86400);
-                    $warnday = $shadow['shadowlastchange'] +
-                               $shadow['shadowmax'] - $shadow['shadowwarning'];
+                    $warnday = $accountdetails['shadowlastchange'] +
+                               $accountdetails['shadowmax'] - $accountdetails['shadowwarning'];
 
-                    $toexpire = $shadow['shadowlastchange'] +
-                                $shadow['shadowmax'] - $today;
+                    $toexpire = $accountdetails['shadowlastchange'] +
+                                $accountdetails['shadowmax'] - $today;
 
                     // Out of luck. His password has expired.                    
                     if ($toexpire < 0) {           
                         ExternalAuthenticator::setAuthMessage(_t('LDAP_Authenticator.Expired','Your password has expired'));
                     } else {
-                        $success = true;
+                        $success = $accountdetails;
 
                         // Lets be civilized and warn the user that he should 
                         // change his password soon
@@ -268,12 +292,12 @@ class LDAP_Authenticator {
                         }
                     }
                 } else {
-                    $success = true;
+                    $success = $accountdetails;
                 }
             } else {
                 // Reset the SilverStripe error handler
                 Debug::loadErrorHandlers();
-                $success = true;
+                $success = $accountdetails;
             }
         } else {
             // Reset the SilverStripe error handler

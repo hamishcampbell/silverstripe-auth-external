@@ -35,6 +35,12 @@ class ExternalAuthenticator extends Authenticator {
    protected static $enc = null;
     
    /**
+    * Add non existing members that exists in external source automatically?
+    * Set to false to disable or group name to enable
+    **/
+   protected static $autoadd = false;
+
+   /**
     * Options to pass to the selected authentication method
     */
    protected static $authoption = array();
@@ -165,6 +171,24 @@ class ExternalAuthenticator extends Authenticator {
    }  
    
    /**
+    * Set the current member auto-add status
+    *
+    * @param mixed $doadd false to disable or group name to enable
+    */
+   public static function setAutoAdd($doadd) {
+          self::$autoadd = $doadd;
+   }
+
+   /**
+    * Get the current member auto-add status
+    *
+    * @return bool Auto add ot not?
+    */
+   public static function getAutoAdd() {
+       return self::$autoadd;
+   }
+
+   /**
     * Set a message as a result of authenticating
     * (to be used by the authentication drivers)
     *
@@ -195,7 +219,7 @@ class ExternalAuthenticator extends Authenticator {
    * @return bool Returns TRUE on success, FALSE otherwise.
    */
   protected static function on_register() {
-      Member::add_role('ExternalAuthenticatedRole');
+      Object::add_extension('Member', 'ExternalAuthenticatedRole');
       Object::add_extension('Member_Validator', 'ExternalAuthenticatedRole_Validator');
       return parent::on_register();
   }
@@ -215,6 +239,7 @@ class ExternalAuthenticator extends Authenticator {
       $auth_type     = self::getAuthType();
       $external_uid    = trim($RAW_data['External_UserID']);
       $external_passwd = $RAW_data['Password'];
+      $userexists      = false;    //Does the user exist within SilverStripe?
         
       // User ID should not be empty
       // Password should not be empty as well, but we check this in the
@@ -229,16 +254,60 @@ class ExternalAuthenticator extends Authenticator {
       // Does the user exists within silverstripe?
       $SQL_identity = Convert::raw2sql($external_uid);
       if (!($member = DataObject::get_one("Member","Member.External_UserID = '$SQL_identity'"))) {
-          if(!is_null($form)) {
-              $form->sessionMessage(_t('ExternalAuthenticator.Failed', 'Authentication failed'),'bad');
+          if (!self::getAutoAdd()) {
+              if(!is_null($form)) {
+                  $form->sessionMessage(_t('ExternalAuthenticator.Failed', 'Authentication failed'),'bad');
+              }
+              return false;
           }
-      return false;
+      } else {
+          $userexists = true;
       }
 
       require_once 'drivers/' . $auth_type . '.php';
       $myauthenticator = $auth_type . '_Authenticator';
       $myauthenticator = new $myauthenticator();
-      if ($myauthenticator->Authenticate($external_uid, $external_passwd)) {
+      $result = $myauthenticator->Authenticate($external_uid, $external_passwd);
+
+      if ($result) {
+          // The external source verified our existence
+          if (!$userexists) {
+              // But SilverStripe denies our existence, so we add ourselves
+              $memberdata["External_UserID"] = $SQL_identity;
+              if(isset($result["firstname"])) {
+                  $memberdata["FirstName"] = Convert::raw2sql($result["firstname"]);
+              }
+
+              if (isset($result["surname"])) {
+                  $memberdata["Surname"]   = Convert::raw2sql($result["surname"]);
+              } else {
+                  $memberdata["Surname"]   = $SQL_identity;
+              }
+ 
+              if (isset($result["email"])) {
+                  $memberdata["Email"]     = Convert::raw2sql($result["email"]);
+              } else {
+                  $memberdata["Email"]     = $SQL_identity;
+              }
+
+              // But before we write ourselves to the database we must check if
+              // we do not already exist in another authentication mechanism
+              // and that the group we'll be subscribed to exists
+              if (!DataObject::get_one("Member","Member.Email = '".$memberdata["Email"]."'") &&
+                  DataObject::get_one("Group","Group.Title = '" . Convert::raw2sql(self::getAutoAdd())."'")) {
+                  $member = new Member;
+
+                  $member->update($memberdata);
+                  $member->ID = null;
+                  $member->write();
+
+                  Group::addToGroupByName($member, self::getAutoAdd());
+              } else {
+                  $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+                  return false;
+              }
+          }
+
           Session::clear("BackURL");
           
           // Set the security message here. Else it will be shown on logout

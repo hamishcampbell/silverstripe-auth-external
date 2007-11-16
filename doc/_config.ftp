@@ -38,4 +38,16 @@ ExternalAuthenticator::setAuthServer("localhost.localdomain");
  */
 ExternalAuthenticator::setIdDesc("User ID");
 
+/**
+ * You have to possibility to auto create non existing users that do exists
+ * within the LDAP database. Set the option below to the group name you want
+ * to add the user to (case sensitive) or to false if users should not be
+ * created automatically
+ *
+ * WARNING WARNING WARNING
+ * If you do not have control over the external authentication source, you no
+ * longer control who can log in. USE WITH CARE
+ **/
+//ExternalAuthenticator::setAutoAdd("Testgroup");
+ExternalAuthenticator::setAutoAdd(false);
 
