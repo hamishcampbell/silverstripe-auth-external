@@ -44,6 +44,18 @@ ExternalAuthenticator::setIdDesc("User ID");
  * to prevent unexpected guests in the CMS, so typically your
  * directory's base dn (o=.... or dc=....,dc=....) augmented with
  * the ou where the accounts are
+ *
+ * It is possible to define multiple basedn's. The configuration should look 
+ * like:
+ *
+ * ExternalAuthenticator::setOption("basedn", 
+ *                                  array("ou=People,dc=silverstripe,dc=com",
+ *                                        "ou=Admins,dc=silverstripe,dc=com"));
+ *
+ * If you configure multiple DNs, make sure the account is uniquely defined. 
+ * The search will halt on the first hit, so a DN that is also valid in the
+ * second basedn will be eclipsed. For instance a maill adress is a unique
+ * identifier.
  **/
 ExternalAuthenticator::setOption("basedn", "ou=People,dc=silverstripe,dc=com");
 

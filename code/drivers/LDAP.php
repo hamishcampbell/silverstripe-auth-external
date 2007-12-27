@@ -131,11 +131,33 @@ class LDAP_Authenticator {
             return false;
         }
         
-        /* Search for the user's full DN. */
-        $search = @ldap_search(self::$ds, $basedn, 
-                               $searchfor . '=' . $ldapattribute,
-                               array($searchfor));
-        if (!$search) {
+        if (is_array($basedn)) {
+          foreach ($basedn as $dn) {
+            /* Search for the user's full DN. */
+            $search = @ldap_search(self::$ds, $dn,
+                                   $searchfor . '=' . $ldapattribute,
+                                   array($searchfor));
+            
+            if ($search) {
+              # Check for count. Some LDAPs return a result with count 0
+              # when search has failed
+              $result =  @ldap_get_entries(self::$ds, $search);
+              if ($result["count"] > 0 ) {
+                break;
+              }
+            }
+          }
+        } else {
+          /* Search for the user's full DN. */
+          $search = @ldap_search(self::$ds, $basedn, 
+                                 $searchfor . '=' . $ldapattribute,
+                                 array($searchfor));
+          if ($search) {
+            $result =  @ldap_get_entries(self::$ds, $search);
+          }
+        }
+
+        if ((!$search) || ($result["count"] == 0)) {
             return false;
         }
 
