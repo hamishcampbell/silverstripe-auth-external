@@ -3,5 +3,6 @@ To do list for the External Authenticator
 
 - SMTP and/or other drivers, like Google/Yahoo mail (all)
 - PHP unit test
-- Extra search parameters (inc. Multi-SN support)
-- Multi-DN support for Auto account creation
+- Extra search parameters
+- Set default mail address extension
+- Update language file to include user forms

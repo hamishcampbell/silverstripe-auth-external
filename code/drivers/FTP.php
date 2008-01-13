@@ -18,23 +18,24 @@ class FTP_Authenticator {
      *
      * @access public
      *
-     * @param string $external_uid    The ID entered
-     * @param string $external_passwd The password of the user
+     * @param  string $source Authentication source to be used 
+     * @param  string $external_uid    The ID entered
+     * @param  string $external_passwd The password of the user
      *
      * @return boolean  True if the authentication was a success, false 
      *                  otherwise
      */
-    public function Authenticate($external_uid, $external_passwd) {
-        $enc = ExternalAuthenticator::getAuthEnc();
-        $port = ExternalAuthenticator::getAuthPort();
+    public function Authenticate($source, $external_uid, $external_passwd) {
+        $enc = ExternalAuthenticator::getAuthEnc($source);
+        $port = ExternalAuthenticator::getAuthPort($source);
         if (is_null($port)) {
             $port = self::$port;
         }
 
         if ($enc == 'ssl') {
-            $conn = @ftp_ssl_connect(ExternalAuthenticator::getAuthServer(), $port);
+            $conn = @ftp_ssl_connect(ExternalAuthenticator::getAuthServer($source), $port);
         } else {
-            $conn = @ftp_connect(ExternalAuthenticator::getAuthServer(), $port);
+            $conn = @ftp_connect(ExternalAuthenticator::getAuthServer($source), $port);
         }
 
         if (!$conn) {

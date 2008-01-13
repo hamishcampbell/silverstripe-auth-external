@@ -1,5 +1,11 @@
 External Authenticator Changelog
 --------------------------------
+0.2-pre2
+- Added multiple source support. Code can now handle multiple configured
+  source of different types, each with their own settings
+
+0.2-pre1
+- Added multiple base-dn support for LDAP driver
 
 0.1
 - Auto creation of users if set

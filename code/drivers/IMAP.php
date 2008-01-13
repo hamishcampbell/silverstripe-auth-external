@@ -26,21 +26,22 @@ class IMAP_Authenticator {
      *
      * @access public
      *
-     * @param string $external_uid    The ID entered
-     * @param string $external_passwd The password of the user
+     * @param  string $source Authentication source to be used 
+     * @param  string $external_uid    The ID entered
+     * @param  string $external_passwd The password of the user
      *
      * @return boolean  True if the authentication was a success, false 
      *                  otherwise
      */
-    public function Authenticate($external_uid, $external_passwd) {
-        $servicetype = ExternalAuthenticator::getOption("protocol");
+    public function Authenticate($source, $external_uid, $external_passwd) {
+        $servicetype = ExternalAuthenticator::getOption($source, "protocol");
         if (is_null($servicetype) || !in_array(strtolower($servicetype),array("imap","pop3"))) {
             ExternalAuthenticator::setAuthMessage(_t('IMAP_Authenticator.Protocol', 'Protocol is not set to a valid type'));
             return false;
         }
 
-        $enc = ExternalAuthenticator::getAuthEnc();
-        $port = ExternalAuthenticator::getAuthPort();
+        $enc = ExternalAuthenticator::getAuthEnc($source);
+        $port = ExternalAuthenticator::getAuthPort($source);
         if (is_null($port)) {
             if (is_null($enc)) {
                 $port = self::$portlist["$servicetype"]["default"];
@@ -49,14 +50,14 @@ class IMAP_Authenticator {
             }
         }
         
-        $connectstring =  '{' . ExternalAuthenticator::getAuthServer();
+        $connectstring =  '{' . ExternalAuthenticator::getAuthServer($source);
         $connectstring .= ':' . $port;
         $connectstring .= '/' . $servicetype;
         
         if (!is_null($enc)) {
             $connectstring .= '/' . $enc;
             
-            $validate = ExternalAuthenticator::getOption("certnovalidate");
+            $validate = ExternalAuthenticator::getOption($source, "certnovalidate");
             if (!is_null($validate) || $validate) {
                 $connectstring .= '/novalidate-cert';
             }

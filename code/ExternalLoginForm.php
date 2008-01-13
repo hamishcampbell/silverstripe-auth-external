@@ -46,14 +46,30 @@ class ExternalLoginForm extends LoginForm {
         } else {
             if(!$fields) {
                 $userdesc = ExternalAuthenticator::getIdDesc();
-                $fields   = new FieldSet(
-                    new HiddenField("AuthenticationMethod", null, $this->authenticator_class, $this),
-                    new TextField("External_UserID", $userdesc, 
+                
+                if ( ExternalAuthenticator::getAuthSequential() ) {
+                    $fields   = new FieldSet(
+                        new HiddenField("AuthenticationMethod", null, $this->authenticator_class, $this),
+                        new HiddenField("External_SourceID", "External_SourceID", "empty"),
+                        new TextField("External_UserID", $userdesc, 
                                   Session::get('SessionForms.ExternalLoginForm.External_UserID')),
-                    new EncryptField("Password", "Password"),
-                    new CheckboxField("Remember", "Remember me next time?",
-                    Session::get('SessionForms.ExternalLoginForm.Remember'))
-                );
+                        new EncryptField("Password", "Password"),
+                        new CheckboxField("Remember", "Remember me next time?",
+                        Session::get('SessionForms.ExternalLoginForm.Remember'))
+                    );
+                } else {         
+                    $sources  = ExternalAuthenticator::getIDandNames();
+                    $fields   = new FieldSet(
+                        new HiddenField("AuthenticationMethod", null, $this->authenticator_class, $this),
+                        new DropdownField("External_SourceID", "Authentication sources", $sources,
+                                      Session::get('SessionForms.ExternalLoginForm.External_SourceID')),
+                        new TextField("External_UserID", $userdesc, 
+                                      Session::get('SessionForms.ExternalLoginForm.External_UserID')),
+                        new EncryptField("Password", "Password"),
+                        new CheckboxField("Remember", "Remember me next time?",
+                        Session::get('SessionForms.ExternalLoginForm.Remember'))
+                    );
+                }
             }
             if(!$actions) {
                 $actions = new FieldSet(
@@ -92,6 +108,7 @@ class ExternalLoginForm extends LoginForm {
     public function dologin($data) {
         if($this->performLogin($data)) {
             Session::clear('SessionForms.ExternalLoginForm.External_UserID');
+            Session::clear('SessionForms.ExternalLoginForm.External_SourceID');
             Session::clear('SessionForms.ExternalLoginForm.Remember');
 
             if($backURL = $_REQUEST['BackURL']) {
@@ -102,6 +119,7 @@ class ExternalLoginForm extends LoginForm {
 
         } else {
             Session::set('SessionForms.ExternalLoginForm.External_UserID', $data['External_UserID']);
+            Session::set('SessionForms.ExternalLoginForm.External_SourceID', $data['External_SourceID']);
             Session::set('SessionForms.ExternalLoginForm.Remember', isset($data['Remember']));
             if($badLoginURL = Session::get("BadLoginURL")) {
                 Director::redirect($badLoginURL);

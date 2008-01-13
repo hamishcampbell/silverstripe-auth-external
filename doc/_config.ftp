@@ -7,36 +7,67 @@
  */
 Authenticator::register_authenticator("ExternalAuthenticator");
 
+/** 
+ * Create your authentication source
+ * The first parameter is the Source ID. Set this to something you deem
+ *     approriate to this source. It must be unique among all authentication 
+ *     sources, may not contain special characters or spaces and must be 
+ *     shorter that 50 characters
+ * The second parameters is the type of server.
+ *     At the moment LDAP, FTP and IMAP are supported
+ * The third parameter is a nice name for this source, to be showed in 
+ *     drop-down form fields to choose the source
+ *
+ * You can create multiple sources with different of same types
+ **/
+ExternalAuthenticator::createSource("localftp","FTP","Local FTP server");
+//ExternalAuthenticator::createSource("localldap","LDAP","User Directory");
+
 /**
- * The type of our authentication server
- * At the moment FTP, LDAP, POP3 and IMAP are supported
+ * On login, users can choose the authentication source they want, or all
+ * sources can be checked in sequence till success (or failure)
+ * In this is set to true, the source selection box on the login page
+ * disappears. So you might want to set this to true if you have only one
+ * source.
+ *
+ * WARNING: If you set this to true, accounts from the different sources can
+ *          eclipse eachother. The process stops at the first success.
+ *
+ * NOTE:    The order in which accounts are checked depends on the order of the
+ *          createSource statements
+ **/
+ExternalAuthenticator::setAuthSequential(false);
+
+/**
+ * How do we call a user ID?
+ * This string is informational and will appear on the login page
  */
-ExternalAuthenticator::setAuthType("FTP");
+ExternalAuthenticator::setIdDesc("User ID");
 
 /**
  * Hostname of the authentication server
  * you can specify it like a normal hostname or IP number.
  * If you use SSL or TLS, use the name matching the server certificate here  
- */
-ExternalAuthenticator::setAuthServer("localhost.localdomain"); 
+ **/
+/**
+ * NOTE: The first parameter we set is the source ID. This is needed for all
+ *       settings from hereon
+ **/
+ExternalAuthenticator::setAuthServer("localftp","localhost.localdomain"); 
+//ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain");
 
 /**
  * Authentication server port, normally 21 for FTP
  * Note that we don't care for active or passive FTP since we only use the
  * control channel.
- */
-//ExternalAuthenticator::setAuthPort(21); 
+ **/
+//ExternalAuthenticator::setAuthPort("localftp", 21); 
 
 /**
  * You can use SSL for encryption
  * Don't set it, or set it to SSL (TLS is not supported)
- */
-//ExternalAuthenticator::setAuthEnc("ssl");
-
-/**
- * How does our authenticator source call a user account
- */
-ExternalAuthenticator::setIdDesc("User ID");
+ **/
+//ExternalAuthenticator::setAuthEnc("localftp", "ssl");
 
 /**
  * You have to possibility to auto create non existing users that do exists
@@ -48,6 +79,6 @@ ExternalAuthenticator::setIdDesc("User ID");
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
  **/
-//ExternalAuthenticator::setAutoAdd("Testgroup");
-ExternalAuthenticator::setAutoAdd(false);
+//ExternalAuthenticator::setAutoAdd("localftp", "Testgroup");
+ExternalAuthenticator::setAutoAdd("localftp", false);
 

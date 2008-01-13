@@ -44,19 +44,20 @@ class LDAP_Authenticator {
     /**
      * Does an ldap connect and binds as the guest user or as the optional dn.
      *
+     * @param  string $source Authentication source to be used 
      * @return boolean on success, error message on fail.
      */
-    private function Connect() {
+    private function Connect($source) {
         // First we verify the setting and adapt where needed
-        $uri = ExternalAuthenticator::getAuthServer();
-        $enc = ExternalAuthenticator::getAuthEnc();
+        $uri = ExternalAuthenticator::getAuthServer($source);
+        $enc = ExternalAuthenticator::getAuthEnc($source);
         if (is_null($enc)) {
             $uri = self::$uri_header["default"] . $uri;
         } else {
             $uri = self::$uri_header["$enc"] . $uri;
         }
         
-        $port = ExternalAuthenticator::getAuthPort();
+        $port = ExternalAuthenticator::getAuthPort($source);
         if (is_null($port)) {
             if (is_null($enc)) {
                 $port = self::$portlist["default"];
@@ -65,14 +66,14 @@ class LDAP_Authenticator {
             }
         }
 
-        $version = ExternalAuthenticator::getOption("ldapversion");
+        $version = ExternalAuthenticator::getOption($source, "ldapversion");
         if (is_null($version))
         {
             $version = self::$version;
         }        
 
-        $bindas  = ExternalAuthenticator::getOption("bind_as");
-        $bindpw  = ExternalAuthenticator::getOption("bind_pw");            
+        $bindas  = ExternalAuthenticator::getOption($source, "bind_as");
+        $bindpw  = ExternalAuthenticator::getOption($source, "bind_pw");            
     
         // Revert to the PHP error handler to prevent the SilverStripe
         // error handler from interfering
@@ -118,15 +119,15 @@ class LDAP_Authenticator {
     /**
      * Find the user dn based on the given attribute
      *
-     * @param string $ldapattribute attribute value to search for. The current
-     *               object holds the attrribute name.
-     *
+     * @param  string $source Authentication source to be used 
+     * @param  string $ldapattribute attribute value to search for. The current
+     *                object holds the attrribute name.
      * @return string  The users full DN or boolean on fail
      */
-    private function findDN($ldapattribute) {
+    private function findDN($source, $ldapattribute) {
         /* Check if basedn and attribute are set */
-        $searchfor = ExternalAuthenticator::getOption("attribute");
-        $basedn    = ExternalAuthenticator::getOption("basedn");
+        $searchfor = ExternalAuthenticator::getOption($source, "attribute");
+        $basedn    = ExternalAuthenticator::getOption($source, "basedn");
         if (is_null($searchfor) || is_null($basedn)) {
             return false;
         }
@@ -178,14 +179,15 @@ class LDAP_Authenticator {
      * For this lookup to succeed we need to be bound
      * to the directory
      *
-     * @param string $dn     The dn of the user
+     * @param  string $source Authentication source to be used      
+     * @param  string $dn     The dn of the user
      *
      * @return array  array with keys being "shadowlastchange", "shadowmin"
      *                "shadowmax", "shadowwarning", "firstname", "surname",
      *                and "email" and containing their
      *                respective values.
      */
-    private function lookupDetails($dn) {
+    private function lookupDetails($source, $dn) {
         /* Init the return array. */
         $lookupdetails = array('shadowlastchange' => false,
                                'shadowmin'        => false,
@@ -215,21 +217,21 @@ class LDAP_Authenticator {
                 $lookupdetails['shadowwarning'] = $information[0]['shadowwarning'][0];
             }
 
-            $firstname_attr = strtolower(ExternalAuthenticator::getOption("firstname_attr"));
+            $firstname_attr = strtolower(ExternalAuthenticator::getOption($source, "firstname_attr"));
             if (!is_null($firstname_attr)) {
                 if (isset($information[0][$firstname_attr][0])) {
                     $lookupdetails['firstname'] = $information[0][$firstname_attr][0];
                 }
             }
 
-            $surname_attr = strtolower(ExternalAuthenticator::getOption("surname_attr"));
+            $surname_attr = strtolower(ExternalAuthenticator::getOption($source, "surname_attr"));
             if (!is_null($surname_attr)) {
                 if (isset($information[0][$surname_attr][0])) {
                     $lookupdetails['surname'] = $information[0][$surname_attr][0];
                 }
             }
 
-            $email_attr = strtolower(ExternalAuthenticator::getOption("email_attr"));
+            $email_attr = strtolower(ExternalAuthenticator::getOption($source, "email_attr"));
             if (!is_null($email_attr)) {
                 if (isset($information[0][$email_attr][0])) {
                     $lookupdetails['email'] = $information[0][$email_attr][0];
@@ -246,12 +248,13 @@ class LDAP_Authenticator {
      *
      * @access public
      *
+     * @param string $source          The Authentication source to be used
      * @param string $external_uid    The ID entered
      * @param string $external_passwd The password of the user
      *
      * @return mixed    Account details if succesful , false if not 
      */
-    public function Authenticate($external_uid, $external_passwd) {
+    public function Authenticate($source, $external_uid, $external_passwd) {
         // A password should have some lenght. An empty password will result
         // in a succesfull anonymous bind. A password should not be all spaces 
         if (strlen(trim($external_passwd)) == 0) {
@@ -260,15 +263,15 @@ class LDAP_Authenticator {
         }
 
         // Do we support password expiration?
-        $expire = ExternalAuthenticator::getOption("passwd_expiration");
+        $expire = ExternalAuthenticator::getOption($source, "passwd_expiration");
         
-        $result = self::Connect();
+        $result = self::Connect($source);
         if (is_string($result)) {
             ExternalAuthenticator::setAuthMessage($result);
             return false;
         }
       
-        $dn = self::findDN($external_uid);
+        $dn = self::findDN($source, $external_uid);
         if (is_bool($dn)) {
             @ldap_close(self::$ds);
             ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed'));
@@ -282,7 +285,7 @@ class LDAP_Authenticator {
         $success = false;    //Initialize the result of the authentication        
         $bind = @ldap_bind(self::$ds, $dn, $external_passwd);
         if ($bind != false) {
-            $accountdetails = self::lookupDetails($dn);
+            $accountdetails = self::lookupDetails($source, $dn);
 
             if (!is_null($expire) && $expire) {
                 // Reset the SilverStripe error handler
@@ -334,6 +337,3 @@ class LDAP_Authenticator {
     }
     
 }
-
-
-

@@ -2,16 +2,16 @@
 External Authentication Module
 ------------------------------
 
-November 3, 2007
+January 12, 2008
 
 This module enables you to use external authentication sources for password
 verification. At the moment this module has 3 drivers. LDAP, FTP and IMAP. The
-IMAP driver also supports FTP. All drivers support SSL, TLS is only supported
+IMAP driver also supports POP3. All drivers support SSL, TLS is only supported
 by the LDAP and IMAP drivers.
 
 When you use this module you will still need to create accounts within 
-SilverStripe. There will be an extra field for each account, specifying the 
-username in the external authentication source.
+SilverStripe. There will be two extra fields for each account, specifying the 
+username and the external authentication source it comes from.
 
 If you run your website at your ISP which also hosts your mailbox, you can use
 the ISP's IMAP/POP3 server to validate your logon. Other users at the ISP 

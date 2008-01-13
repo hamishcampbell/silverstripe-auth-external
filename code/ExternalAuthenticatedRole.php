@@ -26,10 +26,12 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      */
     function extraDBFields() {
         return array(
-            'db' => array('External_UserID' => 'Varchar(255)'),
+            'db' => array('External_UserID' => 'Varchar(255)', 
+                          'External_SourceID' => 'Varchar(50)'),
             'has_one' => array(),
-            'defaults' => array('External_UserID' => null),
-            'indexes' => array('External_UserID' => 'unique (External_UserID)')
+            'defaults' => array('External_UserID' => null,
+                                'External_SourceID' => null),
+            'indexes' => array('External_UserID' => 'index (External_UserID)')
         );
     }
 
@@ -61,12 +63,12 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      * to edit the new database fields.
      */
     function updateCMSFields(FieldSet &$fields) {
-        $userdesc   = ExternalAuthenticator::getIdDesc();
-        $authmethod = ExternalAuthenticator::getAuthType();
-        $fields->push(new HeaderField($userdesc), "ExternalHeader");
+        $sources    = ExternalAuthenticator::getIDandNames();
+        $fields->push(new HeaderField("ID for external authentication source"), "ExternalHeader");
         $fields->push(new LiteralField("ExternalDescription", 
-                                       "Enter the user id for " . $authmethod . " authentication"));
-        $fields->push(new TextField("External_UserID", $userdesc), "External_UserID");
+                                       "Enter the user id and authentication source for this user"));
+        $fields->push(new DropdownField("External_SourceID", "Authentication sources", $sources), "External_SourceID");
+        $fields->push(new TextField("External_UserID", "ID to be used with this source"), "External_UserID");
     }
 
 
@@ -110,11 +112,15 @@ class ExternalAuthenticatedRole_Validator extends Extension {
      *              FALSE.
      */
     function updatePHP(array $data, Form &$form) {
-        if (!isset($data['External_UserID']) || strlen(trim($data['External_UserID'])) == 0)
+        if (!isset($data['External_UserID']) || strlen(trim($data['External_UserID'])) == 0 || 
+            !isset($data['External_SourceID']) || strlen($data['External_SourceID']) == 0)
             return true;
 
         $member = DataObject::get_one('Member',
-                  "External_UserID = '". Convert::raw2sql($data['External_UserID']) ."'");
+                  "External_UserID = '". 
+                  Convert::raw2sql($data['External_UserID']) .
+                  "' AND External_SourceID = '". 
+                  Convert::raw2sql($data['External_SourceID']) ."'");
 
         // if we are in a complex table field popup, use ctf[childID], else use
         // ID
