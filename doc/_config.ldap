@@ -78,7 +78,7 @@ ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain");
  * It is possible to define multiple basedn's. The configuration should look 
  * like:
  *
- * ExternalAuthenticator::setOption("basedn", 
+ * ExternalAuthenticator::setOption("localldap", "basedn", 
  *                                  array("ou=People,dc=silverstripe,dc=com",
  *                                        "ou=Admins,dc=silverstripe,dc=com"));
  *
@@ -108,6 +108,24 @@ ExternalAuthenticator::setOption("localldap", "basedn", "ou=People,dc=silverstri
 ExternalAuthenticator::setOption("localldap", "attribute", "uid");
 
 /**
+ * You may specify extra search criteria for the user account (not mandatory)
+ * this allows you to set some additional rules for the useraccount. You
+ * can for instance specify the object class to only let users with the 
+ * posixAccount object logon. You could also filter on gidNumber=[groupnr] 
+ * (attribute from the posixAccount objectclass) to allow only users with
+ * a certain primary group logon
+ *
+ * When the LDAP drivers searches for the account, all search criteria must be
+ * matched. Wildcards (see example) are allowed.
+ *
+ * The criteria must be specified in the form of a named array
+ **/
+//ExternalAuthenticator::setOption("localldap", "extra_attributes", array(
+//                                 "objectclass" => "posix*",
+//                                 "gidNumber"   => 500,
+//                                ));
+
+/**
  * If your LDAP has POSIX style user accounts with shadow support
  * (your LDAP is probably also used to authenticate users on UNIX
  * boxes, you can set expiration to yes. That way, when a user
@@ -127,6 +145,17 @@ ExternalAuthenticator::setOption("localldap", "attribute", "uid");
  **/
 //ExternalAuthenticator::setAutoAdd("Testgroup");
 ExternalAuthenticator::setAutoAdd("localldap", false);
+
+/**
+ * When an account is auto created, the e-mail address must be added to the
+ * user account. By default, the mail address is equal to the user account
+ * If the setting below is configured, is will be 
+ * [username]@[what's configured below]
+ * If the e-mail address is stored in the directory, see further below to
+ * get the mail address from the directory. This option will be ignored if the
+ * driver is able to return the correct mail address
+ **/
+//ExternalAuthenticator::setDefaultDomain("localldap", "silverstripe.com");
 
 /**
  * If you have auto adding of users enabled, you can automatically set some

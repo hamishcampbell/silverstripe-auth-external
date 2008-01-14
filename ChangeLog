@@ -1,5 +1,9 @@
 External Authenticator Changelog
 --------------------------------
+0.2-pre3
+- Added default mail domain
+- Added extra search criteria for finding account DNto LDAP driver
+
 0.2-pre2
 - Added multiple source support. Code can now handle multiple configured
   source of different types, each with their own settings

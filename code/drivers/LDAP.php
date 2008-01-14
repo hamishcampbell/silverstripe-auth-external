@@ -132,11 +132,24 @@ class LDAP_Authenticator {
             return false;
         }
         
+        /* Now create the search filter */
+        $attribute_array = ExternalAuthenticator::getOption($source,"extra_attributes");
+        if (!is_null($attribute_array) && is_array($attribute_array)) {
+            $filter =  "(& ";
+            $filter .= "(".$searchfor."=".$ldapattribute.")";
+            foreach ($attribute_array as $attribute => $value) {
+                $filter .= "(".$attribute."=".$value.")";
+            }
+            $filter .= ")";
+        } else {
+            $filter .= "(".$searchfor."=".$ldapattribute.")";
+        }
+        
         if (is_array($basedn)) {
           foreach ($basedn as $dn) {
             /* Search for the user's full DN. */
             $search = @ldap_search(self::$ds, $dn,
-                                   $searchfor . '=' . $ldapattribute,
+                                   $filter,
                                    array($searchfor));
             
             if ($search) {
@@ -151,7 +164,7 @@ class LDAP_Authenticator {
         } else {
           /* Search for the user's full DN. */
           $search = @ldap_search(self::$ds, $basedn, 
-                                 $searchfor . '=' . $ldapattribute,
+                                 $filter,
                                  array($searchfor));
           if ($search) {
             $result =  @ldap_get_entries(self::$ds, $search);

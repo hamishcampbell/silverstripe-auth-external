@@ -82,3 +82,13 @@ ExternalAuthenticator::setAuthServer("localftp","localhost.localdomain");
 //ExternalAuthenticator::setAutoAdd("localftp", "Testgroup");
 ExternalAuthenticator::setAutoAdd("localftp", false);
 
+/**
+ * When an account is auto created, the e-mail address must be added to the
+ * user account. By default, the mail address is equal to the user account
+ * If the setting below is configured, is will be 
+ * [username]@[what's configured below]
+ **/
+//ExternalAuthenticator::setDefaultDomain("localftp", "silverstripe.com");
+
+
+

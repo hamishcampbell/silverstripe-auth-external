@@ -44,13 +44,17 @@ class ExternalAuthenticator extends Authenticator {
     **/
    public static function createSource($sourceid, $authtype, $nicename) {
        self::$authsources["$sourceid"] = array( 
-           "authtype" => $authtype,         //Driver
-           "nicename" => $nicename,         //Name to show in source chooser
-           "authserver" => "localhost",     //IP or DNS name of server
-           "authport" => null,              //IP port to use
-           "useriddesc" => "User ID",       //How do we refer to a user id
-           "encryption" => null,            //Enable SSL or TLS encryption
-           "autoadd" => false,              //Automatically add users?
+           "authtype"      => $authtype,    //Driver
+           "nicename"      => $nicename,    //Name to show in source chooser
+           "authserver"    => "localhost",  //IP or DNS name of server
+           "authport"      => null,         //IP port to use
+           "useriddesc"    => "User ID",    //How do we refer to a user id
+           "encryption"    => null,         //Enable SSL or TLS encryption
+           "autoadd"       => false,        //Automatically add users?
+           "defaultdomain" => null,         //Default mail domain for auto 
+                                            //adding accounts
+                                            //Only works if driver cannot
+                                            //get user mail.
            "authoption" => array()          //Driver specific options
        );
    }
@@ -166,6 +170,27 @@ class ExternalAuthenticator extends Authenticator {
        return self::$authsources["$sourceid"]["enc"];
    }
    
+   /**
+    * Set default mail domain for auto-adding new mail accounts. This setting
+    * only works if the driver cannot return a mail address
+    *
+    * @param string $sourceid Source ID
+    * @param string $domain      default domain (like siverstripe.com)
+    */                               
+   public static function setDefaultDomain($sourceid, $domain) {
+       self::$authsources["$sourceid"]["defaultdomain"] = $domain;
+   }
+   
+   /**
+    * Returns the default domain
+    *
+    * @param  string $sourceid Source ID
+    * @return string domain (like silverstripe.com)
+    */              
+   public static function getDefaultDomain($sourceid) {
+       return self::$authsources["$sourceid"]["defaultdomain"];
+   }
+
    /**
     * Set option for the authentication method
     *
@@ -363,7 +388,13 @@ class ExternalAuthenticator extends Authenticator {
           if (isset($result["email"])) {
               $memberdata["Email"]     = Convert::raw2sql($result["email"]);
           } else {
-              $memberdata["Email"]     = $SQL_identity;
+              $domain = self::getDefaultDomain($source);
+              if (is_null($domain)) {
+                  $memberdata["Email"]     = $SQL_identity;
+              } else {
+                  $memberdata["Email"]     = $SQL_identity . "@" .
+                                             Convert::raw2sql($domain);
+              }
           }
 
           // But before we write ourselves to the database we must check if
