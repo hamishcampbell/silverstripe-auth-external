@@ -14,7 +14,7 @@ Authenticator::register_authenticator("ExternalAuthenticator");
  *     sources, may not contain special characters or spaces and must be 
  *     shorter that 50 characters
  * The second parameters is the type of server.
- *     At the moment LDAP, FTP and IMAP are supported
+ *     At the moment LDAP, FTP, IMAP and HTTP are supported
  * The third parameter is a nice name for this source, to be showed in 
  *     drop-down form fields to choose the source
  *
@@ -134,7 +134,7 @@ ExternalAuthenticator::setOption("localldap", "attribute", "uid");
 //ExternalAuthenticator::setOption("localldap", "passwd_expiration", true); 
 
 /**
- * You have to possibility to auto create non existing users that do exists
+ * You have to possibility to auto create non existing users that do exist
  * within the LDAP database. Set the option below to the group name you want
  * to add the user to (case sensitive) or to false if users should not be
  * created automatically

@@ -142,7 +142,7 @@ class LDAP_Authenticator {
             }
             $filter .= ")";
         } else {
-            $filter .= "(".$searchfor."=".$ldapattribute.")";
+            $filter = "(".$searchfor."=".$ldapattribute.")";
         }
         
         if (is_array($basedn)) {

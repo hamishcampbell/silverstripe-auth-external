@@ -1,5 +1,11 @@
 External Authenticator Changelog
 --------------------------------
+0.2-pre4
+- Added HTTPBASIC authentication driver for authenticating afainst webservers
+- Debugging
+- User mail addresses must be unique, don't auto create over an existing
+  account
+
 0.2-pre3
 - Added default mail domain
 - Added extra search criteria for finding account DNto LDAP driver

@@ -14,7 +14,7 @@ Authenticator::register_authenticator("ExternalAuthenticator");
  *     sources, may not contain special characters or spaces and must be 
  *     shorter that 50 characters
  * The second parameters is the type of server.
- *     At the moment LDAP, FTP and IMAP are supported
+ *     At the moment LDAP, FTP, IMAP and HTTPBASIC are supported
  * The third parameter is a nice name for this source, to be showed in 
  *     drop-down form fields to choose the source
  *
@@ -57,8 +57,7 @@ ExternalAuthenticator::setAuthServer("localimap","localhost.localdomain");
 //ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain");
 
 /**
- * Authentication server port, normally 389 for normal LDAP or 636 for LDAPS
- * 110 for POP3, 995 for POP3/SSL, 143 for IMAP and 993 for IMAPS
+ * Authentication server port, normally 143 for IMAP and 993 for IMAPS
  * If you comment this out, it will use the default.
  **/
 //ExternalAuthenticator::setAuthPort("localimap", 143); 
@@ -71,7 +70,7 @@ ExternalAuthenticator::setAuthServer("localimap","localhost.localdomain");
 
 /**
  * You have to possibility to auto create non existing users that do exists
- * within the LDAP database. Set the option below to the group name you want
+ * on the mailserver. Set the option below to the group name you want
  * to add the user to (case sensitive) or to false if users should not be
  * created automatically
  *

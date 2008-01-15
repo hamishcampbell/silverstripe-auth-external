@@ -5,9 +5,9 @@ External Authentication Module
 January 12, 2008
 
 This module enables you to use external authentication sources for password
-verification. At the moment this module has 3 drivers. LDAP, FTP and IMAP. The
-IMAP driver also supports POP3. All drivers support SSL, TLS is only supported
-by the LDAP and IMAP drivers.
+verification. At the moment this module has 4 drivers. LDAP, FTP, IMAP and 
+HTTPBASIC. The IMAP driver also supports POP3. All drivers support SSL, TLS 
+is only supported by the LDAP and IMAP drivers.
 
 When you use this module you will still need to create accounts within 
 SilverStripe. There will be two extra fields for each account, specifying the 
@@ -22,6 +22,13 @@ REQUIREMENTS
 ------------
 At least SilverStripe 2.2.0
 
+DOCUMENTATION
+-------------
+http://doc.silverstripe.com/doku.php?id=modules:external-authentication
+
+DOWNLOAD
+--------
+http://www.silverstripe.com/assets/downloads/modules/authexternal-0.2.tar.gz
 
 INSTALL
 -------

@@ -156,7 +156,7 @@ class ExternalAuthenticator extends Authenticator {
        $enc = strtolower($enc);
        if (in_array($enc,array("tls","ssl")))
        {
-           self::$authsources["$sourceid"]["enc"] = $enc;
+           self::$authsources["$sourceid"]["encryption"] = $enc;
        }
    }
    
@@ -167,7 +167,7 @@ class ExternalAuthenticator extends Authenticator {
     * @return string tls or ssl
     */              
    public static function getAuthEnc($sourceid) {
-       return self::$authsources["$sourceid"]["enc"];
+       return self::$authsources["$sourceid"]["encryption"];
    }
    
    /**
@@ -332,8 +332,8 @@ class ExternalAuthenticator extends Authenticator {
       $authsuccess     = false;    //Initialization of variable  
       //Set authentication message for failed authentication
       //Could be used by the individual drivers      
-      _t('ExternalAuthenticator.Failed', 'Authentication failed');
-      
+      self::$authmessage = _t('ExternalAuthenticator.Failed', 'Authentication failed');
+  
       // User ID should not be empty
       // Password should not be empty as well, but we check this in the
       // external authentication method itself. 
@@ -357,7 +357,7 @@ class ExternalAuthenticator extends Authenticator {
 
           if ($userexists || self::getAutoAdd($source)) {   
               $auth_type = self::getAuthType($source);
-        
+   
               require_once 'drivers/' . $auth_type . '.php';
               $myauthenticator = $auth_type . '_Authenticator';
               $myauthenticator = new $myauthenticator();
@@ -400,13 +400,18 @@ class ExternalAuthenticator extends Authenticator {
           // But before we write ourselves to the database we must check if
           // the group we are subscribing to exists
           if (DataObject::get_one("Group","Group.Title = '" . Convert::raw2sql(self::getAutoAdd($source))."'")) {
-              $member = new Member;
+              if (DataObject::get_one("Member","Email = '" . $memberdata["Email"] ."'")) {
+                  self::$authmessage = _t("ExternalAuthenticator.GroupExists","An account with your e-mail address already exists");
+                  $authsuccess = false;
+              } else {
+                  $member = new Member;
 
-              $member->update($memberdata);
-              $member->ID = null;
-              $member->write();
-
-              Group::addToGroupByName($member, self::getAutoAdd($source));
+                  $member->update($memberdata);
+                  $member->ID = null;
+                  $member->write();
+              
+                  Group::addToGroupByName($member, self::getAutoAdd($source));
+              }
           } else {
               $authsuccess = false;
           }

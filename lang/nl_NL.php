@@ -5,6 +5,7 @@ global $lang;
 $lang['en_US']['ExternalAuthenticator']['EnterUID'] = 'Voer a.u.b. een  %s in';
 $lang['en_US']['ExternalAuthenticator']['Failed'] = 'Authenticatie mislukt';
 $lang['en_US']['ExternalAuthenticator']['Title'] = 'Extern Account';
+$lang['en_US']['ExternalAuthenticator']['GroupExists'] = 'Er bestaat al een account met uw e-mail adres';
 $lang['en_US']['FTP_Authenticator']['NoConnect'] = 'Kan geen verbinding maken met FTP server';
 $lang['en_US']['IMAP_Authenticator']['Protocol'] = 'Het protocol is niet ingesteld op een bekend type';
 $lang['en_US']['LDAP_Authenticator']['NotConnected'] = 'Kan geen verbinding maken met LDAP server.';
