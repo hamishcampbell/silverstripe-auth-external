@@ -1,0 +1,122 @@
+<?php
+/**
+ * NOTE: FOR THIS AUTHENTICATION DRIVER, YOU MUST HAVE THE PEAR MODULE
+ * HTTP_Request INSTALLED
+ * see: http://pear.php.net
+ *      http://pear.php.net/manual/en/package.http.http-request.php
+ **/
+
+/**
+ * External Authentication server definitions
+ * Change the parameters below to suit your authentication server, or disable 
+ * this authentication method altogether
+ */
+Authenticator::register_authenticator("ExternalAuthenticator");
+
+/** 
+ * Create your authentication source
+ * The first parameter is the Source ID. Set this to something you deem
+ *     approriate to this source. It must be unique among all authentication 
+ *     sources, may not contain special characters or spaces and must be 
+ *     shorter that 50 characters
+ * The second parameters is the type of server.
+ *     At the moment LDAP, FTP ,IMAP and HTTPBASIC are supported
+ * The third parameter is a nice name for this source, to be showed in 
+ *     drop-down form fields to choose the source
+ *
+ * You can create multiple sources with different of same types
+ **/
+ExternalAuthenticator::createSource("localhttp","HTTPBASIC","Local webserver");
+//ExternalAuthenticator::createSource("localldap","LDAP","User Directory");
+
+/**
+ * On login, users can choose the authentication source they want, or all
+ * sources can be checked in sequence till success (or failure)
+ * In this is set to true, the source selection box on the login page
+ * disappears. So you might want to set this to true if you have only one
+ * source.
+ *
+ * WARNING: If you set this to true, accounts from the different sources can
+ *          eclipse eachother. The process stops at the first success.
+ *
+ * NOTE:    The order in which accounts are checked depends on the order of the
+ *          createSource statements
+ **/
+ExternalAuthenticator::setAuthSequential(false);
+
+/**
+ * How do we call a user ID?
+ * This string is informational and will appear on the login page
+ */
+ExternalAuthenticator::setIdDesc("User ID");
+
+/**
+ * Hostname of the authentication server
+ * you can specify it like a normal hostname or IP number.
+ * If you use SSL or TLS, use the name matching the server certificate here  
+ * WARNING: THe current version of the PEAR HTTP_Request module doesn't seem 
+ * to verify the certificate. Make sure the HTTP server is on a controlled
+ * location and is managed by a trusted party
+ **/
+/**
+ * NOTE: The first parameter we set is the source ID. This is needed for all
+ *       settings from hereon
+ **/
+ExternalAuthenticator::setAuthServer("localhttp","localhost.localdomain"); 
+//ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain");
+
+/**
+ * Authentication server port, normally 80 for and 443 for https. You do not
+ * have to specify the port is you use one of these defaults.
+ **/
+//ExternalAuthenticator::setAuthPort("localhttp", 8080); 
+
+/**
+ * You can use SSL for encryption
+ * Don't set it, or set it to SSL (TLS is not supported)
+ * if you set it to ssl, SilverStripe will use https as protocol
+ **/
+//ExternalAuthenticator::setAuthEnc("localhttp", "ssl");
+
+/**
+ * You have to possibility to auto create non existing users that do exist
+ * on the webserver. Set the option below to the group name you want
+ * to add the user to (case sensitive) or to false if users should not be
+ * created automatically
+ *
+ * WARNING WARNING WARNING
+ * If you do not have control over the external authentication source, you no
+ * longer control who can log in. USE WITH CARE
+ **/
+//ExternalAuthenticator::setAutoAdd("localhttp", "Testgroup");
+ExternalAuthenticator::setAutoAdd("localhttp", false);
+
+/**
+ * When an account is auto created, the e-mail address must be added to the
+ * user account. By default, the mail address is equal to the user account
+ * If the setting below is configured, is will be 
+ * [username]@[what's configured below]
+ **/
+//ExternalAuthenticator::setDefaultDomain("localhttp", "silverstripe.com");
+
+/**
+ * If the password on the http server you are using as an authentication source
+ * is not needed for the default page, you can specify a secure page below.
+ * This setting alsways has to start with a /
+ * In this example silverstripe will try 
+ * http://localhost.localdomain/somethingsecure as validation url
+ **/
+//ExternalAuthenticator::setOption("localhttp","folder","/somethingsecure");
+
+/**
+ * You may also specify a proxy server. If you specify a hostname, you also
+ * MUST specify a port.
+ * User id and password are optional
+ **/
+//ExternalAuthenticator::setOption("localhttp","proxy","myproxyserver");
+//ExternalAuthenticator::setOption("localhttp","proxy_port","8080");
+//ExternalAuthenticator::setOption("localhttp","proxy_user","myuser");
+//ExternalAuthenticator::setOption("localhttp","proxy_pass","mypassword");
+
+
+
