@@ -64,11 +64,11 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      */
     function updateCMSFields(FieldSet &$fields) {
         $sources    = ExternalAuthenticator::getIDandNames();
-        $fields->push(new HeaderField("ID for external authentication source"), "ExternalHeader");
-        $fields->push(new LiteralField("ExternalDescription", 
-                                       "Enter the user id and authentication source for this user"));
-        $fields->push(new DropdownField("External_SourceID", "Authentication sources", $sources), "External_SourceID");
-        $fields->push(new TextField("External_UserID", "ID to be used with this source"), "External_UserID");
+        $fields->push(new HeaderField(_t('ExternalAuthenticator.ModFormHead','ID for external authentication source')), 'ExternalHeader');
+        $fields->push(new LiteralField('ExternalDescription', 
+                                       _t('ExternalAuthenticator.EnterUser','Enter the user id and authentication source for this user')));
+        $fields->push(new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources'), $sources), 'External_SourceID');
+        $fields->push(new TextField('External_UserID', _t('ExternalAuthenticator.EnterNewId','ID to be used with this source')), 'External_UserID');
     }
 
 
@@ -117,10 +117,10 @@ class ExternalAuthenticatedRole_Validator extends Extension {
             return true;
 
         $member = DataObject::get_one('Member',
-                  "External_UserID = '". 
+                  'External_UserID = \''. 
                   Convert::raw2sql($data['External_UserID']) .
-                  "' AND External_SourceID = '". 
-                  Convert::raw2sql($data['External_SourceID']) ."'");
+                  '\' AND External_SourceID = \'' . 
+                  Convert::raw2sql($data['External_SourceID']) .'\'');
 
         // if we are in a complex table field popup, use ctf[childID], else use
         // ID
@@ -134,8 +134,8 @@ class ExternalAuthenticatedRole_Validator extends Extension {
         if(is_object($member) && $member->ID != $id) {
             $field = $form->dataFieldByName('External_UserID');
             $this->owner->validationError($field->id(),
-                "There already exists a member with this account identifier",
-                "required");
+                _t('ExternalAuthenticator.UserExists', 'There already exists a member with this account name'),
+                'required');
             return false;
         }
 

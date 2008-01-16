@@ -5,7 +5,7 @@
  * Change the parameters below to suit your authentication server, or disable 
  * this authentication method altogether
  */
-Authenticator::register_authenticator("ExternalAuthenticator");
+Authenticator::register_authenticator('ExternalAuthenticator');
 
 /** 
  * Create your authentication source
@@ -20,8 +20,8 @@ Authenticator::register_authenticator("ExternalAuthenticator");
  *
  * You can create multiple sources with different of same types
  **/
-ExternalAuthenticator::createSource("localftp","FTP","Local FTP server");
-//ExternalAuthenticator::createSource("localldap","LDAP","User Directory");
+ExternalAuthenticator::createSource('localftp','FTP','Local FTP server');
+//ExternalAuthenticator::createSource('localldap','LDAP','User Directory');
 
 /**
  * On login, users can choose the authentication source they want, or all
@@ -42,7 +42,7 @@ ExternalAuthenticator::setAuthSequential(false);
  * How do we call a user ID?
  * This string is informational and will appear on the login page
  */
-ExternalAuthenticator::setIdDesc("User ID");
+ExternalAuthenticator::setIdDesc('User ID');
 
 /**
  * Hostname of the authentication server
@@ -53,21 +53,21 @@ ExternalAuthenticator::setIdDesc("User ID");
  * NOTE: The first parameter we set is the source ID. This is needed for all
  *       settings from hereon
  **/
-ExternalAuthenticator::setAuthServer("localftp","localhost.localdomain"); 
-//ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain");
+ExternalAuthenticator::setAuthServer('localftp','localhost.localdomain'); 
+//ExternalAuthenticator::setAuthServer('localldap','localhost.localdomain');
 
 /**
  * Authentication server port, normally 21 for FTP
  * Note that we don't care for active or passive FTP since we only use the
  * control channel.
  **/
-//ExternalAuthenticator::setAuthPort("localftp", 21); 
+//ExternalAuthenticator::setAuthPort('localftp', 21); 
 
 /**
  * You can use SSL for encryption
  * Don't set it, or set it to SSL (TLS is not supported)
  **/
-//ExternalAuthenticator::setAuthEnc("localftp", "ssl");
+//ExternalAuthenticator::setAuthEnc('localftp', 'ssl');
 
 /**
  * You have to possibility to auto create non existing users that do exist
@@ -79,8 +79,8 @@ ExternalAuthenticator::setAuthServer("localftp","localhost.localdomain");
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
  **/
-//ExternalAuthenticator::setAutoAdd("localftp", "Testgroup");
-ExternalAuthenticator::setAutoAdd("localftp", false);
+//ExternalAuthenticator::setAutoAdd('localftp', 'Testgroup');
+ExternalAuthenticator::setAutoAdd('localftp', false);
 
 /**
  * When an account is auto created, the e-mail address must be added to the
@@ -88,7 +88,7 @@ ExternalAuthenticator::setAutoAdd("localftp", false);
  * If the setting below is configured, is will be 
  * [username]@[what's configured below]
  **/
-//ExternalAuthenticator::setDefaultDomain("localftp", "silverstripe.com");
+//ExternalAuthenticator::setDefaultDomain('localftp', 'silverstripe.com');
 
 
 

@@ -126,23 +126,23 @@ class LDAP_Authenticator {
      */
     private function findDN($source, $ldapattribute) {
         /* Check if basedn and attribute are set */
-        $searchfor = ExternalAuthenticator::getOption($source, "attribute");
-        $basedn    = ExternalAuthenticator::getOption($source, "basedn");
+        $searchfor = ExternalAuthenticator::getOption($source, 'attribute');
+        $basedn    = ExternalAuthenticator::getOption($source, 'basedn');
         if (is_null($searchfor) || is_null($basedn)) {
             return false;
         }
         
         /* Now create the search filter */
-        $attribute_array = ExternalAuthenticator::getOption($source,"extra_attributes");
+        $attribute_array = ExternalAuthenticator::getOption($source,'extra_attributes');
         if (!is_null($attribute_array) && is_array($attribute_array)) {
-            $filter =  "(& ";
-            $filter .= "(".$searchfor."=".$ldapattribute.")";
+            $filter =  '(& ';
+            $filter .= '('.$searchfor.'='.$ldapattribute.')';
             foreach ($attribute_array as $attribute => $value) {
-                $filter .= "(".$attribute."=".$value.")";
+                $filter .= '('.$attribute.'='.$value.')';
             }
-            $filter .= ")";
+            $filter .= ')';
         } else {
-            $filter = "(".$searchfor."=".$ldapattribute.")";
+            $filter = '('.$searchfor.'='.$ldapattribute.')';
         }
         
         if (is_array($basedn)) {
@@ -156,7 +156,7 @@ class LDAP_Authenticator {
               # Check for count. Some LDAPs return a result with count 0
               # when search has failed
               $result =  @ldap_get_entries(self::$ds, $search);
-              if ($result["count"] > 0 ) {
+              if ($result['count'] > 0 ) {
                 break;
               }
             }
@@ -171,7 +171,7 @@ class LDAP_Authenticator {
           }
         }
 
-        if ((!$search) || ($result["count"] == 0)) {
+        if ((!$search) || ($result['count'] == 0)) {
             return false;
         }
 
@@ -230,21 +230,21 @@ class LDAP_Authenticator {
                 $lookupdetails['shadowwarning'] = $information[0]['shadowwarning'][0];
             }
 
-            $firstname_attr = strtolower(ExternalAuthenticator::getOption($source, "firstname_attr"));
+            $firstname_attr = strtolower(ExternalAuthenticator::getOption($source, 'firstname_attr'));
             if (!is_null($firstname_attr)) {
                 if (isset($information[0][$firstname_attr][0])) {
                     $lookupdetails['firstname'] = $information[0][$firstname_attr][0];
                 }
             }
 
-            $surname_attr = strtolower(ExternalAuthenticator::getOption($source, "surname_attr"));
+            $surname_attr = strtolower(ExternalAuthenticator::getOption($source, 'surname_attr'));
             if (!is_null($surname_attr)) {
                 if (isset($information[0][$surname_attr][0])) {
                     $lookupdetails['surname'] = $information[0][$surname_attr][0];
                 }
             }
 
-            $email_attr = strtolower(ExternalAuthenticator::getOption($source, "email_attr"));
+            $email_attr = strtolower(ExternalAuthenticator::getOption($source, 'email_attr'));
             if (!is_null($email_attr)) {
                 if (isset($information[0][$email_attr][0])) {
                     $lookupdetails['email'] = $information[0][$email_attr][0];
@@ -276,7 +276,7 @@ class LDAP_Authenticator {
         }
 
         // Do we support password expiration?
-        $expire = ExternalAuthenticator::getOption($source, "passwd_expiration");
+        $expire = ExternalAuthenticator::getOption($source, 'passwd_expiration');
         
         $result = self::Connect($source);
         if (is_string($result)) {

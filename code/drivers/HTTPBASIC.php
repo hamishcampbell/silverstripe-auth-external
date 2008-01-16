@@ -33,11 +33,11 @@ class HTTPBASIC_Authenticator {
 
         $enc        = ExternalAuthenticator::getAuthEnc($source);
         $port       = ExternalAuthenticator::getAuthPort($source);
-        $folder     = ExternalAuthenticator::getOption($source,"folder");
-        $proxy      = ExternalAuthenticator::getOption($source,"proxy");
-        $proxy_port = ExternalAuthenticator::getOption($source,"proxy_port");
-        $proxy_user = ExternalAuthenticator::getOption($source,"proxy_user");
-        $proxy_pass = ExternalAuthenticator::getOption($source,"proxy_pass");
+        $folder     = ExternalAuthenticator::getOption($source,'folder');
+        $proxy      = ExternalAuthenticator::getOption($source,'proxy');
+        $proxy_port = ExternalAuthenticator::getOption($source,'proxy_port');
+        $proxy_user = ExternalAuthenticator::getOption($source,'proxy_user');
+        $proxy_pass = ExternalAuthenticator::getOption($source,'proxy_pass');
 
         if (!is_null($proxy) && !is_null($proxy_port)) {
             $request_options['proxy_host'] = $proxy;
@@ -52,15 +52,15 @@ class HTTPBASIC_Authenticator {
         }
 
         if ($enc == 'ssl') {
-            $url = "https://";
+            $url = 'https://';
         } else {
-            $url = "http://";
+            $url = 'http://';
         }
 
         $url .= ExternalAuthenticator::getAuthServer($source);
 
         if (!is_null($port)) {
-            $url .= ":" . $port;
+            $url .= ':' . $port;
         }
 
         if (!is_null($folder)) {

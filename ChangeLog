@@ -1,5 +1,11 @@
 External Authenticator Changelog
 --------------------------------
+0.2-pre5
+- Added SilverStripe driver (authentication using password from database)
+- Coding standards
+- Some more debugging
+- Updated translation strings and added new ones
+
 0.2-pre4
 - Added HTTPBASIC authentication driver for authenticating afainst webservers
 - Debugging

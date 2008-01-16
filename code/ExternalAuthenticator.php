@@ -20,7 +20,7 @@ class ExternalAuthenticator extends Authenticator {
     * Description of user id
     * This description is used for all sources defined
     */
-   protected static $useriddesc = "User ID";
+   protected static $useriddesc = 'User ID';
 
    /**
     * Message that results from authenticating
@@ -44,14 +44,14 @@ class ExternalAuthenticator extends Authenticator {
     **/
    public static function createSource($sourceid, $authtype, $nicename) {
        self::$authsources["$sourceid"] = array( 
-           "authtype"      => $authtype,    //Driver
-           "nicename"      => $nicename,    //Name to show in source chooser
-           "authserver"    => "localhost",  //IP or DNS name of server
-           "authport"      => null,         //IP port to use
-           "useriddesc"    => "User ID",    //How do we refer to a user id
-           "encryption"    => null,         //Enable SSL or TLS encryption
-           "autoadd"       => false,        //Automatically add users?
-           "defaultdomain" => null,         //Default mail domain for auto 
+           'authtype'      => $authtype,    //Driver
+           'nicename'      => $nicename,    //Name to show in source chooser
+           'authserver'    => 'localhost',  //IP or DNS name of server
+           'authport'      => null,         //IP port to use
+           'useriddesc'    => 'User ID',    //How do we refer to a user id
+           'encryption'    => null,         //Enable SSL or TLS encryption
+           'autoadd'       => false,        //Automatically add users?
+           'defaultdomain' => null,         //Default mail domain for auto 
                                             //adding accounts
                                             //Only works if driver cannot
                                             //get user mail.
@@ -78,7 +78,7 @@ class ExternalAuthenticator extends Authenticator {
        $keys   = array_keys(self::$authsources);
        
        foreach ($keys as $sourceid) {
-           $result[$sourceid] = self::$authsources["$sourceid"]["nicename"];
+           $result[$sourceid] = self::$authsources["$sourceid"]['nicename'];
        }
   
        return $result;
@@ -92,7 +92,7 @@ class ExternalAuthenticator extends Authenticator {
     * @return string Protocol identifier
     **/              
    public static function getAuthType($sourceid) {
-       return self::$authsources["$sourceid"]["authtype"];
+       return self::$authsources["$sourceid"]['authtype'];
    }
    
    
@@ -103,7 +103,7 @@ class ExternalAuthenticator extends Authenticator {
     * @return string Nice name
     **/              
    public static function getNiceName($sourceid) {
-       return self::$authsources["$sourceid"]["nicename"];
+       return self::$authsources["$sourceid"]['nicename'];
    } 
 
    /**
@@ -113,7 +113,7 @@ class ExternalAuthenticator extends Authenticator {
     * @param string $authserver Server identifier
     */                               
    public static function setAuthServer($sourceid, $authserver) {
-       self::$authsources["$sourceid"]["authserver"] = $authserver;
+       self::$authsources["$sourceid"]['authserver'] = $authserver;
    }
    
    /**
@@ -123,7 +123,7 @@ class ExternalAuthenticator extends Authenticator {
     * @return string Server identifier
     */              
    public static function getAuthServer($sourceid) {
-       return self::$authsources["$sourceid"]["authserver"];
+       return self::$authsources["$sourceid"]['authserver'];
    }
    
    /**
@@ -133,7 +133,7 @@ class ExternalAuthenticator extends Authenticator {
     * @param string $authport TCP port
     */                               
    public static function setAuthPort($sourceid, $authport) {
-       self::$authsources["$sourceid"]["authport"] = $authport;
+       self::$authsources["$sourceid"]['authport'] = $authport;
    }
    
    /**
@@ -143,7 +143,7 @@ class ExternalAuthenticator extends Authenticator {
     * @return int authport tcp port number
     */              
    public static function getAuthPort($sourceid) {
-       return self::$authsources["$sourceid"]["authport"];
+       return self::$authsources["$sourceid"]['authport'];
    }
    
    /**
@@ -154,9 +154,9 @@ class ExternalAuthenticator extends Authenticator {
     */                               
    public static function setAuthEnc($sourceid, $enc) {
        $enc = strtolower($enc);
-       if (in_array($enc,array("tls","ssl")))
+       if (in_array($enc,array('tls','ssl')))
        {
-           self::$authsources["$sourceid"]["encryption"] = $enc;
+           self::$authsources["$sourceid"]['encryption'] = $enc;
        }
    }
    
@@ -167,7 +167,7 @@ class ExternalAuthenticator extends Authenticator {
     * @return string tls or ssl
     */              
    public static function getAuthEnc($sourceid) {
-       return self::$authsources["$sourceid"]["encryption"];
+       return self::$authsources["$sourceid"]['encryption'];
    }
    
    /**
@@ -178,7 +178,7 @@ class ExternalAuthenticator extends Authenticator {
     * @param string $domain      default domain (like siverstripe.com)
     */                               
    public static function setDefaultDomain($sourceid, $domain) {
-       self::$authsources["$sourceid"]["defaultdomain"] = $domain;
+       self::$authsources["$sourceid"]['defaultdomain'] = $domain;
    }
    
    /**
@@ -188,7 +188,7 @@ class ExternalAuthenticator extends Authenticator {
     * @return string domain (like silverstripe.com)
     */              
    public static function getDefaultDomain($sourceid) {
-       return self::$authsources["$sourceid"]["defaultdomain"];
+       return self::$authsources["$sourceid"]['defaultdomain'];
    }
 
    /**
@@ -199,7 +199,7 @@ class ExternalAuthenticator extends Authenticator {
     * @param string $value value of the key
     */                               
    public static function setOption($sourceid, $key, $value) {
-       self::$authsources[$sourceid]["authoption"]["$key"] = $value;
+       self::$authsources[$sourceid]['authoption']["$key"] = $value;
    }
    
    /**
@@ -210,8 +210,8 @@ class ExternalAuthenticator extends Authenticator {
     * @return string value of the corresponding key
     */              
    public static function getOption($sourceid, $key) {
-       if (isset(self::$authsources["$sourceid"]["authoption"]["$key"])) {
-           return self::$authsources["$sourceid"]["authoption"]["$key"];
+       if (isset(self::$authsources["$sourceid"]['authoption']["$key"])) {
+           return self::$authsources["$sourceid"]['authoption']["$key"];
        } else {
            return null;
        }
@@ -224,7 +224,7 @@ class ExternalAuthenticator extends Authenticator {
     * @param mixed  $doadd false to disable or group name to enable
     */
    public static function setAutoAdd($sourceid, $doadd) {
-          self::$authsources["$sourceid"]["autoadd"] = $doadd;
+          self::$authsources["$sourceid"]['autoadd'] = $doadd;
    }
 
    /**
@@ -234,7 +234,7 @@ class ExternalAuthenticator extends Authenticator {
     * @return mixed  Auto add (groupname) or not?
     */
    public static function getAutoAdd($sourceid) {
-       return self::$authsources["$sourceid"]["autoadd"];
+       return self::$authsources["$sourceid"]['autoadd'];
    }
    
    /**
@@ -322,12 +322,12 @@ class ExternalAuthenticator extends Authenticator {
    */
   public static function authenticate(array $RAW_data, Form $form = null) {
       if (self::getAuthSequential()) {
-          $sources = self::getSources();
+          $A_sources = self::getSources();
       } else {
-          $sources = array($RAW_data['External_SourceID']);
+          $A_sources = array($RAW_data['External_SourceID']);
       }
-      $external_uid    = trim($RAW_data['External_UserID']);
-      $external_passwd = $RAW_data['Password'];     
+      $RAW_external_uid    = trim($RAW_data['External_UserID']);
+      $RAW_external_passwd = $RAW_data['Password'];     
       $userexists      = false;    //Does the user exist within SilverStripe?
       $authsuccess     = false;    //Initialization of variable  
       //Set authentication message for failed authentication
@@ -337,33 +337,33 @@ class ExternalAuthenticator extends Authenticator {
       // User ID should not be empty
       // Password should not be empty as well, but we check this in the
       // external authentication method itself. 
-      if (strlen($external_uid) == 0) {
+      if (strlen($RAW_external_uid) == 0) {
           if (!is_null($form)) {
               $form->sessionMessage(sprintf(_t('ExternalAuthenticator.EnterUID', 'Please enter a %s') ,self::$useriddesc), 'bad');
           }
           return false;
       } 
-      $SQL_identity = Convert::raw2sql($external_uid);
+      $SQL_identity = Convert::raw2sql($RAW_external_uid);
       
       // Now we are going to check this user with each source from the source
       // array, until we succeed or utterly fail
-      foreach ($sources as $source) {
-          // Does the user exists within silverstripe?
-          $SQL_source   = Convert::raw2sql($source);
-          if (($member = DataObject::get_one("Member","Member.External_UserID = '$SQL_identity'".
+      foreach ($A_sources as $RAW_source) {
+          $SQL_source   = Convert::raw2sql($RAW_source);
+          if (($member = DataObject::get_one('Member',"Member.External_UserID = '$SQL_identity'".
                                              " AND Member.External_SourceID = '$SQL_source'"))) {
               $userexists = true;
-          }      
+          }
 
-          if ($userexists || self::getAutoAdd($source)) {   
-              $auth_type = self::getAuthType($source);
-   
+          if ($userexists || self::getAutoAdd($RAW_source)) {   
+              $auth_type = strtoupper(self::getAuthType($RAW_source));
+
               require_once 'drivers/' . $auth_type . '.php';
               $myauthenticator = $auth_type . '_Authenticator';
               $myauthenticator = new $myauthenticator();
-              $result = $myauthenticator->Authenticate($source, $external_uid, $external_passwd);
+              $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_uid, 
+                                                           $RAW_external_passwd);
 
-              if ($result) {
+              if ($RAW_result) {
                   $authsuccess = true;
                   break;
               }
@@ -371,46 +371,46 @@ class ExternalAuthenticator extends Authenticator {
       }
       
       // An external source verified our existence
-      if ($authsuccess && !$userexists && self::getAutoAdd($source)) {
+      if ($authsuccess && !$userexists && self::getAutoAdd($RAW_source)) {
           // But SilverStripe denies our existence, so we add ourselves
-          $memberdata["External_UserID"]   = $SQL_identity;
-          $memberdata["External_SourceID"] = $SQL_source;
-          if(isset($result["firstname"])) {
-              $memberdata["FirstName"] = Convert::raw2sql($result["firstname"]);
+          $SQL_memberdata['External_UserID']   = $SQL_identity;
+          $SQL_memberdata['External_SourceID'] = $SQL_source;
+          if(isset($RAW_result['firstname'])) {
+              $SQL_memberdata['FirstName'] = Convert::raw2sql($RAW_result['firstname']);
           }
 
-          if (isset($result["surname"])) {
-              $memberdata["Surname"]   = Convert::raw2sql($result["surname"]);
+          if (isset($RAW_result['surname'])) {
+              $SQL_memberdata['Surname']   = Convert::raw2sql($RAW_result['surname']);
           } else {
-              $memberdata["Surname"]   = $SQL_identity;
+              $SQL_memberdata['Surname']   = $SQL_identity;
           }
  
-          if (isset($result["email"])) {
-              $memberdata["Email"]     = Convert::raw2sql($result["email"]);
+          if (isset($RAW_result['email'])) {
+              $SQL_memberdata['Email']     = Convert::raw2sql($RAW_result['email']);
           } else {
-              $domain = self::getDefaultDomain($source);
-              if (is_null($domain)) {
-                  $memberdata["Email"]     = $SQL_identity;
+              $RAW_domain = self::getDefaultDomain($RAW_source);
+              if (is_null($RAW_domain)) {
+                  $SQL_memberdata['Email']     = $SQL_identity;
               } else {
-                  $memberdata["Email"]     = $SQL_identity . "@" .
-                                             Convert::raw2sql($domain);
+                  $SQL_memberdata['Email']     = $SQL_identity . '@' .
+                                                 Convert::raw2sql($RAW_domain);
               }
           }
 
           // But before we write ourselves to the database we must check if
           // the group we are subscribing to exists
-          if (DataObject::get_one("Group","Group.Title = '" . Convert::raw2sql(self::getAutoAdd($source))."'")) {
-              if (DataObject::get_one("Member","Email = '" . $memberdata["Email"] ."'")) {
-                  self::$authmessage = _t("ExternalAuthenticator.GroupExists","An account with your e-mail address already exists");
+          if (DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql(self::getAutoAdd($RAW_source)).'\'')) {
+              if (DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
+                  self::$authmessage = _t('ExternalAuthenticator.GroupExists','An account with your e-mail address already exists');
                   $authsuccess = false;
               } else {
                   $member = new Member;
 
-                  $member->update($memberdata);
+                  $member->update($SQL_memberdata);
                   $member->ID = null;
                   $member->write();
               
-                  Group::addToGroupByName($member, self::getAutoAdd($source));
+                  Group::addToGroupByName($member, Convert::raw2sql(self::getAutoAdd($RAW_source)));
               }
           } else {
               $authsuccess = false;
@@ -419,11 +419,11 @@ class ExternalAuthenticator extends Authenticator {
 
 
       if ($authsuccess) {
-          Session::clear("BackURL");
+          Session::clear('BackURL');
           
           // Set the security message here. Else it will be shown on logout
-          Session::set("Security.Message.message", self::$authmessage);
-             Session::set("Security.Message.type", "good");
+          Session::set('Security.Message.message', self::$authmessage);
+             Session::set('Security.Message.type', 'good');
           return $member;
       } else {
           if(!is_null($form)) {   
@@ -443,7 +443,7 @@ class ExternalAuthenticator extends Authenticator {
    *              method
    */
   public static function get_login_form(Controller $controller) {
-      return Object::create("ExternalLoginForm", $controller, "LoginForm");
+      return Object::create('ExternalLoginForm', $controller, 'LoginForm');
   }
 
 
@@ -453,7 +453,7 @@ class ExternalAuthenticator extends Authenticator {
    * @return string Returns the name of the authentication method.
    */
   public static function get_name() {
-      return _t('ExternalAuthenticator.Title',"External Account");
+      return _t('ExternalAuthenticator.Title','External Account');
   }
 }
 

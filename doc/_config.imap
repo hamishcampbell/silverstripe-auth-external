@@ -5,7 +5,7 @@
   * Change the parameters below to suit your authentication server, or disable 
   * this authentication method altogether
   */
-Authenticator::register_authenticator("ExternalAuthenticator");
+Authenticator::register_authenticator('ExternalAuthenticator');
 
 /** 
  * Create your authentication source
@@ -20,8 +20,8 @@ Authenticator::register_authenticator("ExternalAuthenticator");
  *
  * You can create multiple sources with different of same types
  **/
-ExternalAuthenticator::createSource("localimap","IMAP","Local mail server");
-//ExternalAuthenticator::createSource("localldap","LDAP","User Directory");
+ExternalAuthenticator::createSource('localimap','IMAP','Local mail server');
+//ExternalAuthenticator::createSource('localldap','LDAP','User Directory');
 
 /**
  * On login, users can choose the authentication source they want, or all
@@ -42,7 +42,7 @@ ExternalAuthenticator::setAuthSequential(false);
  * How do we call a user ID?
  * This string is informational and will appear on the login page
  */
-ExternalAuthenticator::setIdDesc("User ID");
+ExternalAuthenticator::setIdDesc('User ID');
 
 /**
  * Hostname of the authentication server
@@ -53,20 +53,20 @@ ExternalAuthenticator::setIdDesc("User ID");
  * NOTE: The first parameter we set is the source ID. This is needed for all
  *       settings from hereon
  **/
-ExternalAuthenticator::setAuthServer("localimap","localhost.localdomain"); 
-//ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain");
+ExternalAuthenticator::setAuthServer('localimap','localhost.localdomain'); 
+//ExternalAuthenticator::setAuthServer('localldap','localhost.localdomain');
 
 /**
  * Authentication server port, normally 143 for IMAP and 993 for IMAPS
  * If you comment this out, it will use the default.
  **/
-//ExternalAuthenticator::setAuthPort("localimap", 143); 
+//ExternalAuthenticator::setAuthPort('localimap', 143); 
 
 /**
  * You can use TLS or SSL for encryption, for the methods that support it.
  * Don't set it, or set it to TLS or SSL
  **/
-//ExternalAuthenticator::setAuthEnc("localimap", "tls");
+//ExternalAuthenticator::setAuthEnc('localimap', 'tls');
 
 /**
  * You have to possibility to auto create non existing users that do exists
@@ -78,8 +78,8 @@ ExternalAuthenticator::setAuthServer("localimap","localhost.localdomain");
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
  **/
-//ExternalAuthenticator::setAutoAdd("localimap", "Testgroup");
-ExternalAuthenticator::setAutoAdd("localimap", false);
+//ExternalAuthenticator::setAutoAdd('localimap', 'Testgroup');
+ExternalAuthenticator::setAutoAdd('localimap', false);
 
 /**
  * When an account is auto created, the e-mail address must be added to the
@@ -87,12 +87,12 @@ ExternalAuthenticator::setAutoAdd("localimap", false);
  * If the setting below is configured, is will be 
  * [username]@[what's configured below]
  **/
-//ExternalAuthenticator::setDefaultDomain("localimap", "silverstripe.com");
+//ExternalAuthenticator::setDefaultDomain('localimap', 'silverstripe.com');
 
 /**
  * Protocol to use. You must set this to imap or pop3
  **/
-ExternalAuthenticator::setOption("localimap", "protocol", "imap");
+ExternalAuthenticator::setOption('localimap', 'protocol', 'imap');
 
 /**
  * If you use TLS or SSL, it could be that the server certificate does not
@@ -103,4 +103,4 @@ ExternalAuthenticator::setOption("localimap", "protocol", "imap");
  * BE CAREFUL: Someone may replace the POP3/IMAP server you use without you
  *             noticing
  **/
-//ExternalAuthenticator::setOption("localimap", "certnovalidate", true);
+//ExternalAuthenticator::setOption('localimap', 'certnovalidate', true);

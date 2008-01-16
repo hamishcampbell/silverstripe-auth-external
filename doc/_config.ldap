@@ -5,7 +5,7 @@
  * Change the parameters below to suit your authentication server, or disable 
  * this authentication method altogether
  **/
-Authenticator::register_authenticator("ExternalAuthenticator");
+Authenticator::register_authenticator('ExternalAuthenticator');
 
 /** 
  * Create your authentication source
@@ -20,8 +20,8 @@ Authenticator::register_authenticator("ExternalAuthenticator");
  *
  * You can create multiple sources with different of same types
  **/
-ExternalAuthenticator::createSource("localldap","LDAP","User Directory");
-//ExternalAuthenticator::createSource("ispmail","IMAP","ISP mail server");
+ExternalAuthenticator::createSource('localldap','LDAP','User Directory');
+//ExternalAuthenticator::createSource('ispmail','IMAP','ISP mail server');
 
 /**
  * On login, users can choose the authentication source they want, or all
@@ -42,7 +42,7 @@ ExternalAuthenticator::setAuthSequential(false);
  * How do we call a user ID?
  * This string is informational and will appear on the login page
  */
-ExternalAuthenticator::setIdDesc("User ID");
+ExternalAuthenticator::setIdDesc('User ID');
 
 /**
  * Hostname of the authentication server
@@ -53,21 +53,21 @@ ExternalAuthenticator::setIdDesc("User ID");
  * NOTE: The first parameter we set is the source ID. This is needed for all
  *       settings from hereon
  **/
-ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain"); 
-//ExternalAuthenticator::setAuthServer("ispmail","imap.myisp.com");
+ExternalAuthenticator::setAuthServer('localldap','localhost.localdomain'); 
+//ExternalAuthenticator::setAuthServer('ispmail','imap.myisp.com');
 
 /**
  * Authentication server port, normally 389 for normal LDAP or 636 for LDAPS
  * 110 for POP3, 995 for POP3/SSL, 143 for IMAP and 993 for IMAPS
  * If you comment this out, it will use the default.
  **/
-//ExternalAuthenticator::setAuthPort("localldap", 389); 
+//ExternalAuthenticator::setAuthPort('localldap', 389); 
 
 /**
  * You can use TLS or SSL for encryption, for the methods that support it.
  * Don't set it, or set it to TLS or SSL
  **/
-//ExternalAuthenticator::setAuthEnc("localldap", "tls");
+//ExternalAuthenticator::setAuthEnc('localldap', 'tls');
 
 /**
  * The DN where your users reside. Be as specific as possible
@@ -78,9 +78,9 @@ ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain");
  * It is possible to define multiple basedn's. The configuration should look 
  * like:
  *
- * ExternalAuthenticator::setOption("localldap", "basedn", 
- *                                  array("ou=People,dc=silverstripe,dc=com",
- *                                        "ou=Admins,dc=silverstripe,dc=com"));
+ * ExternalAuthenticator::setOption('localldap', 'basedn', 
+ *                                  array('ou=People,dc=silverstripe,dc=com',
+ *                                        'ou=Admins,dc=silverstripe,dc=com'));
  *
  * If you configure multiple DNs, make sure the account is uniquely defined. 
  * The search will halt on the first hit, so a DN that is also valid in the
@@ -90,13 +90,13 @@ ExternalAuthenticator::setAuthServer("localldap","localhost.localdomain");
  * that you could let users choose their own DN. Now user IDs don't have to be
  * unique across the DNs
  **/
-ExternalAuthenticator::setOption("localldap", "basedn", "ou=People,dc=silverstripe,dc=com");
+ExternalAuthenticator::setOption('localldap', 'basedn', 'ou=People,dc=silverstripe,dc=com');
 
 /**
  * LDAP protocol version to use
  * If yor have enabled, the version must be 3. The default is 3
  **/
-//ExternalAuthenticator::setOption("localldap", "ldapversion", 3); 
+//ExternalAuthenticator::setOption('localldap', 'ldapversion', 3); 
 
 /**
  * You can use any unique attribute to authenticate as, this
@@ -105,7 +105,7 @@ ExternalAuthenticator::setOption("localldap", "basedn", "ou=People,dc=silverstri
  * SilverStripe will search the ldap for this attribute set to the ID entered
  * on the basedn and below 
  **/
-ExternalAuthenticator::setOption("localldap", "attribute", "uid");
+ExternalAuthenticator::setOption('localldap', 'attribute', 'uid');
 
 /**
  * You may specify extra search criteria for the user account (not mandatory)
@@ -120,9 +120,9 @@ ExternalAuthenticator::setOption("localldap", "attribute", "uid");
  *
  * The criteria must be specified in the form of a named array
  **/
-//ExternalAuthenticator::setOption("localldap", "extra_attributes", array(
-//                                 "objectclass" => "posix*",
-//                                 "gidNumber"   => 500,
+//ExternalAuthenticator::setOption('localldap', 'extra_attributes', array(
+//                                 'objectclass' => 'posix*',
+//                                 'gidNumber'   => 500,
 //                                ));
 
 /**
@@ -131,7 +131,7 @@ ExternalAuthenticator::setOption("localldap", "attribute", "uid");
  * boxes, you can set expiration to yes. That way, when a user
  * account expires, ha can also not login to silverstripe
  **/
-//ExternalAuthenticator::setOption("localldap", "passwd_expiration", true); 
+//ExternalAuthenticator::setOption('localldap', 'passwd_expiration', true); 
 
 /**
  * You have to possibility to auto create non existing users that do exist
@@ -143,8 +143,8 @@ ExternalAuthenticator::setOption("localldap", "attribute", "uid");
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
  **/
-//ExternalAuthenticator::setAutoAdd("Testgroup");
-ExternalAuthenticator::setAutoAdd("localldap", false);
+//ExternalAuthenticator::setAutoAdd('Testgroup');
+ExternalAuthenticator::setAutoAdd('localldap', false);
 
 /**
  * When an account is auto created, the e-mail address must be added to the
@@ -155,22 +155,22 @@ ExternalAuthenticator::setAutoAdd("localldap", false);
  * get the mail address from the directory. This option will be ignored if the
  * driver is able to return the correct mail address
  **/
-//ExternalAuthenticator::setDefaultDomain("localldap", "silverstripe.com");
+//ExternalAuthenticator::setDefaultDomain('localldap', 'silverstripe.com');
 
 /**
  * If you have auto adding of users enabled, you can automatically set some
  * properties of their user accounts. The options below link the attribute 
  * names in your LDAP directory to parameters in the LDAP driver.
  **/
-ExternalAuthenticator::setOption("localldap", "firstname_attr", "givenName");
-ExternalAuthenticator::setOption("localldap", "surname_attr", "sn");
-ExternalAuthenticator::setOption("localldap", "email_attr", "mail");
+ExternalAuthenticator::setOption('localldap', 'firstname_attr', 'givenName');
+ExternalAuthenticator::setOption('localldap', 'surname_attr', 'sn');
+ExternalAuthenticator::setOption('localldap', 'email_attr', 'mail');
 
 /**
   * If your directory doesn't support anonymous searches you can
   * specify an account below that will be used to search for the
   * attribute containing the user ID as (dn, passwd)
   **/
-//ExternalAuthenticator::setOption("localldap", "bind_as",'cn="Directory Manager"'); 
-//ExternalAuthenticator::setOption("localldap", "bind_pw",'secret'); 
+//ExternalAuthenticator::setOption('localldap', 'bind_as','cn='Directory Manager''); 
+//ExternalAuthenticator::setOption('localldap', 'bind_pw','secret'); 
 

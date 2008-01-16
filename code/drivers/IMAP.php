@@ -34,8 +34,8 @@ class IMAP_Authenticator {
      *                  otherwise
      */
     public function Authenticate($source, $external_uid, $external_passwd) {
-        $servicetype = ExternalAuthenticator::getOption($source, "protocol");
-        if (is_null($servicetype) || !in_array(strtolower($servicetype),array("imap","pop3"))) {
+        $servicetype = ExternalAuthenticator::getOption($source, 'protocol');
+        if (is_null($servicetype) || !in_array(strtolower($servicetype),array('imap','pop3'))) {
             ExternalAuthenticator::setAuthMessage(_t('IMAP_Authenticator.Protocol', 'Protocol is not set to a valid type'));
             return false;
         }
@@ -44,7 +44,7 @@ class IMAP_Authenticator {
         $port = ExternalAuthenticator::getAuthPort($source);
         if (is_null($port)) {
             if (is_null($enc)) {
-                $port = self::$portlist["$servicetype"]["default"];
+                $port = self::$portlist["$servicetype"]['default'];
             } else {
                 $port = self::$portlist["$servicetype"]["$enc"];
             }
@@ -57,7 +57,7 @@ class IMAP_Authenticator {
         if (!is_null($enc)) {
             $connectstring .= '/' . $enc;
             
-            $validate = ExternalAuthenticator::getOption($source, "certnovalidate");
+            $validate = ExternalAuthenticator::getOption($source, 'certnovalidate');
             if (!is_null($validate) || $validate) {
                 $connectstring .= '/novalidate-cert';
             }

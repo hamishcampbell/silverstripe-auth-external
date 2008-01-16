@@ -42,38 +42,37 @@ class ExternalLoginForm extends LoginForm {
 
         if($checkCurrentUser && Member::currentUserID()) {
             $fields = new FieldSet();
-            $actions = new FieldSet(new FormAction("logout", "Log in as someone else"));
+            $actions = new FieldSet(new FormAction('logout', _t('ExternalAuthenticator.LogOutIn','Log in as someone else')));
         } else {
             if(!$fields) {
                 $userdesc = ExternalAuthenticator::getIdDesc();
-                
                 if ( ExternalAuthenticator::getAuthSequential() ) {
                     $fields   = new FieldSet(
-                        new HiddenField("AuthenticationMethod", null, $this->authenticator_class, $this),
-                        new HiddenField("External_SourceID", "External_SourceID", "empty"),
-                        new TextField("External_UserID", $userdesc, 
+                        new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this),
+                        new HiddenField('External_SourceID', 'External_SourceID', 'empty'),
+                        new TextField('External_UserID', $userdesc, 
                                   Session::get('SessionForms.ExternalLoginForm.External_UserID')),
-                        new EncryptField("Password", "Password"),
-                        new CheckboxField("Remember", "Remember me next time?",
+                        new EncryptField('Password', _t('ExternalAuthenticator.Password','Password')),
+                        new CheckboxField('Remember', _t('ExternalAuthenticator.Remember','Remember me next time?'),
                         Session::get('SessionForms.ExternalLoginForm.Remember'))
                     );
                 } else {         
                     $sources  = ExternalAuthenticator::getIDandNames();
                     $fields   = new FieldSet(
-                        new HiddenField("AuthenticationMethod", null, $this->authenticator_class, $this),
-                        new DropdownField("External_SourceID", "Authentication sources", $sources,
-                                      Session::get('SessionForms.ExternalLoginForm.External_SourceID')),
-                        new TextField("External_UserID", $userdesc, 
+                        new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this),
+                        new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources','Authentication sources'),
+                                      $sources, Session::get('SessionForms.ExternalLoginForm.External_SourceID')),
+                        new TextField('External_UserID', $userdesc, 
                                       Session::get('SessionForms.ExternalLoginForm.External_UserID')),
-                        new EncryptField("Password", "Password"),
-                        new CheckboxField("Remember", "Remember me next time?",
+                        new EncryptField('Password', _t('ExternalAuthenticator.Password')),
+                        new CheckboxField('Remember', _t('ExternalAuthenticator.Remember'),
                         Session::get('SessionForms.ExternalLoginForm.Remember'))
                     );
                 }
             }
             if(!$actions) {
                 $actions = new FieldSet(
-                    new FormAction("dologin", "Log in")
+                    new FormAction('dologin', _t('ExternalAuthenticator.Login','Log in'))
                 );
             }
         }
@@ -112,7 +111,7 @@ class ExternalLoginForm extends LoginForm {
             Session::clear('SessionForms.ExternalLoginForm.Remember');
 
             if($backURL = $_REQUEST['BackURL']) {
-                Session::clear("BackURL");
+                Session::clear('BackURL');
                 Director::redirect($backURL);
             } else
                 Director::redirectBack();
@@ -125,7 +124,7 @@ class ExternalLoginForm extends LoginForm {
                 Director::redirect($badLoginURL);
             } else {
                 // Show the right tab on failed login
-                Director::redirect(Director::absoluteURL(Security::Link("login")) .
+                Director::redirect(Director::absoluteURL(Security::Link('login')) .
                                                                   '#' . $this->FormName() .'_tab');
             }
         }
