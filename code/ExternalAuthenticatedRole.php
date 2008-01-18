@@ -64,6 +64,7 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      */
     function updateCMSFields(FieldSet &$fields) {
         $sources    = ExternalAuthenticator::getIDandNames();
+        $sources    = array_merge(array("" => "-"), $sources);
         $fields->push(new HeaderField(_t('ExternalAuthenticator.ModFormHead','ID for external authentication source')), 'ExternalHeader');
         $fields->push(new LiteralField('ExternalDescription', 
                                        _t('ExternalAuthenticator.EnterUser','Enter the user id and authentication source for this user')));

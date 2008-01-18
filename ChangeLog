@@ -1,5 +1,9 @@
 External Authenticator Changelog
 --------------------------------
+0.2
+- Allow to set empty source for SilverStripe accounts
+- Fix logon form if already logged in
+
 0.2-pre5
 - Added SilverStripe driver (authentication using password from database)
 - Coding standards

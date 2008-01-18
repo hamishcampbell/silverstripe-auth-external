@@ -40,9 +40,10 @@ class ExternalLoginForm extends LoginForm {
             $backURL = Session::get('BackURL');
         }
 
-        if($checkCurrentUser && Member::currentUserID()) {
-            $fields = new FieldSet();
-            $actions = new FieldSet(new FormAction('logout', _t('ExternalAuthenticator.LogOutIn','Log in as someone else')));
+        if(Member::currentUserID()) {
+            $fields  = new FieldSet();
+            $actions = new FieldSet(new FormAction('logout', _t('ExternalAuthenticator.LogOutIn','Log in as someone else')),
+                                    new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this));
         } else {
             if(!$fields) {
                 $userdesc = ExternalAuthenticator::getIdDesc();
@@ -91,7 +92,7 @@ class ExternalLoginForm extends LoginForm {
     protected function getMessageFromSession() {
         parent::getMessageFromSession();
         if(($member = Member::currentUser()) && !Session::get('ExternalLoginForm.force_message')) {
-            $this->message = "You're logged in as $member->FirstName.";
+            $this->message = "You're logged in as $member->FirstName $member->Surname.";
         }
         Session::set('ExternalLoginForm.force_message', false);
     }
