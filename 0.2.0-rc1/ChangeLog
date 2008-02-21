@@ -1,0 +1,44 @@
+External Authenticator Changelog
+--------------------------------
+0.2
+- Allow to set empty source for SilverStripe accounts
+- Fix logon form if already logged in
+
+0.2-pre5
+- Added SilverStripe driver (authentication using password from database)
+- Coding standards
+- Some more debugging
+- Updated translation strings and added new ones
+
+0.2-pre4
+- Added HTTPBASIC authentication driver for authenticating afainst webservers
+- Debugging
+- User mail addresses must be unique, don't auto create over an existing
+  account
+
+0.2-pre3
+- Added default mail domain
+- Added extra search criteria for finding account DNto LDAP driver
+
+0.2-pre2
+- Added multiple source support. Code can now handle multiple configured
+  source of different types, each with their own settings
+
+0.2-pre1
+- Added multiple base-dn support for LDAP driver
+
+0.1
+- Auto creation of users if set
+- Removed add_role from ExternalAuthenticator::on_register
+
+0.1-pre3
+- Fixed 1 bug and cleaned up _config.php based on Markus's comments
+
+0.1-pre2
+- Indentation cleanup
+- Renamed Simple Authentication to External Authentication
+- Added lang dir and translation entities to the code
+- Added dutch translation
+
+0.1-pre1
+ - Initial working state
