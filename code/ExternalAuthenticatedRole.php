@@ -24,7 +24,7 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      * @return array Returns a map where the keys are db, has_one, etc, and
      *               the values are additional fields/relations to be defined
      */
-    function extraDBFields() {
+    function extraStatics() {
         return array(
             'db' => array('External_UserID' => 'Varchar(255)', 
                           'External_SourceID' => 'Varchar(50)'),
@@ -65,11 +65,19 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
     function updateCMSFields(FieldSet &$fields) {
         $sources    = ExternalAuthenticator::getIDandNames();
         $sources    = array_merge(array("" => "-"), $sources);
-        $fields->push(new HeaderField(_t('ExternalAuthenticator.ModFormHead','ID for external authentication source')), 'ExternalHeader');
-        $fields->push(new LiteralField('ExternalDescription', 
-                                       _t('ExternalAuthenticator.EnterUser','Enter the user id and authentication source for this user')));
-        $fields->push(new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources'), $sources), 'External_SourceID');
-        $fields->push(new TextField('External_UserID', _t('ExternalAuthenticator.EnterNewId','ID to be used with this source')), 'External_UserID');
+        $fields->addFieldToTab('Root.ExternalAuthentication', 
+                               new HeaderField(_t('ExternalAuthenticator.ModFormHead',
+                                                  'ID for external authentication source')));
+        $fields->addFieldToTab('Root.ExternalAuthentication', 
+                               new LiteralField('ExternalDescription',_t('ExternalAuthenticator.EnterUser',
+                                                'Enter the user id and authentication source for this user'))
+                              );
+        $fields->addFieldToTab('Root.ExternalAuthentication', 
+                               new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources'),
+                                                 $sources));
+        $fields->addFieldToTab('Root.ExternalAuthentication',
+                               new TextField('External_UserID', _t('ExternalAuthenticator.EnterNewId',
+                                                                   'ID to be used with this source')));
     }
 
 

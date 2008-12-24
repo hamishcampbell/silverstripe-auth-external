@@ -408,30 +408,30 @@ class ExternalAuthenticator extends Authenticator {
           if (($member = DataObject::get_one('Member',"Member.External_UserID = '$SQL_identity'".
                                              " AND Member.External_SourceID = '$SQL_source'"))) {
               $userexists = true;
+              break;
               self::AuthLog($SQL_identity . ' - User with source ' . $RAW_source . ' found in database');
           } else {
               self::Authlog($SQL_identity . ' - User with source ' . $RAW_source . ' NOT found in database');
           }
+      }
+      
+      if ($userexists || self::getAutoAdd($RAW_source)) {   
+          $auth_type = strtoupper(self::getAuthType($RAW_source));
 
-          if ($userexists || self::getAutoAdd($RAW_source)) {   
-              $auth_type = strtoupper(self::getAuthType($RAW_source));
-
-              self::AuthLog($SQL_identity . ' - loading driver ' . $auth_type);
-              require_once 'drivers/' . $auth_type . '.php';
-              $myauthenticator = $auth_type . '_Authenticator';
-              $myauthenticator = new $myauthenticator();
+          self::AuthLog($SQL_identity . ' - loading driver ' . $auth_type);
+          require_once 'drivers/' . $auth_type . '.php';
+          $myauthenticator = $auth_type . '_Authenticator';
+          $myauthenticator = new $myauthenticator();
               
-              self::AuthLog($SQL_identity . ' - executing authentication driver');
-              $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_uid, 
-                                                           $RAW_external_passwd);
+          self::AuthLog($SQL_identity . ' - executing authentication driver');
+          $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_uid, 
+                                                       $RAW_external_passwd);
 
-              if ($RAW_result) {
-                  $authsuccess = true;
-                  self::AuthLog($SQL_identity . ' - authentication success');
-                  break;
-              } else {
-                  self::AuthLog($SQL_identity . ' - authentication driver ' . $auth_type . ' failed');
-              }
+          if ($RAW_result) {
+              $authsuccess = true;
+              self::AuthLog($SQL_identity . ' - authentication success');
+          } else {
+              self::AuthLog($SQL_identity . ' - authentication driver ' . $auth_type . ' failed');
           }
       }
       

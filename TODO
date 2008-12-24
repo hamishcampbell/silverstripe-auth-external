@@ -3,3 +3,5 @@ To do list for the External Authenticator
 
 - SMTP and/or other drivers, like Google/Yahoo mail (all)
 - PHP unit test
+- Save account doesn't work
+- Password lockout mechanism for sstripe source and optionally for other sources

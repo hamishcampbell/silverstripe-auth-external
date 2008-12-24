@@ -1,5 +1,12 @@
 External Authenticator Changelog
 --------------------------------
+0.3-pre2
+- Changed behavior of sequential account check. Only the database is checked
+  sequentially now. Sequential checking of authentication sources could lock
+  other accounts by accident previously
+- Created External Authentication tab in Security Member (user modification) dialog
+- Rename ExtraDBFields to ExtraStatics
+  
 0.3-pre1
 - Update login form to mirror form of built-in authentication
 - Fix ticket #2536; blank screen on login with Silverstripe >= 2.2.2
