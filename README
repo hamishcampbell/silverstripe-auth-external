@@ -20,7 +20,10 @@ within SilverStripe.
 
 REQUIREMENTS
 ------------
-At least SilverStripe 2.2.0
+At least SilverStripe 2.3.0
+Depending on the authentication driver you could need php modules like 
+php-imap or php-ldap, OpenSSL libraries and/or some PEAR modules. These
+extra requirements are documented in the configuration examples.
 
 DOCUMENTATION
 -------------
@@ -28,7 +31,7 @@ http://doc.silverstripe.com/doku.php?id=modules:external-authentication
 
 DOWNLOAD
 --------
-http://www.silverstripe.com/assets/downloads/modules/authexternal-0.2.tar.gz
+http://www.silverstripe.com/assets/downloads/modules/authexternal-0.3.tar.gz
 
 INSTALL
 -------

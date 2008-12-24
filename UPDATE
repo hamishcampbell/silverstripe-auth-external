@@ -1,11 +1,12 @@
-Update instructions to go from 0.1 to 0.2
------------------------------------------
+Update instructions to go from 0.1 to 0.2/0.3
+---------------------------------------------
 
-The config file layout and database scheme changed from 0.1 to 0.2
+The config file layout and database scheme changed from 0.1 to 0.2 or 0.3
 
 -----------
-If you update from 0.1 to 0.2 make sure you have a working admin account stored
-in the database that can be used with the native authentication mechanism
+If you update from 0.1 to 0.2 or 0.3 make sure you have a working admin account
+stored in the database that can be used with the native authentication 
+mechanism
 -----------
 
 Look to the examples in the doc directory for the exact changes.

@@ -1,5 +1,12 @@
 External Authenticator Changelog
 --------------------------------
+0.3-pre1
+- Update login form to mirror form of built-in authentication
+- Fix ticket #2536; blank screen on login with Silverstripe >= 2.2.2
+- Add authentication process debugging
+- Minor code cleanup in LDAP driver
+- Update documentation to 0.3
+
 0.2
 - Allow to set empty source for SilverStripe accounts
 - Fix logon form if already logged in

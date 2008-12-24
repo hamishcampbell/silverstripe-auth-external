@@ -40,15 +40,24 @@ class HTTPBASIC_Authenticator {
         $proxy_pass = ExternalAuthenticator::getOption($source,'proxy_pass');
 
         if (!is_null($proxy) && !is_null($proxy_port)) {
+            ExternalAuthenticator::AuthLog($external_uid.'.http - Proxy is set to ' . $proxy . ':' . $proxy_port);
             $request_options['proxy_host'] = $proxy;
             $request_options['proxy_port'] = $proxy_port;
-        }
+        } else {
+            ExternalAuthenticator::AuthLog($external_uid.'.http - Proxy is not set');
+        }  
 
         if (!is_null($proxy_user)) {
+            ExternalAuthenticator::AuthLog($external_uid.'.http - Proxy user is set to ' . $proxy_user);
             $request_options['proxy_user'] = $proxy_user;
             if (!is_null($proxy_pass)) {
+                ExternalAuthenticator::AuthLog($external_uid.'.http - Proxy password is set');
                 $request_options['proxy_pass'] = $proxy_pass;
+            } else {
+                ExternalAuthenticator::AuthLog($external_uid.'.http - Proxy password is NOT set');
             }
+        } else {
+            ExternalAuthenticator::AuthLog($external_uid.'.http - Proxy user is NOT set');
         }
 
         if ($enc == 'ssl') {
@@ -66,15 +75,20 @@ class HTTPBASIC_Authenticator {
         if (!is_null($folder)) {
             $url .= $folder;
         }
+        ExternalAuthenticator::AuthLog($external_uid.'.http - Authentication URL is set to ' . $url);
 
         $request = new HTTP_Request($url, $request_options);
         $request->setBasicAuth($external_uid, $external_passwd);
+        
+        ExternalAuthenticator::AuthLog($external_uid.'.http - Sending authentication request');
         $request->sendRequest();
 
         // HTTP code 200 means everything is OK
         if ($request->getResponseCode() == 200) {
+            ExternalAuthenticator::AuthLog($external_uid.'.http - Remote server returned code 200');
             return true;
         } else {
+            ExternalAuthenticator::AuthLog($external_uid.'.http - Authentication failed with HTTP code ' . $request->getResponseCode());
             ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed'));
             return false;
         }

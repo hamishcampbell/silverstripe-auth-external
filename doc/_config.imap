@@ -1,11 +1,41 @@
 <?php
 
 /**
-  * External Authentication server definitions
-  * Change the parameters below to suit your authentication server, or disable 
-  * this authentication method altogether
-  */
+ * External Authentication server definitions
+ * Change the parameters below to suit your authentication server, or disable 
+ * this authentication method altogether
+ */
 Authenticator::register_authenticator('ExternalAuthenticator');
+
+/**
+ * This module has a debug option. The debug option is aimed at system 
+ * administrators and/or webmasters. It shows the login process on a step
+ * by step basis to aid in finding the right settings for the module.
+ * The debug option will log the steps to a file. 
+ *
+ * KEEP THIS DISABLED ON PRODUCTION SYSTEMS. The option is turned off by 
+ * default
+ **/
+//ExternalAuthenticator::setAuthDebug(true);
+
+/**
+ * File to log the authentication process to. The default file is 
+ * /tmp/sstripe_auth.log. Make sure the file or location is writable for the
+ * webserver process.
+ *
+ * A successful logon for the IMAP driver (without user auto creation) looks 
+ * like:
+ *    [timestamp] - Starting process for user [userid]
+ *    [timestamp] - [userid] - User with source [sourcename] found in database
+ *    [timestamp] - [userid] - loading driver IMAP
+ *    [timestamp] - [userid] - executing authentication driver
+ *    [timestamp] - [userid].imap - Connect string to server is {[see http://www.php.net/manual/en/function.imap-open.php]}
+ *    [timestamp] - [userid].imap - If you get a blank screen and the process end here, check php_imap module
+ *    [timestamp] - [userid].imap - imap_open returned mailbox handle
+ *    [timestamp] - [userid] - authentication success
+ *    [timestamp] - [uderid] - Process for user [userid] ended
+ **/
+//ExternalAuthenticator::setAuthDebugLog('/tmp/sstripe_auth.log');
 
 /** 
  * Create your authentication source

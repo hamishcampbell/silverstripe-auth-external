@@ -24,8 +24,8 @@ class ExternalLoginForm extends LoginForm {
      *                               the user is currently logged in, and if
      *                               so, only a logout button will be rendered
      */
-  function __construct($controller, $name, $fields = null, $actions = null,
-                       $checkCurrentUser = true) {
+    function __construct($controller, $name, $fields = null, $actions = null,
+                         $checkCurrentUser = true) {
 
         $this->authenticator_class = 'ExternalAuthenticator';
 
@@ -40,7 +40,7 @@ class ExternalLoginForm extends LoginForm {
             $backURL = Session::get('BackURL');
         }
 
-        if(Member::currentUserID()) {
+        if($checkCurrentUser && Member::currentUserID()) {
             $fields  = new FieldSet();
             $actions = new FieldSet(new FormAction('logout', _t('ExternalAuthenticator.LogOutIn','Log in as someone else')),
                                     new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this));
@@ -53,9 +53,7 @@ class ExternalLoginForm extends LoginForm {
                         new HiddenField('External_SourceID', 'External_SourceID', 'empty'),
                         new TextField('External_UserID', $userdesc, 
                                   Session::get('SessionForms.ExternalLoginForm.External_UserID')),
-                        new EncryptField('Password', _t('ExternalAuthenticator.Password','Password')),
-                        new CheckboxField('Remember', _t('ExternalAuthenticator.Remember','Remember me next time?'),
-                        Session::get('SessionForms.ExternalLoginForm.Remember'))
+                        new PasswordField('Password', _t('ExternalAuthenticator.Password','Password'))
                     );
                 } else {         
                     $sources  = ExternalAuthenticator::getIDandNames();
@@ -65,11 +63,18 @@ class ExternalLoginForm extends LoginForm {
                                       $sources, Session::get('SessionForms.ExternalLoginForm.External_SourceID')),
                         new TextField('External_UserID', $userdesc, 
                                       Session::get('SessionForms.ExternalLoginForm.External_UserID')),
-                        new EncryptField('Password', _t('ExternalAuthenticator.Password')),
-                        new CheckboxField('Remember', _t('ExternalAuthenticator.Remember'),
-                        Session::get('SessionForms.ExternalLoginForm.Remember'))
+                        new PasswordField('Password', _t('ExternalAuthenticator.Password'))
                     );
                 }
+                
+                if(Security::$autologin_enabled) {
+                    $fields->push(new CheckboxField(
+                        "Remember", 
+                        _t('ExternalAuthenticator.Remember','Remember me next time?'),
+						Session::get('SessionForms.ExternalLoginForm.Remember'), 
+						$this
+                    ));
+                }           
             }
             if(!$actions) {
                 $actions = new FieldSet(

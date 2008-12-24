@@ -67,11 +67,15 @@ class IMAP_Authenticator {
         
         $connectstring .= '}';
         
+        ExternalAuthenticator::AuthLog($external_uid.'.imap - Connect string to server is ' . $connectstring); 
+        ExternalAuthenticator::AuthLog($external_uid.'.imap - If you get a blank screen and the process end here, check php_imap module'); 
         $mbox = @imap_open($connectstring, $external_uid, $external_passwd);
         if (!$mbox) {
+            ExternalAuthenticator::AuthLog($external_uid.'.imap - ' . imap_last_error()); 
             ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed'));
             return false;
         } else {
+            ExternalAuthenticator::AuthLog($external_uid.'.imap - imap_open returned mailbox handle'); 
             @imap_close($mbox);
             return true;
         }

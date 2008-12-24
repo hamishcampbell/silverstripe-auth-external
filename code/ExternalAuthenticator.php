@@ -33,6 +33,16 @@ class ExternalAuthenticator extends Authenticator {
     * createSource is done (see below)
     **/
    protected static $authsequential = false;
+   
+   /**
+    * Enable logging of the authentication process to a file
+    **/
+   protected static $authdebug = false;
+   
+   /**
+    * The location of the debug logfile
+    **/
+   protected static $authdebuglog = '/tmp/sstripe_auth.log';
 
  
    /**
@@ -273,6 +283,42 @@ class ExternalAuthenticator extends Authenticator {
        return self::$authsequential;
    }
 
+   /** 
+    * Enable or disable the logging og the authentication process
+    *
+    * @param bool $debug
+    **/
+   public static function setAuthDebug($debug) {
+       self::$authdebug = $debug;
+   }
+     
+   /** 
+    * Do we log the authentication process to a file?
+    *
+    * @return bool True for debugging
+    **/
+   public static function getAuthDebug() {
+       return self::$authdebug;
+   }
+   
+   /** 
+    * File to log debug messages to
+    *
+    * @param string $debuglog
+    **/
+   public static function setAuthDebugLog($debuglog) {
+       self::$authdebuglog = $debuglog;
+   }
+     
+   /** 
+    * The file to log debug messages to
+    *
+    * @return string Filename of the logfile
+    **/
+   public static function getAuthDebugLog() {
+       return self::$authdebuglog;
+   }   
+   
    /**
     * Set a message as a result of authenticating
     * (to be used by the authentication drivers)
@@ -290,6 +336,14 @@ class ExternalAuthenticator extends Authenticator {
     */
    public static function getAuthMessage() {
        return self::$authmessage;
+   }
+   
+   public static function AuthLog($message) {
+       if (self::getAuthDebug()) {
+           if (!error_log(date(DATE_RFC822). ' - ' . $message . "\n",3,self::getAuthDebugLog())) {
+               self::setAuthMessage(_t('ExternalAuthenticator.LogFailed', 'Logging to debug log failed'));
+           }
+       }
    }
    
   /**
@@ -313,14 +367,14 @@ class ExternalAuthenticator extends Authenticator {
   /**
    * Method to authenticate an user
    *
-   * @param array $RAW_data Raw data to authenticate the user
+   * @param $RAW_data Raw data to authenticate the user
    * @param Form $form Optional: If passed, better error messages can be
    *                             produced by using
    *                             {@link Form::sessionMessage()}
    * @return bool Returns FALSE if authentication fails, otherwise the
    *              member object    
    */
-  public static function authenticate(array $RAW_data, Form $form = null) {
+  public static function authenticate($RAW_data, Form $form = null) {
       if (self::getAuthSequential()) {
           $A_sources = self::getSources();
       } else {
@@ -345,6 +399,8 @@ class ExternalAuthenticator extends Authenticator {
       } 
       $SQL_identity = Convert::raw2sql($RAW_external_uid);
       
+      self::AuthLog('Starting process for user ' . $SQL_identity);
+      
       // Now we are going to check this user with each source from the source
       // array, until we succeed or utterly fail
       foreach ($A_sources as $RAW_source) {
@@ -352,20 +408,29 @@ class ExternalAuthenticator extends Authenticator {
           if (($member = DataObject::get_one('Member',"Member.External_UserID = '$SQL_identity'".
                                              " AND Member.External_SourceID = '$SQL_source'"))) {
               $userexists = true;
+              self::AuthLog($SQL_identity . ' - User with source ' . $RAW_source . ' found in database');
+          } else {
+              self::Authlog($SQL_identity . ' - User with source ' . $RAW_source . ' NOT found in database');
           }
 
           if ($userexists || self::getAutoAdd($RAW_source)) {   
               $auth_type = strtoupper(self::getAuthType($RAW_source));
 
+              self::AuthLog($SQL_identity . ' - loading driver ' . $auth_type);
               require_once 'drivers/' . $auth_type . '.php';
               $myauthenticator = $auth_type . '_Authenticator';
               $myauthenticator = new $myauthenticator();
+              
+              self::AuthLog($SQL_identity . ' - executing authentication driver');
               $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_uid, 
                                                            $RAW_external_passwd);
 
               if ($RAW_result) {
                   $authsuccess = true;
+                  self::AuthLog($SQL_identity . ' - authentication success');
                   break;
+              } else {
+                  self::AuthLog($SQL_identity . ' - authentication driver ' . $auth_type . ' failed');
               }
           }
       }
@@ -399,6 +464,7 @@ class ExternalAuthenticator extends Authenticator {
 
           // But before we write ourselves to the database we must check if
           // the group we are subscribing to exists
+          self::AuthLog($SQL_identity . ' - User did not exist but did authenticate. Adding user to database');
           if (DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql(self::getAutoAdd($RAW_source)).'\'')) {
               if (DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
                   self::$authmessage = _t('ExternalAuthenticator.GroupExists','An account with your e-mail address already exists');
@@ -409,21 +475,24 @@ class ExternalAuthenticator extends Authenticator {
                   $member->update($SQL_memberdata);
                   $member->ID = null;
                   $member->write();
-              
+                  
+                  self::AuthLog($SQL_identity . ' - start adding user to database');          
                   Group::addToGroupByName($member, Convert::raw2sql(self::getAutoAdd($RAW_source)));
+                  self::AuthLog($SQL_identity . ' - finished adding user to database');          
               }
           } else {
+              self::AuthLog($SQL_identity . ' - The group to add the user to did not exist');          
               $authsuccess = false;
           }
       }
 
-
+      self::AuthLog('Process for user ' . $SQL_identity . ' ended');
       if ($authsuccess) {
           Session::clear('BackURL');
           
           // Set the security message here. Else it will be shown on logout
           Session::set('Security.Message.message', self::$authmessage);
-             Session::set('Security.Message.type', 'good');
+          Session::set('Security.Message.type', 'good');
           return $member;
       } else {
           if(!is_null($form)) {   
