@@ -75,6 +75,21 @@ ExternalAuthenticator::setAuthSequential(false);
 ExternalAuthenticator::setIdDesc('User ID');
 
 /**
+ * If the authentication source does not have a mechanism to prevent password
+ * disctionary attacks, we can use SilverStripes lockout mechanism.
+ * Configuration for this also has to be set in the global config. You can also
+ * do it here by uncommenting the next statement and defining the number of
+ * failed logins you allow
+ **/
+//Member::lock_out_after_incorrect_logins(3);
+
+/**
+ * The statement to enable lock checking for this source. This functionality is
+ * enabled by default
+ **/
+//ExternalAuthenticator::setAuthSSLock('localimap',true);
+
+/**
  * Hostname of the authentication server
  * you can specify it like a normal hostname or IP number.
  * If you use SSL or TLS, use the name matching the server certificate here  

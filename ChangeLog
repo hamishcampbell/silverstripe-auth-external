@@ -1,5 +1,9 @@
 External Authenticator Changelog
 --------------------------------
+0.3-pre3
+- Password locking for sources that do not support it. Uses silverstripes own
+  mechanism for password locking
+  
 0.3-pre2
 - Changed behavior of sequential account check. Only the database is checked
   sequentially now. Sequential checking of authentication sources could lock

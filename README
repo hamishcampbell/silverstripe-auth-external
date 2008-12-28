@@ -2,7 +2,7 @@
 External Authentication Module
 ------------------------------
 
-January 12, 2008
+December 28, 2008
 
 This module enables you to use external authentication sources for password
 verification. At the moment this module has 4 drivers. LDAP, FTP, IMAP and 

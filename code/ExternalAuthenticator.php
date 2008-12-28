@@ -44,7 +44,6 @@ class ExternalAuthenticator extends Authenticator {
     **/
    protected static $authdebuglog = '/tmp/sstripe_auth.log';
 
- 
    /**
     * Creates an authentication source with default settings
     *
@@ -58,6 +57,7 @@ class ExternalAuthenticator extends Authenticator {
            'nicename'      => $nicename,    //Name to show in source chooser
            'authserver'    => 'localhost',  //IP or DNS name of server
            'authport'      => null,         //IP port to use
+           'authsslock'    => true,         //Check SStripes locking mechanism
            'useriddesc'    => 'User ID',    //How do we refer to a user id
            'encryption'    => null,         //Enable SSL or TLS encryption
            'autoadd'       => false,        //Automatically add users?
@@ -300,6 +300,26 @@ class ExternalAuthenticator extends Authenticator {
    public static function getAuthDebug() {
        return self::$authdebug;
    }
+
+   /** 
+    * Enable or disable the usage of silverstripes login mechanism
+    * if the password source has its own mechanism disable this
+    * Member::lock_out_after_incorrect_logins should be set to a non-null value
+    *
+    * @param bool $sslock
+    **/
+   public static function setAuthSSLock($sourceid,$sslock) {
+       self::$authsources["$sourceid"]['authsslock'] = $sslock;
+   }
+     
+   /** 
+    * Do we use silverstripes authentication mechanism?
+    *
+    * @return bool True for password locking
+    **/
+   public static function getAuthSSLock($sourceid) {
+       return self::$authsources["$sourceid"]['authsslock'];
+   }
    
    /** 
     * File to log debug messages to
@@ -408,8 +428,25 @@ class ExternalAuthenticator extends Authenticator {
           if (($member = DataObject::get_one('Member',"Member.External_UserID = '$SQL_identity'".
                                              " AND Member.External_SourceID = '$SQL_source'"))) {
               $userexists = true;
-              break;
               self::AuthLog($SQL_identity . ' - User with source ' . $RAW_source . ' found in database');
+              
+              //Check if the user was behaving nicely
+              if (self::getAuthSSLock($RAW_source)) {
+                  self::AuthLog($SQL_identity . ' - Password lock checking enabled');
+                  
+                  if ($member->isLockedOut()) {
+                      self::AuthLog($SQL_identity . ' - User is locked out in Silverstripe Database');
+                      $member->registerFailedLogin();
+                      self::AuthLog($SQL_identity . ' - This attempt is also logged in the database');
+                      $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+                      return false;
+                  } else {
+                      self::AuthLog($SQL_identity . ' - User is not locked');
+                  }
+              } else {
+                  self::AuthLog($SQL_identity . ' - Password locking is disabled');
+              }    
+              break;
           } else {
               self::Authlog($SQL_identity . ' - User with source ' . $RAW_source . ' NOT found in database');
           }
@@ -432,6 +469,10 @@ class ExternalAuthenticator extends Authenticator {
               self::AuthLog($SQL_identity . ' - authentication success');
           } else {
               self::AuthLog($SQL_identity . ' - authentication driver ' . $auth_type . ' failed');
+              if ($member && self::getAuthSSLock($RAW_source)) {
+                  self::AuthLog($SQL_identity . ' - Registering failed login');
+                  $member->registerFailedLogin();
+              }
           }
       }
       
