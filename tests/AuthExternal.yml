@@ -1,0 +1,21 @@
+Group:
+   mygroup:
+      Title: mygroup
+      Code: mygroup
+Member:
+   test:
+      FirstName: Test
+      Surname: User
+      Email: test@silverstripe.com
+      External_UserID: testing
+      External_SourceID: sstripe_unittest
+      Password: test1
+      Groups: =>Group.mygroup
+   anothertest:
+      FirstName: Test
+      Surname: User
+      Email: anothertest@silverstripe.com
+      External_UserID: anothertest
+      External_SourceID: sstripe_unittest
+      password test2
+      Groups: =>Group.mygroup

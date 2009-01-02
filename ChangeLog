@@ -1,5 +1,9 @@
 External Authenticator Changelog
 --------------------------------
+0.3-pre5
+- Added source location for audit log
+- First try at unittest
+
 0.3-pre4
 - Added audit logging
 

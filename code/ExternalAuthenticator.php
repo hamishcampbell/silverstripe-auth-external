@@ -492,7 +492,7 @@ class ExternalAuthenticator extends Authenticator {
                       self::AuthLog($SQL_identity . ' - This attempt is also logged in the database');
                       $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
                       
-                      self::AuthLog('[FAILURE] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' is locked out',false); 
+                      self::AuthLog('[FAILURE] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' originating at ' . $_SERVER['REMOTE_ADDR'] . ' is locked out',false); 
                       return false;
                   } else {
                       self::AuthLog($SQL_identity . ' - User is not locked');
@@ -574,7 +574,7 @@ class ExternalAuthenticator extends Authenticator {
                   self::AuthLog($SQL_identity . ' - start adding user to database');          
                   Group::addToGroupByName($member, Convert::raw2sql(self::getAutoAdd($RAW_source)));
                   self::AuthLog($SQL_identity . ' - finished adding user to database');   
-                  self::AuthLog('[ADDED] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' added',false);        
+                  self::AuthLog('[ADDED] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' originating at ' . $_SERVER['REMOTE_ADDR'] . ' added',false);        
               }
           } else {
               self::AuthLog($SQL_identity . ' - The group to add the user to did not exist');          
@@ -590,14 +590,14 @@ class ExternalAuthenticator extends Authenticator {
           Session::set('Security.Message.message', self::$authmessage);
           Session::set('Security.Message.type', 'good');
           
-          self::AuthLog('[SUCCESS] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' logged on',false); 
+          self::AuthLog('[SUCCESS] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' originating at ' . $_SERVER['REMOTE_ADDR'] . ' logged on',false); 
           return $member;
       } else {
           if(!is_null($form)) {   
               $form->sessionMessage(self::$authmessage,'bad');
           }
           
-          self::AuthLog('[FAILURE] Authentication failed for user ' . $RAW_external_uid . ' from source ' . $RAW_source,false); 
+          self::AuthLog('[FAILURE] Authentication failed for user ' . $RAW_external_uid . ' from source ' . $RAW_source . ' originating at ' . $_SERVER['REMOTE_ADDR'],false); 
           return false;
       }
   }
