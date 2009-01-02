@@ -56,6 +56,17 @@ ExternalAuthenticator::createSource('silverstripe','SSTRIPE','SilverStripe');
 //ExternalAuthenticator::setAuthDebugLog('/tmp/sstripe_auth.log');
 
 /**
+ * Next to the debug log, we can also create a logfile for auditing purposes
+ * In this file only logon attempts are registered
+ **/
+//ExternalAuthenticator::setAuthLog(true);
+
+/**
+ * The audit logfile
+ **/
+//ExternalAuthenticator::setAuthLogFile('/var/log/httpd/sstripe_auth.log');
+
+/**
  * On login, users can choose the authentication source they want, or all
  * sources can be checked in sequence till success (or failure)
  * In this is set to true, the source selection box on the login page

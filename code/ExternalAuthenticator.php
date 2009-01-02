@@ -35,7 +35,7 @@ class ExternalAuthenticator extends Authenticator {
    protected static $authsequential = false;
    
    /**
-    * Enable logging of the authentication process to a file
+    * Enable logging of the authentication process to a file for debug purposes
     **/
    protected static $authdebug = false;
    
@@ -43,6 +43,16 @@ class ExternalAuthenticator extends Authenticator {
     * The location of the debug logfile
     **/
    protected static $authdebuglog = '/tmp/sstripe_auth.log';
+   
+   /**
+    * Log logon attempts
+    **/
+   protected static $authlog = false;
+   
+   /**
+    * File for logon attempts
+    **/
+   protected static $authlogfile = '/var/log/httpd/sstripe_auth.log';
 
    /**
     * Creates an authentication source with default settings
@@ -284,7 +294,7 @@ class ExternalAuthenticator extends Authenticator {
    }
 
    /** 
-    * Enable or disable the logging og the authentication process
+    * Enable or disable the logging of the authentication process
     *
     * @param bool $debug
     **/
@@ -299,6 +309,24 @@ class ExternalAuthenticator extends Authenticator {
     **/
    public static function getAuthDebug() {
        return self::$authdebug;
+   }
+
+   /** 
+    * Enable or disable the logging of logon attempts
+    *
+    * @param bool $debug
+    **/
+   public static function setAuthLog($logattempts) {
+       self::$authlog = $logattempts;
+   }
+     
+   /** 
+    * Do we log logon attmpts?
+    *
+    * @return bool True for debugging
+    **/
+   public static function getAuthLog() {
+       return self::$authlog;
    }
 
    /** 
@@ -339,6 +367,24 @@ class ExternalAuthenticator extends Authenticator {
        return self::$authdebuglog;
    }   
    
+   /** 
+    * File to log debug messages to
+    *
+    * @param string $debuglog
+    **/
+   public static function setAuthLogFile($logfile) {
+       self::$authlogfile = $logfile;
+   }
+     
+   /** 
+    * The file to log debug messages to
+    *
+    * @return string Filename of the logfile
+    **/
+   public static function getAuthLogFile() {
+       return self::$authlogfile;
+   } 
+     
    /**
     * Set a message as a result of authenticating
     * (to be used by the authentication drivers)
@@ -358,10 +404,16 @@ class ExternalAuthenticator extends Authenticator {
        return self::$authmessage;
    }
    
-   public static function AuthLog($message) {
-       if (self::getAuthDebug()) {
-           if (!error_log(date(DATE_RFC822). ' - ' . $message . "\n",3,self::getAuthDebugLog())) {
+   public static function AuthLog($message, $debug=true) {
+       if (self::getAuthDebug() && $debug) {
+           if (!@error_log(date(DATE_RFC822). ' - ' . $message . "\n",3,self::getAuthDebugLog())) {
                self::setAuthMessage(_t('ExternalAuthenticator.LogFailed', 'Logging to debug log failed'));
+           }
+       } else {
+           if (self::getAuthLog()) {
+               if (!@error_log(date(DATE_RFC822). ' - ' . $message . "\n",3,self::getAuthLogFile())) {
+                   trigger_error('Unable to write logon attempt to ' . self::getAuthLogFile(), E_USER_ERROR);
+               }
            }
        }
    }
@@ -439,6 +491,8 @@ class ExternalAuthenticator extends Authenticator {
                       $member->registerFailedLogin();
                       self::AuthLog($SQL_identity . ' - This attempt is also logged in the database');
                       $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+                      
+                      self::AuthLog('[FAILURE] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' is locked out',false); 
                       return false;
                   } else {
                       self::AuthLog($SQL_identity . ' - User is not locked');
@@ -519,7 +573,8 @@ class ExternalAuthenticator extends Authenticator {
                   
                   self::AuthLog($SQL_identity . ' - start adding user to database');          
                   Group::addToGroupByName($member, Convert::raw2sql(self::getAutoAdd($RAW_source)));
-                  self::AuthLog($SQL_identity . ' - finished adding user to database');          
+                  self::AuthLog($SQL_identity . ' - finished adding user to database');   
+                  self::AuthLog('[ADDED] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' added',false);        
               }
           } else {
               self::AuthLog($SQL_identity . ' - The group to add the user to did not exist');          
@@ -534,11 +589,15 @@ class ExternalAuthenticator extends Authenticator {
           // Set the security message here. Else it will be shown on logout
           Session::set('Security.Message.message', self::$authmessage);
           Session::set('Security.Message.type', 'good');
+          
+          self::AuthLog('[SUCCESS] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' logged on',false); 
           return $member;
       } else {
           if(!is_null($form)) {   
               $form->sessionMessage(self::$authmessage,'bad');
           }
+          
+          self::AuthLog('[FAILURE] Authentication failed for user ' . $RAW_external_uid . ' from source ' . $RAW_source,false); 
           return false;
       }
   }

@@ -1,5 +1,8 @@
 External Authenticator Changelog
 --------------------------------
+0.3-pre4
+- Added audit logging
+
 0.3-pre3
 - Password locking for sources that do not support it. Uses silverstripes own
   mechanism for password locking

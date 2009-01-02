@@ -37,6 +37,17 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  **/
 //ExternalAuthenticator::setAuthDebugLog('/tmp/sstripe_auth.log');
 
+/**
+ * Next to the debug log, we can also create a logfile for auditing purposes
+ * In this file only logon attempts are registered
+ **/
+//ExternalAuthenticator::setAuthLog(true);
+
+/**
+ * The audit logfile
+ **/
+//ExternalAuthenticator::setAuthLogFile('/var/log/httpd/sstripe_auth.log');
+
 /** 
  * Create your authentication source
  * The first parameter is the Source ID. Set this to something you deem
