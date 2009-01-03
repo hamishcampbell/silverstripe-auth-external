@@ -27,7 +27,7 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  * like:
  *    [timestamp] - Starting process for user [userid]
  *    [timestamp] - [userid] - User with source [sourcename] found in database
- *    [timestamp] - [userid] - loading driver IMAP
+ *    [timestamp] - [userid] - loading driver FTP
  *    [timestamp] - [userid] - executing authentication driver
  *    [timestamp] - [userid].ftp - Connecting to [servername] port [portnumber]
  *    [timestamp] - [userid].ftp - Connection type is SSL (this line is optional)

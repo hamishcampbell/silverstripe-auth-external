@@ -33,7 +33,7 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  * like:
  *    [timestamp] - Starting process for user [userid]
  *    [timestamp] - [userid] - User with source [sourcename] found in database
- *    [timestamp] - [userid] - loading driver IMAP
+ *    [timestamp] - [userid] - loading driver HTTPBASIC
  *    [timestamp] - [userid] - executing authentication driver
  *    [timestamp] - [userid].http - Proxy is set to [server]:[port]  --or-- Proxy is NOT set
  *    [timestamp] - [userid].http - Proxy user is set to [proxy user] (this line is optional)

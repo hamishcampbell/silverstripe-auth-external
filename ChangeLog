@@ -1,5 +1,8 @@
 External Authenticator Changelog
 --------------------------------
+0.3-pre6
+- Added fake driver
+
 0.3-pre5
 - Added source location for audit log
 - First try at unittest

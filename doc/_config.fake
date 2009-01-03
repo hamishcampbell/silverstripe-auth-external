@@ -9,20 +9,12 @@ Authenticator::register_authenticator('ExternalAuthenticator');
 
 /** 
  * Create your authentication source
- * The SSTRIPE driver is mainly provided to make it possible to use the
- * built in silverstripe authentication method in a sequential check
- * of authentication sources, or to be able to remove one tab on the 
- * login page
  *
- * The external authenticator module adds some attributes to the user account
- * these attributes must be defined in the SilverStripe account, or else 
- * authentication fails. This means that e.g. existing accounts must be edited
- * to take advantage of the SSTRIPE driver. You may use a differnt ID than the 
- * E-mail address with this driver.
+ * The FAKE driver always logs people on
  *
- * You can create multiple sources with different of same types
+ * USE FOR DEVELOPMENT AND TESTING PURPOSES ONLY
  **/
-ExternalAuthenticator::createSource('silverstripe','SSTRIPE','SilverStripe');
+ExternalAuthenticator::createSource('fake','FAKE','test');
 
 /**
  * This module has a debug option. The debug option is aimed at system 
@@ -44,12 +36,8 @@ ExternalAuthenticator::createSource('silverstripe','SSTRIPE','SilverStripe');
  * like:
  *    [timestamp] - Starting process for user [userid]
  *    [timestamp] - [userid] - User with source [sourcename] found in database
- *    [timestamp] - [userid] - loading driver SSTRIPE
+ *    [timestamp] - [userid] - loading driver FAKE
  *    [timestamp] - [userid] - executing authentication driver
- *    [timestamp] - [userid].sstripe - Logging on with an Administrator account(skip next 2 lines) -or-- 
- *                                     Searching for user with source [sourcename] in database
- *    [timestamp] - [userid].sstripe - User was found in database
- *    [timestamp] - [userid].sstripe - Password authentication succeeded
  *    [timestamp] - [userid] - authentication success
  *    [timestamp] - [uderid] - Process for user [userid] ended
  **/
@@ -85,21 +73,20 @@ ExternalAuthenticator::setAuthSequential(false);
  * How do we call a user ID?
  * This string is informational and will appear on the login page
  */
-ExternalAuthenticator::setIdDesc('Email');
+ExternalAuthenticator::setIdDesc('Whatever');
 
 /**
- * If the authentication source does not have a mechanism to prevent password
- * disctionary attacks, we can use SilverStripes lockout mechanism.
- * Configuration for this also has to be set in the global config. You can also
- * do it here by uncommenting the next statement and defining the number of
- * failed logins you allow
- **/
-//Member::lock_out_after_incorrect_logins(3);
+ * You have to possibility to auto create non existing users.
+ *
+ * WARNING WARNING WARNING
+ * With the fake driver this lets anyone logon
+ExternalAuthenticator::setAutoAdd('fake', false);
 
 /**
- * The statement to enable lock checking for this source. This functionality is
- * enabled by default
+ * When an account is auto created, the e-mail address must be added to the
+ * user account. By default, the mail address is equal to the user account
+ * If the setting below is configured, is will be 
+ * [username]@[what's configured below]
  **/
-//ExternalAuthenticator::setAuthSSLock('silverstripe',true);
-
+//ExternalAuthenticator::setDefaultDomain('fake', 'silverstripe.com');
 
