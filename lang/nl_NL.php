@@ -16,6 +16,7 @@ $lang['nl_NL']['ExternalAuthenticator']['Password'] = 'Wachtwoord';
 $lang['nl_NL']['ExternalAuthenticator']['Remember'] = 'Onthoud mij voor de volgende keer';
 $lang['nl_NL']['ExternalAuthenticator']['Sources'] = 'Authenticatie bronnen';
 $lang['nl_NL']['ExternalAuthenticator']['Login'] = 'Inloggen';
+$lang['nl_NL']['ExternalAuthenticator']['LogFailed'] = 'Wegschrijven naar debug log mislukt';
 $lang['nl_NL']['FTP_Authenticator']['NoConnect'] = 'Kan geen verbinding maken met FTP server';
 $lang['nl_NL']['IMAP_Authenticator']['Protocol'] = 'Het protocol is niet ingesteld op een bekend type';
 $lang['nl_NL']['LDAP_Authenticator']['NotConnected'] = 'Kan geen verbinding maken met LDAP server.';
