@@ -3,5 +3,4 @@ To do list for the External Authenticator
 
 - SMTP and/or other drivers, like Google/Yahoo mail (all)
 - Save account doesn't work
-- Extend unittest to include autoadd feature (use FAKE driver)
-- Audit log to database alternatively (existing sstripe mechanism)
+- Create unittests for drivers

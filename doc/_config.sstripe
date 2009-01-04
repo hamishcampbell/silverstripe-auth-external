@@ -63,8 +63,11 @@ ExternalAuthenticator::createSource('silverstripe','SSTRIPE','SilverStripe');
 
 /**
  * The audit logfile
+ * If you set this to true or false SilverStripes internal audit log will be 
+ * used. It logs to the LoginAttempt table
  **/
 //ExternalAuthenticator::setAuthLogFile('/var/log/httpd/sstripe_auth.log');
+//ExternalAuthenticator::setAuthLogFile(true);
 
 /**
  * On login, users can choose the authentication source they want, or all

@@ -1,5 +1,13 @@
 External Authenticator Changelog
 --------------------------------
+0.3-pre7
+- Reverting part of changeset 69565 for ExternalAuthenticator.php. This broke 
+  sequential checking in combination with autocreate
+- Enable audit log to database (LoginAttempt table) as well
+- Add account auto creation to unittest
+- Add audit log test to auto creation unittest
+
+  
 0.3-pre6
 - Added fake driver
 

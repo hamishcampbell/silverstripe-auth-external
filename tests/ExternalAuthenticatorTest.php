@@ -25,10 +25,21 @@ class ExternalAuthenticatorTest extends FunctionalTest {
 		Authenticator::register_authenticator('ExternalAuthenticator');
 		Authenticator::set_default_authenticator('ExternalAuthenticator');
 		
+		//Create the sources in this order. Switching them around would mean that
+		//all tests use the fake driver because this always succeeds and auto create
+		//is on
 		ExternalAuthenticator::createSource('sstripe_unittest','SSTRIPE','SilverStripe');
+		ExternalAuthenticator::createSource('fake_unittest','FAKE','Fake Source');
+		
+		ExternalAuthenticator::setAuthLog(true);
+        ExternalAuthenticator::setAuthLogFile(true);
+        
 		ExternalAuthenticator::setAuthSequential(true);
 		ExternalAuthenticator::setAuthSSLock('sstripe_unittest',true);
-
+        ExternalAuthenticator::setAuthSSLock('fake_unittest',false);
+        ExternalAuthenticator::setAutoAdd('fake_unittest', 'mygroup');
+        ExternalAuthenticator::setDefaultDomain('fake_unittest', 'silverstripe.com');
+        
 		parent::setUp();
 	}
 	
@@ -136,8 +147,23 @@ class ExternalAuthenticatorTest extends FunctionalTest {
 		$this->doTestLoginForm('testing', 'test1');
 		
 		$member = DataObject::get_one('Member', "\"Email\" = 'test@silverstripe.com'");
-	   $this->assertEquals($this->session()->inst_get('loggedInAs'), $member->ID);
+	    $this->assertEquals($this->session()->inst_get('loggedInAs'), $member->ID);
 	}
+	
+	/**
+	 * Test auto creation of user accounts
+	 **/
+	function testAutoCreateAccount() {
+        $this->doTestLoginForm('idonotexist', 'blurp');
+        
+        //Useraccount should now exist
+        $member = DataObject::get_one('Member', "\"Email\" = 'idonotexist@silverstripe.com'");
+        $this->assertEquals($this->session()->inst_get('loggedInAs'), $member->ID);
+        
+        $attempt = DataObject::get_one('LoginAttempt', "\"Email\" = 'idonotexist@fake_unittest'");
+		$this->assertTrue(is_object($attempt));
+	}
+		
 
 	/**
 	 * Execute a log-in form using Director::test().
@@ -159,6 +185,7 @@ class ExternalAuthenticatorTest extends FunctionalTest {
 		); 
 	}
 	
+
 	/**
 	 * Get the error message on the login form
 	 */

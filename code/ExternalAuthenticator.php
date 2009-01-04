@@ -352,7 +352,7 @@ class ExternalAuthenticator extends Authenticator {
    /** 
     * File to log debug messages to
     *
-    * @param string $debuglog
+    * @param mixed $debuglog File to log to or true for sstripe built-in mechanism
     **/
    public static function setAuthDebugLog($debuglog) {
        self::$authdebuglog = $debuglog;
@@ -361,7 +361,7 @@ class ExternalAuthenticator extends Authenticator {
    /** 
     * The file to log debug messages to
     *
-    * @return string Filename of the logfile
+    * @return mixed Filename of the logfile or true if ssttipe built-in mechanism
     **/
    public static function getAuthDebugLog() {
        return self::$authdebuglog;
@@ -404,14 +404,56 @@ class ExternalAuthenticator extends Authenticator {
        return self::$authmessage;
    }
    
-   public static function AuthLog($message, $debug=true) {
-       if (self::getAuthDebug() && $debug) {
+   /**
+    * Writes a message to the debug logfile
+    **/
+   public static function AuthLog($message) {
+       if (self::getAuthDebug()) {
            if (!@error_log(date(DATE_RFC822). ' - ' . $message . "\n",3,self::getAuthDebugLog())) {
                self::setAuthMessage(_t('ExternalAuthenticator.LogFailed', 'Logging to debug log failed'));
            }
-       } else {
-           if (self::getAuthLog()) {
-               if (!@error_log(date(DATE_RFC822). ' - ' . $message . "\n",3,self::getAuthLogFile())) {
+       }
+   }
+   
+   /**
+    * Writes a message to the audit log
+    *
+    * @param object  $member       The member if found in the database
+    * @param string  $user_id      The login name if the user
+    * @param string  $action_type  What was tried?
+    * @param string  $because      Reason for success
+    * @param boolean $success      Did we succeed
+    * @param string  $source_id    For which source
+    **/
+   public static function AuditLog($member, $user_id, $action_type, $because, $success, $source_id) {
+       if (self::getAuthLog()) {
+           if (is_bool(self::getAuthLogFile())) {           
+               //Use built-in mechanism
+		       $attempt = new LoginAttempt();
+
+        	   if($member) {
+                  $attempt->MemberID = $member->ID;
+               } else {
+                  $attempt->MemberID = 0;
+               }
+               
+               if ($success) {
+                   $attempt->Status = 'Success';
+               } else {
+                   $attempt->Status = 'Failure';
+               }
+               
+               $attempt->IP = Controller::curr()->getRequest()->getIP();
+               $attempt->Email = $user_id . '@' . $source_id;               
+               $attempt->write();           
+           } else {
+               $logmessage = date(DATE_RFC822). ' - ';
+               if ($success) $logmessage .= '[SUCCESS] '; else $logmessage .= '[FAILURE] ';
+               $logmessage .= 'action ' . $action_type . ' for user ' . $user_id . ' at ' . 
+                              Controller::curr()->getRequest()->getIP() . ' from source ' . 
+                              $source_id;
+               if (!is_null($because)) $logmessage .= ' because ' . $because;
+               if (!@error_log($logmessage . "\n",3,self::getAuthLogFile())) {
                    trigger_error('Unable to write logon attempt to ' . self::getAuthLogFile(), E_USER_ERROR);
                }
            }
@@ -472,7 +514,7 @@ class ExternalAuthenticator extends Authenticator {
       $SQL_identity = Convert::raw2sql($RAW_external_uid);
       
       self::AuthLog('Starting process for user ' . $SQL_identity);
-      
+           
       // Now we are going to check this user with each source from the source
       // array, until we succeed or utterly fail
       foreach ($A_sources as $RAW_source) {
@@ -492,7 +534,7 @@ class ExternalAuthenticator extends Authenticator {
                       self::AuthLog($SQL_identity . ' - This attempt is also logged in the database');
                       $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
                       
-                      self::AuthLog('[FAILURE] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' originating at ' . $_SERVER['REMOTE_ADDR'] . ' is locked out',false); 
+                      self::AuditLog($member, $RAW_external_uid, 'logon', 'account is locked' , false, $RAW_source); 
                       return false;
                   } else {
                       self::AuthLog($SQL_identity . ' - User is not locked');
@@ -500,32 +542,37 @@ class ExternalAuthenticator extends Authenticator {
               } else {
                   self::AuthLog($SQL_identity . ' - Password locking is disabled');
               }    
-              break;
           } else {
               self::Authlog($SQL_identity . ' - User with source ' . $RAW_source . ' NOT found in database');
           }
-      }
       
-      if ($userexists || self::getAutoAdd($RAW_source)) {   
-          $auth_type = strtoupper(self::getAuthType($RAW_source));
+      
+          if ($userexists || self::getAutoAdd($RAW_source)) {   
+              $auth_type = strtoupper(self::getAuthType($RAW_source));
 
-          self::AuthLog($SQL_identity . ' - loading driver ' . $auth_type);
-          require_once 'drivers/' . $auth_type . '.php';
-          $myauthenticator = $auth_type . '_Authenticator';
-          $myauthenticator = new $myauthenticator();
+              self::AuthLog($SQL_identity . ' - loading driver ' . $auth_type);
+              require_once 'drivers/' . $auth_type . '.php';
+              $myauthenticator = $auth_type . '_Authenticator';
+              $myauthenticator = new $myauthenticator();
               
-          self::AuthLog($SQL_identity . ' - executing authentication driver');
-          $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_uid, 
-                                                       $RAW_external_passwd);
+              self::AuthLog($SQL_identity . ' - executing authentication driver');
+              $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_uid, 
+                                                           $RAW_external_passwd);
 
-          if ($RAW_result) {
-              $authsuccess = true;
-              self::AuthLog($SQL_identity . ' - authentication success');
-          } else {
-              self::AuthLog($SQL_identity . ' - authentication driver ' . $auth_type . ' failed');
-              if ($member && self::getAuthSSLock($RAW_source)) {
-                  self::AuthLog($SQL_identity . ' - Registering failed login');
-                  $member->registerFailedLogin();
+              if ($RAW_result) {
+                  $authsuccess = true;
+                  self::AuthLog($SQL_identity . ' - authentication success');
+                  break;
+              } else {
+                  self::AuthLog($SQL_identity . ' - authentication driver ' . $auth_type . ' failed');
+                  if ($member && self::getAuthSSLock($RAW_source)) {
+                      self::AuthLog($SQL_identity . ' - Registering failed login');
+                      $member->registerFailedLogin();
+                      
+                      self::AuthLog($SQL_identity . ' - user existed. Not continuing with other sources (if any)');
+                      //Member existed no point in continuing the loop
+                      break;
+                  }
               }
           }
       }
@@ -574,7 +621,7 @@ class ExternalAuthenticator extends Authenticator {
                   self::AuthLog($SQL_identity . ' - start adding user to database');          
                   Group::addToGroupByName($member, Convert::raw2sql(self::getAutoAdd($RAW_source)));
                   self::AuthLog($SQL_identity . ' - finished adding user to database');   
-                  self::AuthLog('[ADDED] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' originating at ' . $_SERVER['REMOTE_ADDR'] . ' added',false);        
+                  self::AuditLog($member, $RAW_external_uid, 'creation', NULL , true, $RAW_source); 
               }
           } else {
               self::AuthLog($SQL_identity . ' - The group to add the user to did not exist');          
@@ -590,14 +637,15 @@ class ExternalAuthenticator extends Authenticator {
           Session::set('Security.Message.message', self::$authmessage);
           Session::set('Security.Message.type', 'good');
           
-          self::AuthLog('[SUCCESS] User ' . $RAW_external_uid . ' from source ' . $RAW_source . ' originating at ' . $_SERVER['REMOTE_ADDR'] . ' logged on',false); 
+          self::AuditLog($member, $RAW_external_uid, 'logon', NULL , true, $RAW_source); 
           return $member;
       } else {
           if(!is_null($form)) {   
               $form->sessionMessage(self::$authmessage,'bad');
           }
           
-          self::AuthLog('[FAILURE] Authentication failed for user ' . $RAW_external_uid . ' from source ' . $RAW_source . ' originating at ' . $_SERVER['REMOTE_ADDR'],false); 
+          self::AuditLog($member, $RAW_external_uid, 'logon', NULL , false, $RAW_source); 
+                                
           return false;
       }
   }
