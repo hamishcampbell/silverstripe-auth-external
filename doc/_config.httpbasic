@@ -20,16 +20,9 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  * The debug option will log the steps to a file. 
  *
  * KEEP THIS DISABLED ON PRODUCTION SYSTEMS. The option is turned off by 
- * default
- **/
-//ExternalAuthenticator::setAuthDebug(true);
-
-/**
- * File to log the authentication process to. The default file is 
- * /tmp/sstripe_auth.log. Make sure the file or location is writable for the
- * webserver process.
+ * default. Set to filename to enable
  *
- * A successful logon for the HTTP driver (without user auto creation) looks 
+ * A successful logon for the SSTRIPE driver (without user auto creation) looks 
  * like:
  *    [timestamp] - Starting process for user [userid]
  *    [timestamp] - [userid] - User with source [sourcename] found in database
@@ -44,21 +37,22 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  *    [timestamp] - [userid] - authentication success
  *    [timestamp] - [uderid] - Process for user [userid] ended
  **/
-//ExternalAuthenticator::setAuthDebugLog('/tmp/sstripe_auth.log');
+//ExternalAuthenticator::setAuthDebug('/tmp/sstripe_debug.log);
 
 /**
  * Next to the debug log, we can also create a logfile for auditing purposes
  * In this file only logon attempts are registered
+ *
+ * Set this option to false to disable (default) or a filename. Make sure the
+ * file is writable by the webserver process
  **/
-//ExternalAuthenticator::setAuthLog(true);
+//ExternalAuthenticator::setAuditLogFile('/var/www/http/sstripe_audit.log);
 
 /**
- * The audit logfile
- * If you set this to true or false SilverStripes internal audit log will be 
- * used. It logs to the LoginAttempt table
+ * Silverstripe also has an internal table for auditing. You can enable or 
+ * disable (default) usage of it. It works in parallel with setAuditLogFile
  **/
-//ExternalAuthenticator::setAuthLogFile('/var/log/httpd/sstripe_auth.log');
-//ExternalAuthenticator::setAuthLogFile(true);
+//ExternalAuthenticator::setAuditLogSStripe(true);
 
 /** 
  * Create your authentication source

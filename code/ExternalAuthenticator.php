@@ -36,23 +36,20 @@ class ExternalAuthenticator extends Authenticator {
    
    /**
     * Enable logging of the authentication process to a file for debug purposes
+    * Set to filename or false to disable
     **/
    protected static $authdebug = false;
    
    /**
-    * The location of the debug logfile
+    * Audit log
+    * Set to filename or false to disable
     **/
-   protected static $authdebuglog = '/tmp/sstripe_auth.log';
+   protected static $auditlogfile = false;
    
    /**
-    * Log logon attempts
+    * Audit log using a database table
     **/
-   protected static $authlog = false;
-   
-   /**
-    * File for logon attempts
-    **/
-   protected static $authlogfile = '/var/log/httpd/sstripe_auth.log';
+   protected static $auditlogsstripe = false;
 
    /**
     * Creates an authentication source with default settings
@@ -296,7 +293,7 @@ class ExternalAuthenticator extends Authenticator {
    /** 
     * Enable or disable the logging of the authentication process
     *
-    * @param bool $debug
+    * @param mixed $debug  File name or false to disable
     **/
    public static function setAuthDebug($debug) {
        self::$authdebug = $debug;
@@ -305,7 +302,7 @@ class ExternalAuthenticator extends Authenticator {
    /** 
     * Do we log the authentication process to a file?
     *
-    * @return bool True for debugging
+    * @return mixed File name or false for disabled
     **/
    public static function getAuthDebug() {
        return self::$authdebug;
@@ -314,19 +311,37 @@ class ExternalAuthenticator extends Authenticator {
    /** 
     * Enable or disable the logging of logon attempts
     *
-    * @param bool $debug
+    * @param mixed $auditlogfile  File name or false for disabled
     **/
-   public static function setAuthLog($logattempts) {
-       self::$authlog = $logattempts;
+   public static function setAuditLogFile($auditlogfile) {
+       self::$auditlogfile = $auditlogfile;
    }
      
    /** 
     * Do we log logon attmpts?
     *
-    * @return bool True for debugging
+    * @return mixed Filename or false for disabled
     **/
-   public static function getAuthLog() {
-       return self::$authlog;
+   public static function getAuditLogFile() {
+       return self::$auditlogfile;
+   }
+
+   /** 
+    * Enable or disable the logging of logon attempts
+    *
+    * @param bool $auditlogstripe  Enable database logging
+    **/
+   public static function setAuditLogSStripe($auditlogsstripe) {
+       self::$auditlogsstripe = $auditlogsstripe;
+   }
+     
+   /** 
+    * Do we log logon attmpts?
+    *
+    * @return bool Enabled or disabled
+    **/
+   public static function getAuditLogSStripe() {
+       return self::$auditlogsstripe;
    }
 
    /** 
@@ -348,42 +363,6 @@ class ExternalAuthenticator extends Authenticator {
    public static function getAuthSSLock($sourceid) {
        return self::$authsources["$sourceid"]['authsslock'];
    }
-   
-   /** 
-    * File to log debug messages to
-    *
-    * @param mixed $debuglog File to log to or true for sstripe built-in mechanism
-    **/
-   public static function setAuthDebugLog($debuglog) {
-       self::$authdebuglog = $debuglog;
-   }
-     
-   /** 
-    * The file to log debug messages to
-    *
-    * @return mixed Filename of the logfile or true if ssttipe built-in mechanism
-    **/
-   public static function getAuthDebugLog() {
-       return self::$authdebuglog;
-   }   
-   
-   /** 
-    * File to log debug messages to
-    *
-    * @param string $debuglog
-    **/
-   public static function setAuthLogFile($logfile) {
-       self::$authlogfile = $logfile;
-   }
-     
-   /** 
-    * The file to log debug messages to
-    *
-    * @return string Filename of the logfile
-    **/
-   public static function getAuthLogFile() {
-       return self::$authlogfile;
-   } 
      
    /**
     * Set a message as a result of authenticating
@@ -408,8 +387,8 @@ class ExternalAuthenticator extends Authenticator {
     * Writes a message to the debug logfile
     **/
    public static function AuthLog($message) {
-       if (self::getAuthDebug()) {
-           if (!@error_log(date(DATE_RFC822). ' - ' . $message . "\n",3,self::getAuthDebugLog())) {
+       if (!is_bool(self::getAuthDebug())) {
+           if (!@error_log(date(DATE_RFC822). ' - ' . $message . "\n",3,self::getAuthDebug())) {
                self::setAuthMessage(_t('ExternalAuthenticator.LogFailed', 'Logging to debug log failed'));
            }
        }
@@ -426,36 +405,36 @@ class ExternalAuthenticator extends Authenticator {
     * @param string  $source_id    For which source
     **/
    public static function AuditLog($member, $user_id, $action_type, $because, $success, $source_id) {
-       if (self::getAuthLog()) {
-           if (is_bool(self::getAuthLogFile())) {           
-               //Use built-in mechanism
-		       $attempt = new LoginAttempt();
+       if (self::getAuditLogSStripe()) {
+           //Use built-in mechanism
+           $attempt = new LoginAttempt();
 
-        	   if($member) {
-                  $attempt->MemberID = $member->ID;
-               } else {
-                  $attempt->MemberID = 0;
-               }
-               
-               if ($success) {
-                   $attempt->Status = 'Success';
-               } else {
-                   $attempt->Status = 'Failure';
-               }
-               
-               $attempt->IP = Controller::curr()->getRequest()->getIP();
-               $attempt->Email = $user_id . '@' . $source_id;               
-               $attempt->write();           
+           if($member) {
+              $attempt->MemberID = $member->ID;
            } else {
-               $logmessage = date(DATE_RFC822). ' - ';
-               if ($success) $logmessage .= '[SUCCESS] '; else $logmessage .= '[FAILURE] ';
-               $logmessage .= 'action ' . $action_type . ' for user ' . $user_id . ' at ' . 
-                              Controller::curr()->getRequest()->getIP() . ' from source ' . 
-                              $source_id;
-               if (!is_null($because)) $logmessage .= ' because ' . $because;
-               if (!@error_log($logmessage . "\n",3,self::getAuthLogFile())) {
-                   trigger_error('Unable to write logon attempt to ' . self::getAuthLogFile(), E_USER_ERROR);
-               }
+              $attempt->MemberID = 0;
+           }
+              
+           if ($success) {
+               $attempt->Status = 'Success';
+           } else {
+               $attempt->Status = 'Failure';
+           }
+               
+           $attempt->IP = Controller::curr()->getRequest()->getIP();
+           $attempt->Email = $user_id . '@' . $source_id;               
+           $attempt->write();           
+       }
+       
+       if (!is_bool(self::getAuditLogFile())) {
+           $logmessage = date(DATE_RFC822). ' - ';
+           if ($success) $logmessage .= '[SUCCESS] '; else $logmessage .= '[FAILURE] ';
+           $logmessage .= 'action ' . $action_type . ' for user ' . $user_id . ' at ' . 
+                          Controller::curr()->getRequest()->getIP() . ' from source ' . 
+                          $source_id;
+           if (!is_null($because)) $logmessage .= ' because ' . $because;
+           if (!@error_log($logmessage . "\n",3,self::getAuditLogFile())) {
+               trigger_error('Unable to write logon attempt to ' . self::getAuditLogFile(), E_USER_ERROR);
            }
        }
    }

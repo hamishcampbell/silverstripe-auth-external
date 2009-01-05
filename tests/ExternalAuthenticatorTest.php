@@ -31,8 +31,7 @@ class ExternalAuthenticatorTest extends FunctionalTest {
 		ExternalAuthenticator::createSource('sstripe_unittest','SSTRIPE','SilverStripe');
 		ExternalAuthenticator::createSource('fake_unittest','FAKE','Fake Source');
 		
-		ExternalAuthenticator::setAuthLog(true);
-        ExternalAuthenticator::setAuthLogFile(true);
+        ExternalAuthenticator::setAuditLogSStripe(true);
         
 		ExternalAuthenticator::setAuthSequential(true);
 		ExternalAuthenticator::setAuthSSLock('sstripe_unittest',true);
