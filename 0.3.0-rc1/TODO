@@ -1,0 +1,6 @@
+To do list for the External Authenticator
+-----------------------------------------
+
+- SMTP and/or other drivers, like Google/Yahoo mail (all)
+- Save account doesn't work
+- Create unittests for drivers

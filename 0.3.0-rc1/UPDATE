@@ -1,0 +1,26 @@
+Update instructions to go from 0.1 to 0.2/0.3
+---------------------------------------------
+
+The config file layout and database scheme changed from 0.1 to 0.2 or 0.3
+
+-----------
+If you update from 0.1 to 0.2 or 0.3 make sure you have a working admin account
+stored in the database that can be used with the native authentication 
+mechanism
+-----------
+
+Look to the examples in the doc directory for the exact changes.
+In essence each source (multiple sources can be configured now) should start 
+off with a createSource statement and all configuration settings should include
+the source ID.
+
+Database changes have a bigger impact. Run db/build?flush=1 after copying
+the new version into your SilverStripe tree.
+
+The log in with a local account and modify all accounts to include the 
+authentication source you are using. (If you have only one source configured,
+this comes down to opening and saving the account details.
+
+Alternatively you could do this directly in sql. The extra column is called
+'External_SourceID', but take care not to modify the accounts not coming from
+the external authentication source.

@@ -1,0 +1,89 @@
+<?php
+
+/**
+  * External Authentication server definitions
+  * Change the parameters below to suit your authentication server, or disable 
+  * this authentication method altogether
+  */
+Authenticator::register_authenticator('ExternalAuthenticator');
+
+/** 
+ * Create your authentication source
+ *
+ * The FAKE driver always logs people on
+ *
+ * USE FOR DEVELOPMENT AND TESTING PURPOSES ONLY
+ **/
+ExternalAuthenticator::createSource('fake','FAKE','test');
+
+/**
+ * This module has a debug option. The debug option is aimed at system 
+ * administrators and/or webmasters. It shows the login process on a step
+ * by step basis to aid in finding the right settings for the module.
+ * The debug option will log the steps to a file. 
+ *
+ * KEEP THIS DISABLED ON PRODUCTION SYSTEMS. The option is turned off by 
+ * default. Set to filename to enable
+ *
+ * A successful logon for the SSTRIPE driver (without user auto creation) looks 
+ * like:
+ *    [timestamp] - Starting process for user [userid]
+ *    [timestamp] - [userid] - User with source [sourcename] found in database
+ *    [timestamp] - [userid] - loading driver FAKE
+ *    [timestamp] - [userid] - executing authentication driver
+ *    [timestamp] - [userid] - authentication success
+ *    [timestamp] - [uderid] - Process for user [userid] ended
+ **/
+//ExternalAuthenticator::setAuthDebug('/tmp/sstripe_debug.log);
+
+/**
+ * Next to the debug log, we can also create a logfile for auditing purposes
+ * In this file only logon attempts are registered
+ *
+ * Set this option to false to disable (default) or a filename. Make sure the
+ * file is writable by the webserver process
+ **/
+//ExternalAuthenticator::setAuditLogFile('/var/www/http/sstripe_audit.log);
+
+/**
+ * Silverstripe also has an internal table for auditing. You can enable or 
+ * disable (default) usage of it. It works in parallel with setAuditLogFile
+ **/
+//ExternalAuthenticator::setAuditLogSStripe(true);
+
+/**
+ * On login, users can choose the authentication source they want, or all
+ * sources can be checked in sequence till success (or failure)
+ * In this is set to true, the source selection box on the login page
+ * disappears. So you might want to set this to true if you have only one
+ * source.
+ *
+ * WARNING: If you set this to true, accounts from the different sources can
+ *          eclipse eachother. The process stops at the first success.
+ *
+ * NOTE:    The order in which accounts are checked depends on the order of the
+ *          createSource statements
+ **/
+ExternalAuthenticator::setAuthSequential(false);
+
+/**
+ * How do we call a user ID?
+ * This string is informational and will appear on the login page
+ */
+ExternalAuthenticator::setIdDesc('Whatever');
+
+/**
+ * You have to possibility to auto create non existing users.
+ *
+ * WARNING WARNING WARNING
+ * With the fake driver this lets anyone logon
+ExternalAuthenticator::setAutoAdd('fake', false);
+
+/**
+ * When an account is auto created, the e-mail address must be added to the
+ * user account. By default, the mail address is equal to the user account
+ * If the setting below is configured, is will be 
+ * [username]@[what's configured below]
+ **/
+//ExternalAuthenticator::setDefaultDomain('fake', 'silverstripe.com');
+

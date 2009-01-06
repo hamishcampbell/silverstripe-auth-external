@@ -1,0 +1,102 @@
+<?php
+
+/**
+  * External Authentication server definitions
+  * Change the parameters below to suit your authentication server, or disable 
+  * this authentication method altogether
+  */
+Authenticator::register_authenticator('ExternalAuthenticator');
+
+/**
+ * This module has a debug option. The debug option is aimed at system 
+ * administrators and/or webmasters. It shows the login process on a step
+ * by step basis to aid in finding the right settings for the module.
+ * The debug option will log the steps to a file. 
+ *
+ * KEEP THIS DISABLED ON PRODUCTION SYSTEMS. The option is turned off by 
+ * default. Set to filename to enable
+ *
+ * A successful logon for the SSTRIPE driver (without user auto creation) looks 
+ * like:
+ *    [timestamp] - Starting process for user [userid]
+ *    [timestamp] - [userid] - User with source [sourcename] found in database
+ *    [timestamp] - [userid] - loading driver SSTRIPE
+ *    [timestamp] - [userid] - executing authentication driver
+ *    [timestamp] - [userid].sstripe - Logging on with an Administrator account(skip next 2 lines) -or-- 
+ *                                     Searching for user with source [sourcename] in database
+ *    [timestamp] - [userid].sstripe - User was found in database
+ *    [timestamp] - [userid].sstripe - Password authentication succeeded
+ *    [timestamp] - [userid] - authentication success
+ *    [timestamp] - [uderid] - Process for user [userid] ended
+ **/
+//ExternalAuthenticator::setAuthDebug('/tmp/sstripe_debug.log);
+
+/**
+ * Next to the debug log, we can also create a logfile for auditing purposes
+ * In this file only logon attempts are registered
+ *
+ * Set this option to false to disable (default) or a filename. Make sure the
+ * file is writable by the webserver process
+ **/
+//ExternalAuthenticator::setAuditLogFile('/var/www/http/sstripe_audit.log);
+
+/**
+ * Silverstripe also has an internal table for auditing. You can enable or 
+ * disable (default) usage of it. It works in parallel with setAuditLogFile
+ **/
+//ExternalAuthenticator::setAuditLogSStripe(true);
+
+/** 
+ * Create your authentication source
+ * The SSTRIPE driver is mainly provided to make it possible to use the
+ * built in silverstripe authentication method in a sequential check
+ * of authentication sources, or to be able to remove one tab on the 
+ * login page
+ *
+ * The external authenticator module adds some attributes to the user account
+ * these attributes must be defined in the SilverStripe account, or else 
+ * authentication fails. This means that e.g. existing accounts must be edited
+ * to take advantage of the SSTRIPE driver. You may use a differnt ID than the 
+ * E-mail address with this driver.
+ *
+ * You can create multiple sources with different of same types
+ **/
+ExternalAuthenticator::createSource('silverstripe','SSTRIPE','SilverStripe');
+
+/**
+ * On login, users can choose the authentication source they want, or all
+ * sources can be checked in sequence till success (or failure)
+ * In this is set to true, the source selection box on the login page
+ * disappears. So you might want to set this to true if you have only one
+ * source.
+ *
+ * WARNING: If you set this to true, accounts from the different sources can
+ *          eclipse eachother. The process stops at the first success.
+ *
+ * NOTE:    The order in which accounts are checked depends on the order of the
+ *          createSource statements
+ **/
+ExternalAuthenticator::setAuthSequential(false);
+
+/**
+ * How do we call a user ID?
+ * This string is informational and will appear on the login page
+ */
+ExternalAuthenticator::setIdDesc('Email');
+
+/**
+ * If the authentication source does not have a mechanism to prevent password
+ * disctionary attacks, we can use SilverStripes lockout mechanism.
+ * Configuration for this also has to be set in the global config. You can also
+ * do it here by uncommenting the next statement and defining the number of
+ * failed logins you allow
+ **/
+//Member::lock_out_after_incorrect_logins(3);
+
+/**
+ * The statement to enable lock checking for this source. This functionality is
+ * enabled by default
+ **/
+//ExternalAuthenticator::setAuthSSLock('silverstripe',true);
+
+
