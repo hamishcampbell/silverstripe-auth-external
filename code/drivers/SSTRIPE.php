@@ -29,11 +29,11 @@ class SSTRIPE_Authenticator {
 
         // Default login (see Security::setDefaultAdmin())
         if (Security::check_default_admin($RAW_external_uid, $RAW_external_passwd)) {
-            ExternalAuthenticator::AuthLog($external_uid.'.sstripe - Logging on with an Administrator account');
+            ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - Logging on with an Administrator account');
             $member = Security::findAnAdministrator();
         } else {
             $SQL_source   = Convert::raw2sql($RAW_source);
-            ExternalAuthenticator::AuthLog($external_uid.'.sstripe - Searching for user with source ' . $SQL_source . 
+            ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - Searching for user with source ' . $SQL_source . 
                                            ' in database');
             $member = DataObject::get_one("Member","Member.External_UserID = '$SQL_identity'" .
                                           " AND Member.External_SourceID = '$SQL_source'" .
@@ -42,13 +42,13 @@ class SSTRIPE_Authenticator {
             if ($member) {
                 ExternalAuthenticator::AuthLog($external_uid.'.sstripe - User was found in database');
                 if (($member->checkPassword($RAW_external_passwd) == false)) {
-                    ExternalAuthenticator::AuthLog($external_uid.'.sstripe - Password authentication failed');
+                    ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - Password authentication failed');
                     $member = null;
                 } else {
-                    ExternalAuthenticator::AuthLog($external_uid.'.sstripe - Password authentication succeeded');
+                    ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - Password authentication succeeded');
                 }
             } else {
-                ExternalAuthenticator::AuthLog($external_uid.'.sstripe - User was NOT found in database');
+                ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - User was NOT found in database');
             }
         }
 

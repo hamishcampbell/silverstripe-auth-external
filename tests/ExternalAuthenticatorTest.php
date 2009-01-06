@@ -17,29 +17,31 @@ class ExternalAuthenticatorTest extends FunctionalTest {
 	protected $priorDefaultAuthenticator = null;
 	
 	function setUp() {
-		// This test assumes that MemberAuthenticator is present and the default
-		$this->priorAuthenticators = Authenticator::get_authenticators();
-		$this->priorDefaultAuthenticator = Authenticator::get_default_authenticator();
+            // This test assumes that MemberAuthenticator is present and the default
+            $this->priorAuthenticators = Authenticator::get_authenticators();
+            $this->priorDefaultAuthenticator = Authenticator::get_default_authenticator();
 
-		//Authenticator::register('MemberAuthenticator');
-		Authenticator::register_authenticator('ExternalAuthenticator');
-		Authenticator::set_default_authenticator('ExternalAuthenticator');
+            //Authenticator::register('MemberAuthenticator');
+            Authenticator::register_authenticator('ExternalAuthenticator');
+            Authenticator::set_default_authenticator('ExternalAuthenticator');
 		
-		//Create the sources in this order. Switching them around would mean that
-		//all tests use the fake driver because this always succeeds and auto create
-		//is on
-		ExternalAuthenticator::createSource('sstripe_unittest','SSTRIPE','SilverStripe');
-		ExternalAuthenticator::createSource('fake_unittest','FAKE','Fake Source');
-		
-        ExternalAuthenticator::setAuditLogSStripe(true);
-        
-		ExternalAuthenticator::setAuthSequential(true);
-		ExternalAuthenticator::setAuthSSLock('sstripe_unittest',true);
-        ExternalAuthenticator::setAuthSSLock('fake_unittest',false);
-        ExternalAuthenticator::setAutoAdd('fake_unittest', 'mygroup');
-        ExternalAuthenticator::setDefaultDomain('fake_unittest', 'silverstripe.com');
-        
-		parent::setUp();
+            //Create the sources in this order. Switching them around would mean that
+            //all tests use the fake driver because this always succeeds and auto create
+            //is on
+            ExternalAuthenticator::createSource('sstripe_unittest','SSTRIPE','SilverStripe');
+            ExternalAuthenticator::createSource('fake_unittest','FAKE','Fake Source');
+		      
+            ExternalAuthenticator::setAuthSequential(true);
+            ExternalAuthenticator::setAuthSSLock('sstripe_unittest',true);
+            ExternalAuthenticator::setAuthSSLock('fake_unittest',false);
+            ExternalAuthenticator::setAutoAdd('fake_unittest', 'mygroup');
+            ExternalAuthenticator::setDefaultDomain('fake_unittest', 'silverstripe.com');
+
+            ExternalAuthenticator::setAuthDebug(false);
+            ExternalAuthenticator::setAuditLogFile(false);
+            ExternalAuthenticator::setAuditLogSStripe(true);
+
+            parent::setUp();
 	}
 	
 	function tearDown() {
@@ -145,7 +147,7 @@ class ExternalAuthenticatorTest extends FunctionalTest {
 	function testSuccessfulLoginAttempts() {
 		$this->doTestLoginForm('testing', 'test1');
 		
-		$member = DataObject::get_one('Member', "\"Email\" = 'test@silverstripe.com'");
+		$member = DataObject::get_by_id("Member", $this->idFromFixture('Member', 'test'));
 	    $this->assertEquals($this->session()->inst_get('loggedInAs'), $member->ID);
 	}
 	
@@ -156,10 +158,10 @@ class ExternalAuthenticatorTest extends FunctionalTest {
         $this->doTestLoginForm('idonotexist', 'blurp');
         
         //Useraccount should now exist
-        $member = DataObject::get_one('Member', "\"Email\" = 'idonotexist@silverstripe.com'");
+        $member = DataObject::get_one('Member', "Email = 'idonotexist@silverstripe.com'");
         $this->assertEquals($this->session()->inst_get('loggedInAs'), $member->ID);
         
-        $attempt = DataObject::get_one('LoginAttempt', "\"Email\" = 'idonotexist@fake_unittest'");
+        $attempt = DataObject::get_one('LoginAttempt', "Email = 'idonotexist@fake_unittest'");
 		$this->assertTrue(is_object($attempt));
 	}
 		

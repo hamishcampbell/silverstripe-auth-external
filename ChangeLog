@@ -1,5 +1,10 @@
 External Authenticator Changelog
 --------------------------------
+0.3-rc1
+- Make unittest work with 2.3.0 (problem with DataObject::get_one)
+- Disable debug and audit log to file during test
+- Malformed debug message log for SSTRIPE driver
+
 0.3-pre8
 - Cleaning logging directives and enable concurrent file and database logging
 
