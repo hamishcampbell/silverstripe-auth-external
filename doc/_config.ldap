@@ -60,7 +60,7 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  *     [timestamp] - [userid] - authentication success
  *     [timestamp] - Process for user [userid] ended
  **/
-//ExternalAuthenticator::setAuthDebug('/tmp/sstripe_debug.log);
+//ExternalAuthenticator::setAuthDebug('/tmp/sstripe_debug.log');
 
 /**
  * Next to the debug log, we can also create a logfile for auditing purposes
@@ -69,7 +69,7 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  * Set this option to false to disable (default) or a filename. Make sure the
  * file is writable by the webserver process
  **/
-//ExternalAuthenticator::setAuditLogFile('/var/www/http/sstripe_audit.log);
+//ExternalAuthenticator::setAuditLogFile('/var/www/http/sstripe_audit.log');
 
 /**
  * Silverstripe also has an internal table for auditing. You can enable or 
