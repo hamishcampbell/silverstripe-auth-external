@@ -1,5 +1,10 @@
 <?php
 /**
+ * Disable SilverStripe's built in authentication module
+ **/
+//Authenticator::unregister('MemberAuthenticator');
+
+/**
  * NOTE: FOR THIS AUTHENTICATION DRIVER, YOU MUST HAVE THE PEAR MODULE
  * HTTP_Request INSTALLED
  * see: http://pear.php.net

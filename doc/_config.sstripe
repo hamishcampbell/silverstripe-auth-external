@@ -1,4 +1,8 @@
 <?php
+/**
+ * Disable SilverStripe's built in authentication module
+ **/
+//Authenticator::unregister('MemberAuthenticator');
 
 /**
   * External Authentication server definitions
