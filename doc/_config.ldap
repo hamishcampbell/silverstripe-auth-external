@@ -141,7 +141,6 @@ ExternalAuthenticator::setAuthSSLock('localldap',false);
  *       settings from hereon
  **/
 ExternalAuthenticator::setAuthServer('localldap','localhost.localdomain'); 
-//ExternalAuthenticator::setAuthServer('ispmail','imap.myisp.com');
 
 /**
  * Authentication server port, normally 389 for normal LDAP or 636 for LDAPS
@@ -230,7 +229,7 @@ ExternalAuthenticator::setOption('localldap', 'attribute', 'uid');
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
  **/
-//ExternalAuthenticator::setAutoAdd('Testgroup');
+//ExternalAuthenticator::setAutoAdd('localldap', 'Testgroup');
 ExternalAuthenticator::setAutoAdd('localldap', false);
 
 /**

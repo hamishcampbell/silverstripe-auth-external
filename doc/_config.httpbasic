@@ -123,7 +123,6 @@ ExternalAuthenticator::setIdDesc('User ID');
  *       settings from hereon
  **/
 ExternalAuthenticator::setAuthServer('localhttp','localhost.localdomain'); 
-//ExternalAuthenticator::setAuthServer('localldap','localhost.localdomain');
 
 /**
  * Authentication server port, normally 80 for and 443 for https. You do not

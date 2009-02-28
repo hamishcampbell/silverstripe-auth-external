@@ -64,7 +64,6 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  * You can create multiple sources with different of same types
  **/
 ExternalAuthenticator::createSource('localftp','FTP','Local FTP server');
-//ExternalAuthenticator::createSource('localldap','LDAP','User Directory');
 
 /**
  * On login, users can choose the authentication source they want, or all
@@ -112,7 +111,6 @@ ExternalAuthenticator::setIdDesc('User ID');
  *       settings from hereon
  **/
 ExternalAuthenticator::setAuthServer('localftp','localhost.localdomain'); 
-//ExternalAuthenticator::setAuthServer('localldap','localhost.localdomain');
 
 /**
  * Authentication server port, normally 21 for FTP
