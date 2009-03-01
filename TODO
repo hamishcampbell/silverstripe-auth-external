@@ -1,6 +1,8 @@
 To do list for the External Authenticator
 -----------------------------------------
 
+- Authentication source selection based on client IP address
+- OpenID client (auth_openid is not maintained any more)
+- OpenID server (I hope I ever get around to do this)
 - SMTP and/or other drivers, like Google/Yahoo mail (all)
-- Save account doesn't work
 - Create unittests for drivers
