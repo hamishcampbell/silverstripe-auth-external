@@ -40,7 +40,7 @@ class SSTRIPE_Authenticator {
                                           " AND Password IS NOT NULL");
                                           
             if ($member) {
-                ExternalAuthenticator::AuthLog($external_uid.'.sstripe - User was found in database');
+                ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - User was found in database');
                 if (($member->checkPassword($RAW_external_passwd) == false)) {
                     ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - Password authentication failed');
                     $member = null;

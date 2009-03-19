@@ -586,7 +586,7 @@ class ExternalAuthenticator extends Authenticator {
           // But before we write ourselves to the database we must check if
           // the group we are subscribing to exists
           self::AuthLog($SQL_identity . ' - User did not exist but did authenticate. Adding user to database');
-          if (DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql(self::getAutoAdd($RAW_source)).'\'')) {
+          if ($group = DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql(self::getAutoAdd($RAW_source)).'\'')) {
               if (DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
                   self::$authmessage = _t('ExternalAuthenticator.GroupExists','An account with your e-mail address already exists');
                   $authsuccess = false;
@@ -598,7 +598,7 @@ class ExternalAuthenticator extends Authenticator {
                   $member->write();
                   
                   self::AuthLog($SQL_identity . ' - start adding user to database');          
-                  Group::addToGroupByName($member, Convert::raw2sql(self::getAutoAdd($RAW_source)));
+                  Group::addToGroupByName($member, $group->Code);
                   self::AuthLog($SQL_identity . ' - finished adding user to database');   
                   self::AuditLog($member, $RAW_external_uid, 'creation', NULL , true, $RAW_source); 
               }

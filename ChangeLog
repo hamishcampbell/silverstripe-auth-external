@@ -1,5 +1,10 @@
 External Authenticator Changelog
 --------------------------------
+0.3.1
+- [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver
+- [BUGFIX] Ticket #3568 - Variable Typo in SSTRIPE_Authenticator Authenticate()
+- [BUGFIX] Ticket #3569 - Won't add auto-created user to group if group title and code differ
+
 0.3
 - [ENHANCEMENT] Enable audit log to database (LoginAttempt table)
 - [ENHANCEMENT] Enable audit log to file

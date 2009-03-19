@@ -355,7 +355,7 @@ class LDAP_Authenticator {
                     
                         $success = array('firstname' => $accountdetails['firstname']['value'],
                                          'surname'   => $accountdetails['surname']['value'],
-                                         'email'     => $accountdetails['email'][value]
+                                         'email'     => $accountdetails['email']['value']
                                         );
 
                         // Lets be civilized and warn the user that he should 
@@ -370,7 +370,7 @@ class LDAP_Authenticator {
                     ExternalAuthenticator::AuthLog($external_uid.'.ldap - LDAP Authentication success');                
                     $success = array('firstname' => $accountdetails['firstname']['value'],
                                      'surname'   => $accountdetails['surname']['value'],
-                                     'email'     => $accountdetails['email'][value]
+                                     'email'     => $accountdetails['email']['value']
                                     );
                 }
             } else {
@@ -381,7 +381,7 @@ class LDAP_Authenticator {
                 ExternalAuthenticator::AuthLog($external_uid.'.ldap - LDAP Authentication success');                
                 $success = array('firstname' => $accountdetails['firstname']['value'],
                                  'surname'   => $accountdetails['surname']['value'],
-                                 'email'     => $accountdetails['email'][value]
+                                 'email'     => $accountdetails['email']['value']
                                 );
             }
         } else {
