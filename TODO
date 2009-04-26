@@ -1,7 +1,22 @@
 To do list for the External Authenticator
 -----------------------------------------
 
+[0.4.0]
 - Authentication source selection based on client IP address
+
+----- Ticket 3742----------------------
+- Rename external ID to "source anchors"
+- Allow users to login with e-mail address instead of source anchor
+- Auto update e-mail address if changed (when logging in with source anchor or
+  e-mail address)
+- Auto-add for login with e-mail address (anchor has to be determined from
+  source directly (LDAP) or given by user (other drivers))
+---------------------------------------
+
+- Deprecate sequential source checking (replaced with e-mail login)
+- Tabs on login form
+
+[other]
 - OpenID client (auth_openid is not maintained any more)
 - OpenID server (I hope I ever get around to do this)
 - SMTP and/or other drivers, like Google/Yahoo mail (all)
