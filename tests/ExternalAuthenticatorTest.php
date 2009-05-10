@@ -170,7 +170,7 @@ class ExternalAuthenticatorTest extends FunctionalTest {
 	 * Execute a log-in form using Director::test().
 	 * Helper method for the tests above
 	 */
-	function doTestLoginForm($userid, $password) {
+	function doTestLoginForm($anchor, $password) {
 		$this->session()->inst_set('BackURL', 'test/link');
 		$this->get('Security/login');
 		
@@ -178,7 +178,7 @@ class ExternalAuthenticatorTest extends FunctionalTest {
 			"ExternalLoginForm_LoginForm", 
 			null,
 			array(
-				'External_UserID' => $userid, 
+				'External_Anchor' => $anchor, 
 				'Password' => $password, 
 				'AuthenticationMethod' => 'ExternalAuthenticator',
 				'action_dologin' => 1,

@@ -26,12 +26,12 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      */
     function extraStatics() {
         return array(
-            'db' => array('External_UserID' => 'Varchar(255)', 
+            'db' => array('External_Anchor' => 'Varchar(255)', 
                           'External_SourceID' => 'Varchar(50)'),
             'has_one' => array(),
-            'defaults' => array('External_UserID' => null,
+            'defaults' => array('External_Anchor' => null,
                                 'External_SourceID' => null),
-            'indexes' => array('External_UserID' => 'index (External_UserID)')
+            'indexes' => array('External_Anchor' => 'index (External_Anchor)')
         );
     }
 
@@ -76,7 +76,7 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
                                new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources'),
                                                  $sources));
         $fields->addFieldToTab('Root.ExternalAuthentication',
-                               new TextField('External_UserID', _t('ExternalAuthenticator.EnterNewId',
+                               new TextField('External_Anchor', _t('ExternalAuthenticator.EnterNewId',
                                                                    'ID to be used with this source')));
     }
 
@@ -121,14 +121,14 @@ class ExternalAuthenticatedRole_Validator extends Extension {
      *              FALSE.
      */
     function updatePHP(array $data, Form &$form) {
-        if (!isset($data['External_UserID']) || strlen(trim($data['External_UserID'])) == 0 || 
+        if (!isset($data['External_Anchor']) || strlen(trim($data['External_Anchor'])) == 0 || 
             !isset($data['External_SourceID']) || strlen($data['External_SourceID']) == 0)
             return true;
 
         $member = DataObject::get_one('Member',
-                  'External_UserID = \''. 
-                  Convert::raw2sql($data['External_UserID']) .
-                  '\' AND External_SourceID = \'' . 
+                  'External_Anchor = \''. 
+                  Convert::raw2sql($data['External_Anchor']) .
+                  '\' AND External_Source = \'' . 
                   Convert::raw2sql($data['External_SourceID']) .'\'');
 
         // if we are in a complex table field popup, use ctf[childID], else use
@@ -141,7 +141,7 @@ class ExternalAuthenticatedRole_Validator extends Extension {
         }
 
         if(is_object($member) && $member->ID != $id) {
-            $field = $form->dataFieldByName('External_UserID');
+            $field = $form->dataFieldByName('External_Anchor');
             $this->owner->validationError($field->id(),
                 _t('ExternalAuthenticator.UserExists', 'There already exists a member with this account name'),
                 'required');

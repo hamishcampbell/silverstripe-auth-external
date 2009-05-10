@@ -70,7 +70,7 @@ ExternalAuthenticator::setAuthSequential(false);
  * How do we call a user ID?
  * This string is informational and will appear on the login page
  */
-ExternalAuthenticator::setIdDesc('Whatever');
+ExternalAuthenticator::setAnchorDesc('Whatever');
 
 /**
  * You have to possibility to auto create non existing users.

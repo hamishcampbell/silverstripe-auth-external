@@ -22,7 +22,7 @@ class FAKE_Authenticator {
      * @return boolean  True
      */
 
-    public function Authenticate($RAW_source, $RAW_external_uid, $RAW_external_passwd) {
+    public function Authenticate($RAW_source, $RAW_external_anchor, $RAW_external_passwd) {
         return true;
     }
 }

@@ -20,7 +20,7 @@ class ExternalAuthenticator extends Authenticator {
     * Description of user id
     * This description is used for all sources defined
     */
-   protected static $useriddesc = 'User ID';
+   protected static $anchordesc = 'User ID';
 
    /**
     * Message that results from authenticating
@@ -65,7 +65,7 @@ class ExternalAuthenticator extends Authenticator {
            'authserver'    => 'localhost',  //IP or DNS name of server
            'authport'      => null,         //IP port to use
            'authsslock'    => true,         //Check SStripes locking mechanism
-           'useriddesc'    => 'User ID',    //How do we refer to a user id
+           'anchordesc'    => 'User ID',    //How do we refer to a user id
            'encryption'    => null,         //Enable SSL or TLS encryption
            'autoadd'       => false,        //Automatically add users?
            'defaultdomain' => null,         //Default mail domain for auto 
@@ -257,19 +257,19 @@ class ExternalAuthenticator extends Authenticator {
    /**
     * Set the name of the user id
     *
-    * @param string $useriddesc Description of user id
+    * @param string $anchordesc Description of user id
     */                               
-   public static function setIdDesc($useriddesc) {
-       self::$useriddesc = $useriddesc;
+   public static function setAnchorDesc($anchordesc) {
+       self::$anchordesc = $anchordesc;
    }
    
    /**
     * Get the user id description
     *
-    * @return string useriddesc Description
+    * @return string anchordesc Description
     */              
-   public static function getIdDesc() {
-       return self::$useriddesc;
+   public static function getAnchorDesc() {
+       return self::$anchordesc;
    }
    
    /** 
@@ -398,13 +398,13 @@ class ExternalAuthenticator extends Authenticator {
     * Writes a message to the audit log
     *
     * @param object  $member       The member if found in the database
-    * @param string  $user_id      The login name if the user
+    * @param string  $anchor       The login name if the user
     * @param string  $action_type  What was tried?
     * @param string  $because      Reason for success
     * @param boolean $success      Did we succeed
     * @param string  $source_id    For which source
     **/
-   public static function AuditLog($member, $user_id, $action_type, $because, $success, $source_id) {
+   public static function AuditLog($member, $anchor, $action_type, $because, $success, $source_id) {
        if (self::getAuditLogSStripe()) {
            //Use built-in mechanism
            $attempt = new LoginAttempt();
@@ -422,14 +422,14 @@ class ExternalAuthenticator extends Authenticator {
            }
                
            $attempt->IP = Controller::curr()->getRequest()->getIP();
-           $attempt->Email = $user_id . '@' . $source_id;               
+           $attempt->Email = $anchor . '@' . $source_id;               
            $attempt->write();           
        }
        
        if (!is_bool(self::getAuditLogFile())) {
            $logmessage = date(DATE_RFC822). ' - ';
            if ($success) $logmessage .= '[SUCCESS] '; else $logmessage .= '[FAILURE] ';
-           $logmessage .= 'action ' . $action_type . ' for user ' . $user_id . ' at ' . 
+           $logmessage .= 'action ' . $action_type . ' for user ' . $anchor . ' at ' . 
                           Controller::curr()->getRequest()->getIP() . ' from source ' . 
                           $source_id;
            if (!is_null($because)) $logmessage .= ' because ' . $because;
@@ -473,7 +473,7 @@ class ExternalAuthenticator extends Authenticator {
       } else {
           $A_sources = array($RAW_data['External_SourceID']);
       }
-      $RAW_external_uid    = trim($RAW_data['External_UserID']);
+      $RAW_external_anchor = trim($RAW_data['External_Anchor']);
       $RAW_external_passwd = $RAW_data['Password'];     
       $userexists      = false;    //Does the user exist within SilverStripe?
       $authsuccess     = false;    //Initialization of variable  
@@ -484,13 +484,13 @@ class ExternalAuthenticator extends Authenticator {
       // User ID should not be empty
       // Password should not be empty as well, but we check this in the
       // external authentication method itself. 
-      if (strlen($RAW_external_uid) == 0) {
+      if (strlen($RAW_external_anchor) == 0) {
           if (!is_null($form)) {
-              $form->sessionMessage(sprintf(_t('ExternalAuthenticator.EnterUID', 'Please enter a %s') ,self::$useriddesc), 'bad');
+              $form->sessionMessage(sprintf(_t('ExternalAuthenticator.EnterUID', 'Please enter a %s') ,self::$anchordesc), 'bad');
           }
           return false;
       } 
-      $SQL_identity = Convert::raw2sql($RAW_external_uid);
+      $SQL_identity = Convert::raw2sql($RAW_external_anchor);
       
       self::AuthLog('Starting process for user ' . $SQL_identity);
            
@@ -498,7 +498,7 @@ class ExternalAuthenticator extends Authenticator {
       // array, until we succeed or utterly fail
       foreach ($A_sources as $RAW_source) {
           $SQL_source   = Convert::raw2sql($RAW_source);
-          if (($member = DataObject::get_one('Member',"Member.External_UserID = '$SQL_identity'".
+          if (($member = DataObject::get_one('Member',"Member.External_Anchor = '$SQL_identity'".
                                              " AND Member.External_SourceID = '$SQL_source'"))) {
               $userexists = true;
               self::AuthLog($SQL_identity . ' - User with source ' . $RAW_source . ' found in database');
@@ -513,7 +513,7 @@ class ExternalAuthenticator extends Authenticator {
                       self::AuthLog($SQL_identity . ' - This attempt is also logged in the database');
                       $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
                       
-                      self::AuditLog($member, $RAW_external_uid, 'logon', 'account is locked' , false, $RAW_source); 
+                      self::AuditLog($member, $RAW_external_anchor, 'logon', 'account is locked' , false, $RAW_source); 
                       return false;
                   } else {
                       self::AuthLog($SQL_identity . ' - User is not locked');
@@ -535,7 +535,7 @@ class ExternalAuthenticator extends Authenticator {
               $myauthenticator = new $myauthenticator();
               
               self::AuthLog($SQL_identity . ' - executing authentication driver');
-              $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_uid, 
+              $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_anchor, 
                                                            $RAW_external_passwd);
 
               if ($RAW_result) {
@@ -559,7 +559,7 @@ class ExternalAuthenticator extends Authenticator {
       // An external source verified our existence
       if ($authsuccess && !$userexists && self::getAutoAdd($RAW_source)) {
           // But SilverStripe denies our existence, so we add ourselves
-          $SQL_memberdata['External_UserID']   = $SQL_identity;
+          $SQL_memberdata['External_Anchor']   = $SQL_identity;
           $SQL_memberdata['External_SourceID'] = $SQL_source;
           if(isset($RAW_result['firstname'])) {
               $SQL_memberdata['FirstName'] = Convert::raw2sql($RAW_result['firstname']);
@@ -600,7 +600,7 @@ class ExternalAuthenticator extends Authenticator {
                   self::AuthLog($SQL_identity . ' - start adding user to database');          
                   Group::addToGroupByName($member, $group->Code);
                   self::AuthLog($SQL_identity . ' - finished adding user to database');   
-                  self::AuditLog($member, $RAW_external_uid, 'creation', NULL , true, $RAW_source); 
+                  self::AuditLog($member, $RAW_external_anchor, 'creation', NULL , true, $RAW_source); 
               }
           } else {
               self::AuthLog($SQL_identity . ' - The group to add the user to did not exist');          
@@ -616,14 +616,14 @@ class ExternalAuthenticator extends Authenticator {
           Session::set('Security.Message.message', self::$authmessage);
           Session::set('Security.Message.type', 'good');
           
-          self::AuditLog($member, $RAW_external_uid, 'logon', NULL , true, $RAW_source); 
+          self::AuditLog($member, $RAW_external_anchor, 'logon', NULL , true, $RAW_source); 
           return $member;
       } else {
           if(!is_null($form)) {   
               $form->sessionMessage(self::$authmessage,'bad');
           }
           
-          self::AuditLog($member, $RAW_external_uid, 'logon', NULL , false, $RAW_source); 
+          self::AuditLog($member, $RAW_external_anchor, 'logon', NULL , false, $RAW_source); 
                                 
           return false;
       }

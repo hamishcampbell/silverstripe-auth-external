@@ -1,3 +1,10 @@
+Update instructions to go from 0.3 to 0.4
+-----------------------------------------
+
+Logon to the database as administrator
+alter table Member change column External_UserID External_Anchor VarChar(255);
+
+
 Update instructions to go from 0.1 to 0.2/0.3
 ---------------------------------------------
 

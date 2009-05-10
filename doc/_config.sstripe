@@ -86,7 +86,7 @@ ExternalAuthenticator::setAuthSequential(false);
  * How do we call a user ID?
  * This string is informational and will appear on the login page
  */
-ExternalAuthenticator::setIdDesc('Email');
+ExternalAuthenticator::setAnchorDesc('Email');
 
 /**
  * If the authentication source does not have a mechanism to prevent password

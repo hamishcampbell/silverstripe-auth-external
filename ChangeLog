@@ -1,5 +1,8 @@
 External Authenticator Changelog
 --------------------------------
+0.4
+- [MISC] Rename (External_)UserID to Anchor
+
 0.3.1
 - [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver
 - [BUGFIX] Ticket #3568 - Variable Typo in SSTRIPE_Authenticator Authenticate()

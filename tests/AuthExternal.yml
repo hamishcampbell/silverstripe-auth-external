@@ -7,7 +7,7 @@ Member:
       FirstName: Test
       Surname: User
       Email: test@silverstripe.com
-      External_UserID: testing
+      External_Anchor: testing
       External_SourceID: sstripe_unittest
       Password: test1
       Groups: =>Group.mygroup
@@ -15,7 +15,7 @@ Member:
       FirstName: Test
       Surname: User
       Email: anothertest@silverstripe.com
-      External_UserID: anothertest
+      External_Anchor: anothertest
       External_SourceID: sstripe_unittest
       password test2
       Groups: =>Group.mygroup
