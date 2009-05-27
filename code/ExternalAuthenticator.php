@@ -19,20 +19,18 @@ class ExternalAuthenticator extends Authenticator {
    /**
     * Description of user id
     * This description is used for all sources defined
-    */
+    **/
    protected static $anchordesc = 'User ID';
 
+   /**
+    * Use Anchor for login or the e-mail address
+    **/
+   protected static $useanchor = false;
+    
    /**
     * Message that results from authenticating
     **/
    protected static $authmessage = '';
-   
-   /**
-    * Do let users choose the authentication source ot doe we check sources
-    * in sequence? The order of the sequence bij the order in which the 
-    * createSource is done (see below)
-    **/
-   protected static $authsequential = false;
    
    /**
     * Enable logging of the authentication process to a file for debug purposes
@@ -272,13 +270,34 @@ class ExternalAuthenticator extends Authenticator {
        return self::$anchordesc;
    }
    
+   /**
+    * Select the Anchor or the mail address to logon
+    *
+    * @param boolean $useanchor True of Anchor usage, false for mail
+    **/
+   public static function setUseAnchor($useanchor) {
+       self::$useanchor = $useanchor;
+   }
+
+   /**
+    * Select the Anchor or the mail address to logon
+    *
+    * @return boolean $useanchor True of Anchor usage, false for mail
+    **/
+   public static function getUseAnchor() {
+       return self::$useanchor;
+   }
+   
    /** 
     * Set the authentication checks to sequential or user chosable
     *
     * @param bool $sequential
     **/
+   // DEPRECATED
+   // DEPRECATED. Set UseAnchor to false instead
+   // DEPRECATED
    public static function setAuthSequential($sequential) {
-       self::$authsequential = $sequential;
+       self::$useanchor = !$sequential;
    }
      
    /** 
@@ -286,8 +305,11 @@ class ExternalAuthenticator extends Authenticator {
     *
     * @return bool True for sequential checks
     **/
+   // DEPRECATED
+   // DEPRECATED. Set UseAnchor to false instead
+   // DEPRECATED    
    public static function getAuthSequential() {
-       return self::$authsequential;
+       return !self::$useanchor;
    }
 
    /** 
@@ -467,99 +489,142 @@ class ExternalAuthenticator extends Authenticator {
    * @return bool Returns FALSE if authentication fails, otherwise the
    *              member object    
    */
+   
+//TODO AUTOADD WITH ANCHOR AUTHENTICATION
+
   public static function authenticate($RAW_data, Form $form = null) {
-      if (self::getAuthSequential()) {
-          $A_sources = self::getSources();
-      } else {
-          $A_sources = array($RAW_data['External_SourceID']);
-      }
-      $RAW_external_anchor = trim($RAW_data['External_Anchor']);
-      $RAW_external_passwd = $RAW_data['Password'];     
+      $RAW_external_anchor   = trim($RAW_data['External_Anchor']);
+      $RAW_external_mailaddr = trim($RAW_data['External_MailAddr']);
+      $RAW_external_source   = trim($RAW_data['External_SourceID']);
+      $RAW_external_passwd   = $RAW_data['Password'];     
       $userexists      = false;    //Does the user exist within SilverStripe?
+      $userindbs       = false;    //Does the user already exist in the SStripe dbs?
       $authsuccess     = false;    //Initialization of variable  
       //Set authentication message for failed authentication
       //Could be used by the individual drivers      
       self::$authmessage = _t('ExternalAuthenticator.Failed', 'Authentication failed');
   
-      // User ID should not be empty
-      // Password should not be empty as well, but we check this in the
-      // external authentication method itself. 
-      if (strlen($RAW_external_anchor) == 0) {
-          if (!is_null($form)) {
-              $form->sessionMessage(sprintf(_t('ExternalAuthenticator.EnterUID', 'Please enter a %s') ,self::$anchordesc), 'bad');
+      $SQL_source   = Convert::raw2sql($RAW_external_source);
+      if (self::getUseAnchor())
+      {
+          // Anchor (if used) should not be empty
+          // Password should not be empty as well, but we check this in the
+          // external authentication method itself. 
+          if (strlen($RAW_external_anchor) == 0) {
+              if (!is_null($form)) {
+                  $form->sessionMessage(sprintf(_t('ExternalAuthenticator.EnterUID', 'Please enter a %s') ,self::$anchordesc), 'bad');
+              }
+              return false;
           }
-          return false;
+          
+          $SQL_anchor   = Convert::raw2sql($RAW_external_anchor);
+          
+          self::AuthLog('Starting process for user ' . $SQL_anchor);
+          $memberquery = "Member.External_Anchor = '$SQL_anchor' AND Member.External_SourceID = '$SQL_source'";       
+      } else {
+          if (strlen($RAW_external_mailaddr) == 0) {
+              if (!is_null($form)) {
+                  $form->sessionMessage(_t('ExternalAuthenticator.EnterMailAddr', 'Please enter an e-Mail address'), 'bad');
+              }
+              return false;
+          }
+          
+          $SQL_mailaddr = Convert::raw2sql($RAW_external_mailaddr);
+          
+          self::AuthLog('Starting process for e-Mail address ' . $SQL_mailaddr);
+          $memberquery = "Member.Email = '$SQL_mailaddr'";
       } 
-      $SQL_identity = Convert::raw2sql($RAW_external_anchor);
-      
-      self::AuthLog('Starting process for user ' . $SQL_identity);
-           
-      // Now we are going to check this user with each source from the source
-      // array, until we succeed or utterly fail
-      foreach ($A_sources as $RAW_source) {
-          $SQL_source   = Convert::raw2sql($RAW_source);
-          if (($member = DataObject::get_one('Member',"Member.External_Anchor = '$SQL_identity'".
-                                             " AND Member.External_SourceID = '$SQL_source'"))) {
-              $userexists = true;
-              self::AuthLog($SQL_identity . ' - User with source ' . $RAW_source . ' found in database');
-              
-              //Check if the user was behaving nicely
-              if (self::getAuthSSLock($RAW_source)) {
-                  self::AuthLog($SQL_identity . ' - Password lock checking enabled');
-                  
-                  if ($member->isLockedOut()) {
-                      self::AuthLog($SQL_identity . ' - User is locked out in Silverstripe Database');
-                      $member->registerFailedLogin();
-                      self::AuthLog($SQL_identity . ' - This attempt is also logged in the database');
-                      $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
-                      
-                      self::AuditLog($member, $RAW_external_anchor, 'logon', 'account is locked' , false, $RAW_source); 
-                      return false;
-                  } else {
-                      self::AuthLog($SQL_identity . ' - User is not locked');
-                  }
-              } else {
-                  self::AuthLog($SQL_identity . ' - Password locking is disabled');
-              }    
-          } else {
-              self::Authlog($SQL_identity . ' - User with source ' . $RAW_source . ' NOT found in database');
-          }
-      
-      
-          if ($userexists || self::getAutoAdd($RAW_source)) {   
-              $auth_type = strtoupper(self::getAuthType($RAW_source));
 
-              self::AuthLog($SQL_identity . ' - loading driver ' . $auth_type);
-              require_once 'drivers/' . $auth_type . '.php';
+      if (($member = DataObject::get_one('Member',$memberquery))) {
+          // Before we continue we must check if the source is valid
+          if (is_bool(array_search($member->External_SourceID,self::getSources()))) {
+              self::AuthLog($member->External_Anchor . ' - Source ' . $member->External_SourceID . ' is not configured');
+              self::AuditLog($member, $member->External_Anchor, 'logon', 'source does not exists' , false, $member->External_SourceID); 
+              return false;
+          }
+
+          $userexists = true;
+          $userindbs  = true;
+
+          self::AuthLog($member->External_Anchor . ' - User with source ' . $member->External_SourceID . ' found in database');
+          
+          if (!self::getUseAnchor()) {
+              $RAW_external_source = stripslashes($member->External_SourceID);
+              $RAW_external_anchor = stripslashes($member->External_Anchor);
+          }
+              
+          //Check if the user was behaving nicely
+          if (self::getAuthSSLock($member->External_SourceID)) {
+              self::AuthLog($member->External_Anchor . ' - Password lock checking enabled');
+                  
+              if ($member->isLockedOut()) {
+                  self::AuthLog($member->External_Anchor . ' - User is locked out in Silverstripe Database');
+                  $member->registerFailedLogin();
+                  self::AuthLog($member->External_Anchor . ' - This attempt is also logged in the database');
+                  $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+                  
+                  self::AuditLog($member, $member->External_Anchor, 'logon', 'account is locked' , false, $member->External_SourceID); 
+                  return false;
+              } else {
+                  self::AuthLog($member->External_Anchor . ' - User is not locked');
+              }
+          } else {
+              self::AuthLog($member->External_Anchor . ' - Password locking is disabled');
+          }    
+      } else {
+          self::Authlog('User with source NOT found in database');
+      }
+      
+
+      //Load the drivers for all sources
+      foreach (self::getSources() as $source) {
+          $auth_type = strtoupper(self::getAuthType($source));
+          self::AuthLog($SQL_anchor . ' - loading driver ' . $auth_type);
+          require_once 'drivers/' . $auth_type . '.php';
+          
+          //If we don't have a user yet and autoadd is on; try to find the anchor
+          if (!$userexists && !self::getUseAnchor() && self::getAutoAdd($source)) {
+              self::AuthLog($RAW_external_mailaddr . ' - Using driver source ' . $source . ' to find anchor');
               $myauthenticator = $auth_type . '_Authenticator';
               $myauthenticator = new $myauthenticator();
               
-              self::AuthLog($SQL_identity . ' - executing authentication driver');
-              $RAW_result = $myauthenticator->Authenticate($RAW_source, $RAW_external_anchor, 
-                                                           $RAW_external_passwd);
-
-              if ($RAW_result) {
-                  $authsuccess = true;
-                  self::AuthLog($SQL_identity . ' - authentication success');
-                  break;
+              if($RAW_external_anchor  = $myauthenticator->getAnchor($source,$RAW_external_mailaddr)) {
+                  self::AuthLog($RAW_external_mailaddr . ' - Found anchor ' . $RAW_external_anchor . ' in source ' . $source);
+                  $userexists          = true;
+                  $RAW_external_source = $source;
+                  $SQL_source          = Convert::raw2sql($RAW_external_source);
+                  $SQL_anchor          = Convert::raw2sql($RAW_external_anchor);
               } else {
-                  self::AuthLog($SQL_identity . ' - authentication driver ' . $auth_type . ' failed');
-                  if ($member && self::getAuthSSLock($RAW_source)) {
-                      self::AuthLog($SQL_identity . ' - Registering failed login');
-                      $member->registerFailedLogin();
-                      
-                      self::AuthLog($SQL_identity . ' - user existed. Not continuing with other sources (if any)');
-                      //Member existed no point in continuing the loop
-                      break;
-                  }
+                  self::AuthLog($RAW_external_mailaddr . ' - Did not find anchor for ' . $RAW_external_mailaddr . ' in source ' . $source);
+              }
+          }
+      }
+
+      if (($userexists && !self::getUseAnchor()) || self::getUseAnchor()) {   
+          $auth_type = strtoupper(self::getAuthType($RAW_external_source));
+          $myauthenticator = $auth_type . '_Authenticator';
+          $myauthenticator = new $myauthenticator();
+              
+          self::AuthLog($SQL_anchor . ' - executing authentication driver');
+          $RAW_result = $myauthenticator->Authenticate($RAW_external_source, $RAW_external_anchor, 
+                                                       $RAW_external_passwd);
+
+          if ($RAW_result) {
+              $authsuccess = true;
+              self::AuthLog($SQL_anchor . ' - authentication success');
+          } else {
+              self::AuthLog($SQL_anchor . ' - authentication driver ' . $auth_type . ' failed');
+              if ($member && self::getAuthSSLock($RAW_external_source)) {
+                  self::AuthLog($SQL_anchor . ' - Registering failed login');
+                  $member->registerFailedLogin();
               }
           }
       }
       
       // An external source verified our existence
-      if ($authsuccess && !$userexists && self::getAutoAdd($RAW_source)) {
+      if ($authsuccess && !$userindbs && self::getAutoAdd($RAW_external_source)) {
           // But SilverStripe denies our existence, so we add ourselves
-          $SQL_memberdata['External_Anchor']   = $SQL_identity;
+          $SQL_memberdata['External_Anchor']   = $SQL_anchor;
           $SQL_memberdata['External_SourceID'] = $SQL_source;
           if(isset($RAW_result['firstname'])) {
               $SQL_memberdata['FirstName'] = Convert::raw2sql($RAW_result['firstname']);
@@ -568,47 +633,78 @@ class ExternalAuthenticator extends Authenticator {
           if (isset($RAW_result['surname'])) {
               $SQL_memberdata['Surname']   = Convert::raw2sql($RAW_result['surname']);
           } else {
-              $SQL_memberdata['Surname']   = $SQL_identity;
+              $SQL_memberdata['Surname']   = $SQL_anchor;
           }
  
           if (isset($RAW_result['email'])) {
               $SQL_memberdata['Email']     = Convert::raw2sql($RAW_result['email']);
           } else {
-              $RAW_domain = self::getDefaultDomain($RAW_source);
+              $RAW_domain = self::getDefaultDomain($RAW_external_source);
               if (is_null($RAW_domain)) {
-                  $SQL_memberdata['Email']     = $SQL_identity;
+                  $SQL_memberdata['Email']     = $SQL_anchor;
               } else {
-                  $SQL_memberdata['Email']     = $SQL_identity . '@' .
+                  $SQL_memberdata['Email']     = $SQL_anchor . '@' .
                                                  Convert::raw2sql($RAW_domain);
               }
-          }
-
-          // But before we write ourselves to the database we must check if
-          // the group we are subscribing to exists
-          self::AuthLog($SQL_identity . ' - User did not exist but did authenticate. Adding user to database');
-          if ($group = DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql(self::getAutoAdd($RAW_source)).'\'')) {
-              if (DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
-                  self::$authmessage = _t('ExternalAuthenticator.GroupExists','An account with your e-mail address already exists');
-                  $authsuccess = false;
-              } else {
+          } 
+                         
+          // First we check if the user's e-mail address has changed
+          // we do this by checking if the anchor and source are already in the dbs
+          // we do this only if the user used his mail address to authenticate
+          // If the user does not exist we create a new member object
+          if (!self::getUseAnchor()) {
+              // First we check if the user's e-mail address has changed
+              // we do this by checking if the anchor and source are already in the dbs
+              // we do this only if the user used his mail address to authenticate
+              // If the user does not exist we create a new member object
+              if (!$member = DataObject::get_one('Member', "Member.External_Anchor = '$SQL_anchor' AND Member.External_SourceID = '$SQL_source'")) {
                   $member = new Member;
-
-                  $member->update($SQL_memberdata);
-                  $member->ID = null;
-                  $member->write();
-                  
-                  self::AuthLog($SQL_identity . ' - start adding user to database');          
-                  Group::addToGroupByName($member, $group->Code);
-                  self::AuthLog($SQL_identity . ' - finished adding user to database');   
-                  self::AuditLog($member, $RAW_external_anchor, 'creation', NULL , true, $RAW_source); 
+                  self::AuthLog($SQL_anchor . ' - Anchor does not exist in database.');    
+              } else {
+                  self::AuthLog($SQL_anchor . ' - Anchor already present in the database but mail address is unknown. Changing mail address for this anchor');
+                  $userindbs = true;
+                  self::AuditLog($member, $SQL_anchor, 'modify', 'account exists', true, $SQL_source);
               }
           } else {
-              self::AuthLog($SQL_identity . ' - The group to add the user to did not exist');          
+              // Now we check if the users e-mail address already exists. He 
+              // did not authenticate himself with the mail address and we
+              // assume that if authentication was successful, he is owner
+              // of the address. This supports moving users from one source
+              // to another
+              if (!$member = DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
+                  $member = new Member;
+                  self::AuthLog($SQL_anchor . ' - Mail address does not exist in the database');
+              } else {
+                  self::Authlog($SQL_anchor . ' - Mail address already present in the database, modifying existing account');
+                  $userindbs = true;
+                  self::AuditLog($member, $SQL_anchor, 'modify', 'account exists', true, $SQL_source);
+              }
+          }
+          
+          // But before we write ourselves to the database we must check if
+          // the group we are subscribing to exists
+          if ($group = DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql(self::getAutoAdd($RAW_external_source)).'\'')) {
+              $member->update($SQL_memberdata);
+              if (!$userindbs) {
+                  $member->ID = null;
+              }
+              self::AuthLog($SQL_anchor . ' - start adding or modifying user');
+              $member->write();
+              self::AuthLog($SQL_anchor . ' - finished adding user to database'); 
+                  
+              if (!$userindbs) {  
+                  self::AuthLog($SQL_anchor . ' - start setting group membership');          
+                  Group::addToGroupByName($member, $group->Code);
+                  self::AuthLog($SQL_anchor . ' - finished setting group membership');   
+              }
+              self::AuditLog($member, $RAW_external_anchor, 'creation', NULL , true, $RAW_external_source); 
+          } else {
+              self::AuthLog($SQL_anchor . ' - The group to add the user to did not exist');          
               $authsuccess = false;
           }
-      }
+      } 
 
-      self::AuthLog('Process for user ' . $SQL_identity . ' ended');
+      self::AuthLog('Process for user ' . $SQL_anchor . ' ended');
       if ($authsuccess) {
           Session::clear('BackURL');
           
@@ -616,14 +712,14 @@ class ExternalAuthenticator extends Authenticator {
           Session::set('Security.Message.message', self::$authmessage);
           Session::set('Security.Message.type', 'good');
           
-          self::AuditLog($member, $RAW_external_anchor, 'logon', NULL , true, $RAW_source); 
+          self::AuditLog($member, $RAW_external_anchor, 'logon', NULL , true, $RAW_external_source); 
           return $member;
       } else {
           if(!is_null($form)) {   
               $form->sessionMessage(self::$authmessage,'bad');
           }
           
-          self::AuditLog($member, $RAW_external_anchor, 'logon', NULL , false, $RAW_source); 
+          self::AuditLog($member, $RAW_external_anchor, 'logon', NULL , false, $RAW_external_source); 
                                 
           return false;
       }

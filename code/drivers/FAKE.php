@@ -9,7 +9,21 @@
  */
  
 class FAKE_Authenticator {
-
+    /**
+     * Tries to find the anchor for a given mail address and source
+     *
+     * @access public
+     *
+     * @param string $source          The Authentication source to be used
+     * @param string $mailaddr        The mail address entered
+     *
+     * @return mixed    Anchor as string or false if not found
+     **/
+    public function getAnchor($source, $mailaddr) {
+        ExternalAuthenticator::AuthLog($mailaddr.'.fake - Anchor lookup not supported by source ' . $source);
+        return false;
+    }
+        
     /**
      * Logs the user on
      *
@@ -21,7 +35,6 @@ class FAKE_Authenticator {
      *
      * @return boolean  True
      */
-
     public function Authenticate($RAW_source, $RAW_external_anchor, $RAW_external_passwd) {
         return true;
     }

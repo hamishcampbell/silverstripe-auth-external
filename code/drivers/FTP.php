@@ -12,6 +12,23 @@ class FTP_Authenticator {
      * The default FTP portlist in case it is not defined
      */   
     protected static $port = 21;
+    
+    
+    /**
+     * Tries to find the anchor for a given mail address and source
+     *
+     * @access public
+     *
+     * @param string $source          The Authentication source to be used
+     * @param string $mailaddr        The mail address entered
+     *
+     * @return mixed    Anchor as string or false if not found
+     **/
+    public function getAnchor($source, $mailaddr) {
+        ExternalAuthenticator::AuthLog($mailaddr.'.ftp - Anchor lookup not supported by source ' . $source);
+        return false;
+    }
+
                                                          
     /**
      * Tries to logon to the FTP server with given id and password

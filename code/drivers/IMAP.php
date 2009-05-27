@@ -22,6 +22,22 @@ class IMAP_Authenticator {
                                                          'default' => 143));
                                                          
     /**
+     * Tries to find the anchor for a given mail address and source
+     *
+     * @access public
+     *
+     * @param string $source          The Authentication source to be used
+     * @param string $mailaddr        The mail address entered
+     *
+     * @return mixed    Anchor as string or false if not found
+     **/
+    public function getAnchor($source, $mailaddr) {
+        ExternalAuthenticator::AuthLog($mailaddr.'.imap - Anchor lookup not supported by source ' . $source);
+        return false;
+    }
+
+
+    /**
      * Tries to logon to the IMAP server with given id and password
      *
      * @access public

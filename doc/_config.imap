@@ -65,19 +65,24 @@ Authenticator::register_authenticator('ExternalAuthenticator');
 ExternalAuthenticator::createSource('localimap','IMAP','Local mail server');
 
 /**
- * On login, users can choose the authentication source they want, or all
- * sources can be checked in sequence till success (or failure)
- * In this is set to true, the source selection box on the login page
- * disappears. So you might want to set this to true if you have only one
- * source.
+ * Four pieces of information come into play when authenticating
+ * 1) The User's mail address
+ * 2) The authentication source
+ * 3) The User's identification credential at the source. This can be the 
+ *    username, or some other unique ID. This module calls it the 
+ *    anchor 
+ * 4) The password
  *
- * WARNING: If you set this to true, accounts from the different sources can
- *          eclipse eachother. The process stops at the first success.
+ * By default the user address is used for login. 
+ * The mail address is always unique, so SilverStripe can determine the
+ * authentication source and anchor to use for itself.
+ * The user only needs to give his/hers mail address and password
  *
- * NOTE:    The order in which accounts are checked depends on the order of the
- *          createSource statements
+ * Optionally the anchor can be used for authentication. If this is set the
+ * user needs to input the authentication source, the anchor and password
+ * to logon.
  **/
-ExternalAuthenticator::setAuthSequential(false);
+//ExternalAuthentication::setUseAnchor(false); 
 
 /**
  * How do we call a user ID?
@@ -124,14 +129,25 @@ ExternalAuthenticator::setAuthServer('localimap','localhost.localdomain');
 //ExternalAuthenticator::setAuthEnc('localimap', 'tls');
 
 /**
- * You have to possibility to auto create non existing users that do exists
- * on the mailserver. Set the option below to the group name you want
- * to add the user to (case sensitive) or to false if users should not be
- * created automatically
+ * You have to possibility to auto create non existing users.
+ * The effect of this option also depends on setting in 
+ * 'setUseAnchor'. If set to true, an account is created with a mail address
+ * that is constructed as [anchor value]@[present domain]
+ * If an account already exists with the this mail address and authentication
+ * is successful, the anchor and source are added or modified on that account
+ * This helps migrating existing SilverStripe users to external authentication
+ * sources.
+ *
+ * If 'setUseAnchor' is set to false (the default) nothing will happen
+ * This driver does not have the capability to determine source and anchor for
+ * a given mail address
  *
  * WARNING WARNING WARNING
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
+ *
+ * The second argument with this option is the group to add the user to. If an
+ * existing account is modified, the group memberships are not changed.
  **/
 //ExternalAuthenticator::setAutoAdd('localimap', 'Testgroup');
 ExternalAuthenticator::setAutoAdd('localimap', false);

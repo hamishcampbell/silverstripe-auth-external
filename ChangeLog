@@ -2,6 +2,9 @@ External Authenticator Changelog
 --------------------------------
 0.4
 - [MISC] Rename (External_)UserID to Anchor
+- [ENHANCEMENT] Ticket #3742. Authentication wil mail address is possible now
+                including limited support for auto update of accounts
+- [DEPRECATED]  setAuthSequential is deprecated now. It now sets UseAnchor
 
 0.3.1
 - [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver

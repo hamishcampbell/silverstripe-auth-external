@@ -93,19 +93,24 @@ Authenticator::register_authenticator('ExternalAuthenticator');
 ExternalAuthenticator::createSource('localldap','LDAP','User Directory');
 
 /**
- * On login, users can choose the authentication source they want, or all
- * sources can be checked in sequence till success (or failure)
- * In this is set to true, the source selection box on the login page
- * disappears. So you might want to set this to true if you have only one
- * source.
+ * Four pieces of information come into play when authenticating
+ * 1) The User's mail address
+ * 2) The authentication source
+ * 3) The User's identification credential at the source. This can be the 
+ *    username, or some other unique ID. This module calls it the 
+ *    anchor 
+ * 4) The password
  *
- * WARNING: If you set this to true, accounts from the different sources can
- *          eclipse eachother. The process stops at the first success.
+ * By default the user address is used for login. 
+ * The mail address is always unique, so SilverStripe can determine the
+ * authentication source and anchor to use for itself.
+ * The user only needs to give his/hers mail address and password
  *
- * NOTE:    The order in which accounts are checked depends on the order of the
- *          createSource statements
+ * Optionally the anchor can be used for authentication. If this is set the
+ * user needs to input the authentication source, the anchor and password
+ * to logon.
  **/
-ExternalAuthenticator::setAuthSequential(false);
+//ExternalAuthentication::setUseAnchor(false); 
 
 /**
  * How do we call a user ID?
@@ -185,11 +190,11 @@ ExternalAuthenticator::setOption('localldap', 'basedn', 'ou=People,dc=silverstri
 //ExternalAuthenticator::setOption('localldap', 'ldapversion', 3); 
 
 /**
- * You can use any unique attribute to authenticate as, this
- * mail, or uid, or any other unique attribute. 
- *
- * SilverStripe will search the ldap for this attribute set to the ID entered
- * on the basedn and below 
+ * You can use any unique attribute as an anchor, this could be
+ * uid, username, or any other unique attribute. 
+ * Set it to a username is setUseAnchor is set to true and/or setAutoAdd is set
+ * to false or set it uid or serial when setUseAnchor is set to false and 
+ * setAutoAdd is set to true
  **/
 ExternalAuthenticator::setOption('localldap', 'attribute', 'uid');
 
@@ -220,14 +225,39 @@ ExternalAuthenticator::setOption('localldap', 'attribute', 'uid');
 //ExternalAuthenticator::setOption('localldap', 'passwd_expiration', true); 
 
 /**
- * You have to possibility to auto create non existing users that do exist
- * within the LDAP database. Set the option below to the group name you want
- * to add the user to (case sensitive) or to false if users should not be
- * created automatically
+ * You have to possibility to auto create non existing users.
+ * The effect of this option also depends on setting in 
+ * 'setUseAnchor'. If set to true, an account is created with a mail address
+ * that is constructed as [anchor value]@[present domain] or, if 'email_attr'
+ * below is set, with the mail address from the source
+ *
+ * If an account already exists with the this mail address and authentication
+ * is successful, the anchor and source are added or modified on that account
+ * This helps migrating existing SilverStripe users to external authentication
+ * sources.
+ *
+ * If 'setUseAnchor' is set to false (the default) nothing will happen if 
+ * 'email_attr' is not set. If it is set, the anchor and source are determined
+ * by the driver and a Silverstripe account is created. If the mail address 
+ * used for authentication does not exist and the anchor/source combination is
+ * present in the SilverStripe database, that existing account will be used for
+ * logon and the user account will be modified with this new mail address.
+ *
+ * It is important the the 'attribute' option above is configured with an 
+ * account detail that never changes. The username is thus a bad choice. The 
+ * UID or serial of a user account is a better choice. On the other hand, if 
+ * setUseAnchor is set to true, the username is the correct choice, since the
+ * user is obliged to input that detail when logging on. The user mail address
+ * takes over the role of the anchor. If the username and mail address are
+ * changed at the same time in the authentication source, the coupled 
+ * SilverStripe account will be orphaned.
  *
  * WARNING WARNING WARNING
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
+ *
+ * The second argument with this option is the group to add the user to. If an
+ * existing account is modified, the group memberships are not changed.
  **/
 //ExternalAuthenticator::setAutoAdd('localldap', 'Testgroup');
 ExternalAuthenticator::setAutoAdd('localldap', false);

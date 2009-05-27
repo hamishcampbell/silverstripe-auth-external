@@ -11,6 +11,21 @@
  */
  
 class SSTRIPE_Authenticator {
+    /**
+     * Tries to find the anchor for a given mail address and source
+     *
+     * @access public
+     *
+     * @param string $source          The Authentication source to be used
+     * @param string $mailaddr        The mail address entered
+     *
+     * @return mixed    Anchor as string or false if not found
+     **/
+    public function getAnchor($source, $mailaddr) {
+        ExternalAuthenticator::AuthLog($mailaddr.'.sstripe - Anchor lookup makes no sense for source ' . $source);
+        return false;
+    }
+
 
     /**
      * Tries to logon using the credentials in the SilverStripe database

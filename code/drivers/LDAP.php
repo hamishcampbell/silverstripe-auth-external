@@ -145,12 +145,11 @@ class LDAP_Authenticator {
      *                object holds the attribute name.
      * @return string  The users full DN or boolean on fail
      */
-    private function findDN($source, $ldapattribute) {
+    private function findDN($source, $ldapattribute, $ldapattributevalue) {
         /* Check if basedn and attribute are set */
-        $searchfor = ExternalAuthenticator::getOption($source, 'attribute');
         $basedn    = ExternalAuthenticator::getOption($source, 'basedn');
-        if (is_null($searchfor) || is_null($basedn)) {
-            ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - BaseDN and/or search attribute not set'); 
+        if (is_null($basedn)) {
+            ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - BaseDN not set'); 
             return false;
         }
         
@@ -158,62 +157,62 @@ class LDAP_Authenticator {
         $attribute_array = ExternalAuthenticator::getOption($source,'extra_attributes');
         if (!is_null($attribute_array) && is_array($attribute_array)) {
             $filter =  '(& ';
-            $filter .= '('.$searchfor.'='.$ldapattribute.')';
+            $filter .= '('.$ldapattribute.'='.$ldapattributevalue.')';
             foreach ($attribute_array as $attribute => $value) {
                 $filter .= '('.$attribute.'='.$value.')';
             }
             $filter .= ')';
         } else {
-            $filter = '('.$searchfor.'='.$ldapattribute.')';
+            $filter = '('.$ldapattribute.'='.$ldapattributevalue.')';
         }
-        ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - LDAP filter set to ' . $filter); 
+        ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - LDAP filter set to ' . $filter); 
         
         if (is_array($basedn)) {
             foreach ($basedn as $dn) {
-                ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - Searching in tree ' . $dn); 
+                ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Searching in tree ' . $dn); 
                 /* Search for the user's full DN. */
                 $search = @ldap_search(self::$ds, $dn,
                                        $filter,
-                                       array($searchfor));
+                                       array($ldapattribute));
               
                 if ($search) {
-                    ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - Search succeeded'); 
+                    ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Search succeeded'); 
               
                     # Check for count. Some LDAPs return a result with count 0
                     # when search has failed
                     $result =  @ldap_get_entries(self::$ds, $search);
                     if ($result['count'] > 0 ) {
-                        ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - Found ' . $result['count'] . ' results'); 
+                        ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Found ' . $result['count'] . ' results'); 
                         break;
                     } else {
-                        ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - No matching results');
+                        ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - No matching results');
                     } 
                 } else {
-                    ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - Search failed');
+                    ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Search failed');
                 }  
             }
         } else {
             /* Search for the user's full DN. */
-            ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - Searching in tree ' . $basedn);
+            ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Searching in tree ' . $basedn);
             $search = @ldap_search(self::$ds, $basedn, 
                                    $filter,
-                                   array($searchfor));
+                                   array($ldapattribute));
             if ($search) {
-                ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - Search succeeded');
+                ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Search succeeded');
                 $result =  @ldap_get_entries(self::$ds, $search);
-                ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - Found ' . $result['count'] . ' results');
+                ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Found ' . $result['count'] . ' results');
             } else {
-                ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - Search failed');
+                ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Search failed');
             }
         }
 
         if ((!$search) || ($result['count'] == 0) || (!is_array($result))) {
-            ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - No matches found');
+            ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - No matches found');
             return false;
         }
 
         $dn = $result[0]['dn'];
-        ExternalAuthenticator::AuthLog($ldapattribute.'.ldap - DN ' . $dn . ' matches criteria');
+        ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - DN ' . $dn . ' matches criteria');
         return $dn;
     }
 
@@ -247,6 +246,9 @@ class LDAP_Authenticator {
                                                           ),
                                'email'            => array('value' => 'root@localhost',
                                                            'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'email_attr'))
+                                                          ),
+                               'anchor'           => array('value' => false, 
+                                                           'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'attribute'))
                                                           )
                               );
 
@@ -278,7 +280,39 @@ class LDAP_Authenticator {
         return $lookupdetails;
     }
 
-
+   
+    /**
+     * Tries to find the anchor for a given mail address and source
+     *
+     * @access public
+     *
+     * @param string $source          The Authentication source to be used
+     * @param string $mailaddr        The mail address entered
+     *
+     * @return mixed    Anchor as string or false if not found
+     **/
+    public function getAnchor($source, $mailaddr) {
+        $result = self::Connect($source, $mailaddr);
+        if (is_string($result)) {
+            ExternalAuthenticator::setAuthMessage($result);
+            return false;
+        }
+        
+        if ($dn = self::findDN($source,strtolower(ExternalAuthenticator::getOption($source, 'email_attr')),$mailaddr)) {
+            //We have a winner, now lookup the anchor
+            ExternalAuthenticator::AuthLog($mailaddr.'.ldap - Account found. source:' . $source . ' dn:' . $dn);
+            $details = self::lookupDetails($source, $dn, $mailaddr);
+            return $details['anchor']['value'];
+        } else {
+            //The mail address is not in this source
+            ExternalAuthenticator::AuthLog($mailaddr.'.ldap - Account not found in source:' . $source);
+            return false;
+        }
+        
+        @ldap_close(self::$ds);
+    }
+    
+    
     /**
      * Tries to logon to the LDAP server with given id and password
      *
@@ -307,7 +341,7 @@ class LDAP_Authenticator {
             return false;
         }
       
-        $dn = self::findDN($source, $external_anchor);
+        $dn = self::findDN($source, ExternalAuthenticator::getOption($source, 'attribute'), $external_anchor);
         if (is_bool($dn)) {
             @ldap_close(self::$ds);
             ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed'));
