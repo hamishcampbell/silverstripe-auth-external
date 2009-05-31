@@ -119,7 +119,8 @@ class ExternalLoginForm extends LoginForm {
             Session::clear('SessionForms.ExternalLoginForm.External_SourceID');
             Session::clear('SessionForms.ExternalLoginForm.Remember');
 
-            if($backURL = $_REQUEST['BackURL']) {
+            if(isset($_REQUEST['BackURL'])) {
+                $backURL = $_REQUEST['BackURL'];
                 Session::clear('BackURL');
                 Director::redirect($backURL);
             } else

@@ -5,6 +5,7 @@ External Authenticator Changelog
 - [ENHANCEMENT] Ticket #3742. Authentication wil mail address is possible now
                 including limited support for auto update of accounts
 - [DEPRECATED]  setAuthSequential is deprecated now. It now sets UseAnchor
+- [BUGFIX]      Ticket #4172. Check if BackURL is set
 
 0.3.1
 - [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver
