@@ -477,8 +477,8 @@ class ExternalAuthenticator extends Authenticator {
       Object::add_extension('Member_Validator', 'ExternalAuthenticatedRole_Validator');
       return parent::on_register();
   }
+  
 
-    
   /**
    * Method to authenticate an user
    *
@@ -489,9 +489,6 @@ class ExternalAuthenticator extends Authenticator {
    * @return bool Returns FALSE if authentication fails, otherwise the
    *              member object    
    */
-   
-//TODO AUTOADD WITH ANCHOR AUTHENTICATION
-
   public static function authenticate($RAW_data, Form $form = null) {
       $RAW_external_anchor   = trim($RAW_data['External_Anchor']);
       $RAW_external_mailaddr = trim($RAW_data['External_MailAddr']);

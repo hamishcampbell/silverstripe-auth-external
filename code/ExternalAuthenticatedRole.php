@@ -128,7 +128,7 @@ class ExternalAuthenticatedRole_Validator extends Extension {
         $member = DataObject::get_one('Member',
                   'External_Anchor = \''. 
                   Convert::raw2sql($data['External_Anchor']) .
-                  '\' AND External_Source = \'' . 
+                  '\' AND External_SourceID = \'' . 
                   Convert::raw2sql($data['External_SourceID']) .'\'');
 
         // if we are in a complex table field popup, use ctf[childID], else use
