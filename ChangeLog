@@ -7,6 +7,8 @@ External Authenticator Changelog
 - [DEPRECATED]  setAuthSequential is deprecated now. It now sets UseAnchor
 - [BUGFIX]      Ticket #4172. Check if BackURL is set
 - [BUGFIX]      Ticket #4186. SQL Query in UpdatePHP
+- [BUGFIX]      Ticket #4212. README Patch
+- [BUGFIX]      Make logging more uniform
 
 0.3.1
 - [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver

@@ -515,8 +515,8 @@ class ExternalAuthenticator extends Authenticator {
           }
           
           $SQL_anchor   = Convert::raw2sql($RAW_external_anchor);
+          $Log_ID       = $SQL_anchor;
           
-          self::AuthLog('Starting process for user ' . $SQL_anchor);
           $memberquery = "Member.External_Anchor = '$SQL_anchor' AND Member.External_SourceID = '$SQL_source'";       
       } else {
           if (strlen($RAW_external_mailaddr) == 0) {
@@ -527,23 +527,25 @@ class ExternalAuthenticator extends Authenticator {
           }
           
           $SQL_mailaddr = Convert::raw2sql($RAW_external_mailaddr);
+          $Log_ID       = $SQL_mailaddr;
           
-          self::AuthLog('Starting process for e-Mail address ' . $SQL_mailaddr);
           $memberquery = "Member.Email = '$SQL_mailaddr'";
       } 
+
+      self::AuthLog('Starting process for user ' . $Log_ID);
 
       if (($member = DataObject::get_one('Member',$memberquery))) {
           // Before we continue we must check if the source is valid
           if (is_bool(array_search($member->External_SourceID,self::getSources()))) {
-              self::AuthLog($member->External_Anchor . ' - Source ' . $member->External_SourceID . ' is not configured');
-              self::AuditLog($member, $member->External_Anchor, 'logon', 'source does not exists' , false, $member->External_SourceID); 
+              self::AuthLog($Log_ID . ' - Source ' . $member->External_SourceID . ' is not configured');
+              self::AuditLog($member, $Log_ID, 'logon', 'source does not exists' , false, $member->External_SourceID); 
               return false;
           }
 
           $userexists = true;
           $userindbs  = true;
 
-          self::AuthLog($member->External_Anchor . ' - User with source ' . $member->External_SourceID . ' found in database');
+          self::AuthLog($Log_ID . ' - User with source ' . $member->External_SourceID . ' found in database');
           
           if (!self::getUseAnchor()) {
               $RAW_external_source = stripslashes($member->External_SourceID);
@@ -552,21 +554,21 @@ class ExternalAuthenticator extends Authenticator {
               
           //Check if the user was behaving nicely
           if (self::getAuthSSLock($member->External_SourceID)) {
-              self::AuthLog($member->External_Anchor . ' - Password lock checking enabled');
+              self::AuthLog($Log_ID . ' - Password lock checking enabled');
                   
               if ($member->isLockedOut()) {
-                  self::AuthLog($member->External_Anchor . ' - User is locked out in Silverstripe Database');
+                  self::AuthLog($Log_ID . ' - User is locked out in Silverstripe Database');
                   $member->registerFailedLogin();
-                  self::AuthLog($member->External_Anchor . ' - This attempt is also logged in the database');
+                  self::AuthLog($Log_ID . ' - This attempt is also logged in the database');
                   $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
                   
-                  self::AuditLog($member, $member->External_Anchor, 'logon', 'account is locked' , false, $member->External_SourceID); 
+                  self::AuditLog($member, $Log_ID, 'logon', 'account is locked' , false, $member->External_SourceID); 
                   return false;
               } else {
-                  self::AuthLog($member->External_Anchor . ' - User is not locked');
+                  self::AuthLog($Log_ID . ' - User is not locked');
               }
           } else {
-              self::AuthLog($member->External_Anchor . ' - Password locking is disabled');
+              self::AuthLog($Log_ID . ' - Password locking is disabled');
           }    
       } else {
           self::Authlog('User with source NOT found in database');
@@ -576,23 +578,23 @@ class ExternalAuthenticator extends Authenticator {
       //Load the drivers for all sources
       foreach (self::getSources() as $source) {
           $auth_type = strtoupper(self::getAuthType($source));
-          self::AuthLog($SQL_anchor . ' - loading driver ' . $auth_type);
+          self::AuthLog($Log_ID . ' - loading driver ' . $auth_type);
           require_once 'drivers/' . $auth_type . '.php';
           
           //If we don't have a user yet and autoadd is on; try to find the anchor
           if (!$userexists && !self::getUseAnchor() && self::getAutoAdd($source)) {
-              self::AuthLog($RAW_external_mailaddr . ' - Using driver source ' . $source . ' to find anchor');
+              self::AuthLog($Log_ID . ' - Using driver source ' . $source . ' to find anchor');
               $myauthenticator = $auth_type . '_Authenticator';
               $myauthenticator = new $myauthenticator();
               
               if($RAW_external_anchor  = $myauthenticator->getAnchor($source,$RAW_external_mailaddr)) {
-                  self::AuthLog($RAW_external_mailaddr . ' - Found anchor ' . $RAW_external_anchor . ' in source ' . $source);
+                  self::AuthLog($Log_ID . ' - Found anchor ' . $RAW_external_anchor . ' in source ' . $source);
                   $userexists          = true;
                   $RAW_external_source = $source;
                   $SQL_source          = Convert::raw2sql($RAW_external_source);
                   $SQL_anchor          = Convert::raw2sql($RAW_external_anchor);
               } else {
-                  self::AuthLog($RAW_external_mailaddr . ' - Did not find anchor for ' . $RAW_external_mailaddr . ' in source ' . $source);
+                  self::AuthLog($Log_ID . ' - Did not find anchor for ' . $RAW_external_mailaddr . ' in source ' . $source);
               }
           }
       }
@@ -602,17 +604,17 @@ class ExternalAuthenticator extends Authenticator {
           $myauthenticator = $auth_type . '_Authenticator';
           $myauthenticator = new $myauthenticator();
               
-          self::AuthLog($SQL_anchor . ' - executing authentication driver');
+          self::AuthLog($Log_ID . ' - executing authentication driver');
           $RAW_result = $myauthenticator->Authenticate($RAW_external_source, $RAW_external_anchor, 
                                                        $RAW_external_passwd);
 
           if ($RAW_result) {
               $authsuccess = true;
-              self::AuthLog($SQL_anchor . ' - authentication success');
+              self::AuthLog($Log_ID . ' - authentication success');
           } else {
-              self::AuthLog($SQL_anchor . ' - authentication driver ' . $auth_type . ' failed');
+              self::AuthLog($Log_ID . ' - authentication driver ' . $auth_type . ' failed');
               if ($member && self::getAuthSSLock($RAW_external_source)) {
-                  self::AuthLog($SQL_anchor . ' - Registering failed login');
+                  self::AuthLog($Log_ID . ' - Registering failed login');
                   $member->registerFailedLogin();
               }
           }
@@ -656,11 +658,11 @@ class ExternalAuthenticator extends Authenticator {
               // If the user does not exist we create a new member object
               if (!$member = DataObject::get_one('Member', "Member.External_Anchor = '$SQL_anchor' AND Member.External_SourceID = '$SQL_source'")) {
                   $member = new Member;
-                  self::AuthLog($SQL_anchor . ' - Anchor does not exist in database.');    
+                  self::AuthLog($Log_ID . ' - Anchor does not exist in database.');    
               } else {
-                  self::AuthLog($SQL_anchor . ' - Anchor already present in the database but mail address is unknown. Changing mail address for this anchor');
+                  self::AuthLog($Log_ID . ' - Anchor already present in the database but mail address is unknown. Changing mail address for this anchor');
                   $userindbs = true;
-                  self::AuditLog($member, $SQL_anchor, 'modify', 'account exists', true, $SQL_source);
+                  self::AuditLog($member, $Log_ID, 'modify', 'account exists', true, $SQL_source);
               }
           } else {
               // Now we check if the users e-mail address already exists. He 
@@ -670,11 +672,11 @@ class ExternalAuthenticator extends Authenticator {
               // to another
               if (!$member = DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
                   $member = new Member;
-                  self::AuthLog($SQL_anchor . ' - Mail address does not exist in the database');
+                  self::AuthLog($Log_ID . ' - Mail address does not exist in the database');
               } else {
-                  self::Authlog($SQL_anchor . ' - Mail address already present in the database, modifying existing account');
+                  self::Authlog($Log_ID . ' - Mail address already present in the database, modifying existing account');
                   $userindbs = true;
-                  self::AuditLog($member, $SQL_anchor, 'modify', 'account exists', true, $SQL_source);
+                  self::AuditLog($member, $Log_ID, 'modify', 'account exists', true, $SQL_source);
               }
           }
           
@@ -685,23 +687,23 @@ class ExternalAuthenticator extends Authenticator {
               if (!$userindbs) {
                   $member->ID = null;
               }
-              self::AuthLog($SQL_anchor . ' - start adding or modifying user');
+              self::AuthLog($Log_ID . ' - start adding or modifying user');
               $member->write();
-              self::AuthLog($SQL_anchor . ' - finished adding user to database'); 
+              self::AuthLog($Log_ID . ' - finished adding user to database'); 
                   
               if (!$userindbs) {  
-                  self::AuthLog($SQL_anchor . ' - start setting group membership');          
+                  self::AuthLog($Log_ID . ' - start setting group membership');          
                   Group::addToGroupByName($member, $group->Code);
-                  self::AuthLog($SQL_anchor . ' - finished setting group membership');   
+                  self::AuthLog($Log_ID . ' - finished setting group membership');   
               }
-              self::AuditLog($member, $RAW_external_anchor, 'creation', NULL , true, $RAW_external_source); 
+              self::AuditLog($member, $Log_ID, 'creation', NULL , true, $RAW_external_source); 
           } else {
-              self::AuthLog($SQL_anchor . ' - The group to add the user to did not exist');          
+              self::AuthLog($Log_ID . ' - The group to add the user to did not exist');          
               $authsuccess = false;
           }
       } 
 
-      self::AuthLog('Process for user ' . $SQL_anchor . ' ended');
+      self::AuthLog('Process for user ' . $Log_ID . ' ended');
       if ($authsuccess) {
           Session::clear('BackURL');
           
@@ -709,14 +711,14 @@ class ExternalAuthenticator extends Authenticator {
           Session::set('Security.Message.message', self::$authmessage);
           Session::set('Security.Message.type', 'good');
           
-          self::AuditLog($member, $RAW_external_anchor, 'logon', NULL , true, $RAW_external_source); 
+          self::AuditLog($member, $Log_ID, 'logon', NULL , true, $RAW_external_source); 
           return $member;
       } else {
           if(!is_null($form)) {   
               $form->sessionMessage(self::$authmessage,'bad');
           }
           
-          self::AuditLog($member, $RAW_external_anchor, 'logon', NULL , false, $RAW_external_source); 
+          self::AuditLog($member, $Log_ID, 'logon', NULL , false, $RAW_external_source); 
                                 
           return false;
       }
