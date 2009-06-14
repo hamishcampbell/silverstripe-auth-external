@@ -9,6 +9,12 @@ External Authenticator Changelog
 - [BUGFIX]      Ticket #4186. SQL Query in UpdatePHP
 - [BUGFIX]      Ticket #4212. README Patch
 - [BUGFIX]      Make logging more uniform
+- [BUGFIX]      Add source check with anchor auth and autoadd 
+                (introduced in 0.4 trunk)
+- [MISC]        Restructure authenticate method for readability
+                suggested and assisted by Ben Gribaudo
+- [BUGFIX]      Optimize driver loading (overhead introduced in 0.4 trunk)
+- [ENHANCEMENT] Add timestamp of start auth. process to debug log
 
 0.3.1
 - [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver
