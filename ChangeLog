@@ -18,6 +18,7 @@ External Authenticator Changelog
 - [BUGFIX]      Fix a case when authentication source was not checked 
                 (introduced in 0.4 trunk)
 - [BUGFIX]      Fix ticket #4313
+- [BUGFIX]	Various fixes. Thanks to Ben Gribaudo.
 
 0.3.1
 - [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver

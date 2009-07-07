@@ -593,7 +593,7 @@ class ExternalAuthenticator extends Authenticator {
    **/
   private static function locateAnchor($source, $RAW_external_mailaddr, $Log_ID) {
       self::AuthLog($Log_ID . ' - Using driver source ' . $source . ' to find anchor');
-      $myauthenticator = $auth_type . '_Authenticator';
+      $myauthenticator = strtoupper(self::getAuthType($source)) . '_Authenticator';
       $myauthenticator = new $myauthenticator();
               
       if ($RAW_external_anchor  = $myauthenticator->getAnchor($source,$RAW_external_mailaddr)) {
@@ -707,31 +707,50 @@ class ExternalAuthenticator extends Authenticator {
               }
           } else {
               $Log_ID = 'unknown';
-              self::Authlog($Log_ID . 'User with source NOT found in database');
+              self::Authlog($Log_ID . ' - User with source NOT found in database');
           }
       } else {
           // Authentication form was not filled out properly
           return false;
       }
       
-      // Try to find our anchor, since we have none 
-      if (!$userexists && !self::getUseAnchor() && self::getAutoAdd($source)) {     
-          foreach (self::getSources() as $source) {
-              $auth_type = strtoupper(self::getAuthType($source));
-              self::AuthLog($Log_ID . ' - loading driver ' . $auth_type);
-              require_once 'drivers/' . $auth_type . '.php';
-          
-              //If we don't have a user yet and autoadd is on; try to find the anchor
-              if ($memberdata = locateAnchor($source, $RAW_external_mailaddr, $Log_ID)) {
-                  extract($memberdata);
+      if (!$userexists && self::getUseAnchor()) {
+          if (self::validSource($RAW_external_source, $Log_ID)) {
+              if (self::getAutoAdd($RAW_external_source)) {
                   $userexists = true;
-                  break;
+              } else {
+                  $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+                  self::Authlog($Log_ID . 'AutoAdd for source ' . $RAW_external_source . ' not enabled, aborting');
+                  return false;
+              }
+          } else {
+              $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+              self::Authlog($Log_ID . 'Illegal source ' . $RAW_external_source . ', aborting');
+              return false;
+          }
+      }
+      
+      // Try to find our anchor, since we have none 
+      if (!$userexists && !self::getUseAnchor()) {     
+          foreach (self::getSources() as $source) {
+              if (self::getAutoAdd($source)) {
+                  $auth_type = strtoupper(self::getAuthType($source));
+                  self::AuthLog($Log_ID . ' - loading driver ' . $auth_type);
+                  require_once 'drivers/' . $auth_type . '.php';
+          
+                  //If we don't have a user yet and autoadd is on; try to find the anchor
+                  if ($memberdata = self::locateAnchor($source, $RAW_external_mailaddr, $Log_ID)) {
+                      extract($memberdata);
+                      $userexists = true;
+                      break;
+                  }
               }
           }
       } else {
           // Load the correct driver
           if (!self::validSource($RAW_external_source, $Log_ID)) {
               $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+              self::Authlog($Log_ID . 'Illegal source ' . $RAW_external_source . ', aborting');
               return false;
           }
           
@@ -740,7 +759,7 @@ class ExternalAuthenticator extends Authenticator {
           require_once 'drivers/' . $auth_type . '.php';
       }
 
-      if (($userexists && !self::getUseAnchor()) || self::getUseAnchor()) {   
+      if ($userexists) {   
           $myauthenticator = $auth_type . '_Authenticator';
           $myauthenticator = new $myauthenticator();
               
