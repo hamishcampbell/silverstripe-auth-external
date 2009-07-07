@@ -627,17 +627,19 @@ class ExternalAuthenticator extends Authenticator {
       $SQL_memberdata['External_Anchor']   = Convert::raw2sql($RAW_external_anchor);
       $SQL_memberdata['External_SourceID'] = Convert::raw2sql($RAW_external_source);
 
-      if (isset($RAW_result['firstname'])) {
+      if (isset($RAW_result['firstname']) && !is_bool($RAW_result['firstname'])) {
           $SQL_memberdata['FirstName'] = Convert::raw2sql($RAW_result['firstname']);
+      } else {
+          $SQL_memberdata['FirstName'] = '';
       }
 
-      if (isset($RAW_result['surname'])) {
+      if (isset($RAW_result['surname']) && !is_bool($RAW_result['surname'])) {
           $SQL_memberdata['Surname']   = Convert::raw2sql($RAW_result['surname']);
       } else {
           $SQL_memberdata['Surname']   = $SQL_anchor;
       }
  
-      if (isset($RAW_result['email'])) {
+      if (isset($RAW_result['email']) && !is_bool($RAW_result['email'])) {
           $SQL_memberdata['Email']     = Convert::raw2sql($RAW_result['email']);
       } else {
           if (is_null($RAW_domain)) {
@@ -706,14 +708,6 @@ class ExternalAuthenticator extends Authenticator {
           } else {
               $Log_ID = 'unknown';
               self::Authlog($Log_ID . 'User with source NOT found in database');
-
-              // Verify the source if we are using anchor for login
-              if (self::getUseAnchor()) {
-                  if (!self::validSource($RAW_external_source, $Log_ID)) {
-                      $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
-                      return false;
-                  }
-              }
           }
       } else {
           // Authentication form was not filled out properly
@@ -736,6 +730,11 @@ class ExternalAuthenticator extends Authenticator {
           }
       } else {
           // Load the correct driver
+          if (!self::validSource($RAW_external_source, $Log_ID)) {
+              $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+              return false;
+          }
+          
           $auth_type = strtoupper(self::getAuthType($RAW_external_source));
           self::AuthLog($Log_ID . ' - loading driver ' . $auth_type);
           require_once 'drivers/' . $auth_type . '.php';

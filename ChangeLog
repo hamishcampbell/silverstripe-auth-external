@@ -15,6 +15,9 @@ External Authenticator Changelog
                 suggested and assisted by Ben Gribaudo
 - [BUGFIX]      Optimize driver loading (overhead introduced in 0.4 trunk)
 - [ENHANCEMENT] Add timestamp of start auth. process to debug log
+- [BUGFIX]      Fix a case when authentication source was not checked 
+                (introduced in 0.4 trunk)
+- [BUGFIX]      Fix ticket #4313
 
 0.3.1
 - [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver

@@ -238,13 +238,13 @@ class LDAP_Authenticator {
                                'shadowmin'        => array('value' => false, 'attr' => 'shadowmin'),
                                'shadowmax'        => array('value' => false, 'attr' => 'shadowmax'),
                                'shadowwarning'    => array('value' => false, 'attr' => 'shadowwarning'),
-                               'firstname'        => array('value' => 'unknown', 
+                               'firstname'        => array('value' => false, 
                                                            'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'firstname_attr'))
                                                           ),
-                               'surname'          => array('value' =>'unknown',
+                               'surname'          => array('value' => false,
                                                            'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'surname_attr'))
                                                           ),
-                               'email'            => array('value' => 'root@localhost',
+                               'email'            => array('value' => false,
                                                            'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'email_attr'))
                                                           ),
                                'anchor'           => array('value' => false, 
