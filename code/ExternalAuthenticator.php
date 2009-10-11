@@ -53,7 +53,8 @@ class ExternalAuthenticator extends Authenticator {
     * Timestamp for this authentication try
     **/
    protected static $timestamp = null;
-
+      
+      
    /**
     * Creates an authentication source with default settings
     *
@@ -71,22 +72,30 @@ class ExternalAuthenticator extends Authenticator {
            'anchordesc'    => 'User ID',    //How do we refer to a user id
            'encryption'    => null,         //Enable SSL or TLS encryption
            'autoadd'       => false,        //Automatically add users?
+           'valid_client'  => true,         //Client is within listed netmasks
            'defaultdomain' => null,         //Default mail domain for auto 
                                             //adding accounts
                                             //Only works if driver cannot
                                             //get user mail.
            "authoption" => array()          //Driver specific options
        );
+       
+       if (is_null(self::$timestamp)) self::$timestamp = date('His');
    }
    
    
    /**
     * Get all source ids
     *
-    * return array Array of source id's
+    * return array Array of source id's. Filter out any sources that should 
+    * not be used based on the clients IP
     **/
    public static function getSources() {
-       return array_keys(self::$authsources);   
+       $validsources = array();
+       foreach (array_keys(self::$authsources) as $thissource) {
+           if (self::getValidClient($thissource)) $validsources[] = $thissource;
+       }
+       return $validsources;   
    }
    
    /**
@@ -411,6 +420,52 @@ class ExternalAuthenticator extends Authenticator {
    }
    
    /**
+    * Set a valid range of IP numbers for a source
+    *
+    * @param string $sourceid Source ID
+    * @param mixed  $netmasks Array or string of "network/netmask"
+    *                         like (192.168.0.0/24 or 192.168.0.0/255.255.255.0)
+    */
+   public static function setValidAddress($sourceid, $netmasks){
+       self::$authsources["$sourceid"]['valid_client'] = false;
+
+       $valid_network = new AuthNetworkAddress();
+       if (is_array($netmasks)) {
+           foreach ($netmasks as $netmask) {
+               if ($valid_network->applyNetmask($netmask)) {
+                   self::$authsources["$sourceid"]['valid_client'] = true;
+                   self::AuthLog('Client IP ' . $valid_network->getClientIP() . 
+                                 ' is in ' . $netmask);
+               } else {
+                   self::AuthLog('Client IP ' . $valid_network->getClientIP() . 
+                                 ' is NOT in ' . $netmask);
+               }
+           }
+       } else {
+          if ($valid_network->applyNetmask($netmasks)) {
+              self::$authsources["$sourceid"]['valid_client'] = true;
+              self::AuthLog('Client IP ' . $valid_network->getClientIP() . 
+                            ' is in ' . $netmasks);       
+          } else {
+              self::AuthLog('Client IP ' . $valid_network->getClientIP() . 
+                            ' is NOT in ' . $netmasks);
+          }
+       }
+   }
+   
+   /**
+    * Returns if the client is in a valid IP range
+    *
+    * @param string $sourceid Source ID
+    *
+    * @return boolean Valid client or not
+    */
+   public static function getValidClient($sourceid) {
+       return self::$authsources["$sourceid"]['valid_client'];
+   }
+   
+   
+   /**
     * Writes a message to the debug logfile
     **/
    public static function AuthLog($message) {
@@ -542,7 +597,7 @@ class ExternalAuthenticator extends Authenticator {
    **/
   private static function validSource($source, $Log_ID, $member = false) {
       if (is_bool(array_search($source,self::getSources()))) {
-          self::AuthLog($Log_ID . ' - Source ' . $source . ' is not configured');
+          self::AuthLog($Log_ID . ' - Source ' . $source . ' is not configured or client is not in permissible IP range');
           self::AuditLog($member, $Log_ID, 'logon', 'source does not exists' , false, $source); 
           return false;
       } else {
@@ -655,6 +710,18 @@ class ExternalAuthenticator extends Authenticator {
   
   
   /**
+   * When we fail login we should return the same state to the user always to prevent
+   * giving hints on the reason of failure
+   *
+   */
+  protected static function failmessage($form, $member, $Log_ID, $RAW_external_source) {
+      if (!is_null($form)) {   
+          $form->sessionMessage(self::$authmessage,'bad');
+      }
+      self::AuditLog($member, $Log_ID, 'logon', NULL , false, $RAW_external_source); 
+  }
+  
+  /**
    * Method to authenticate an user
    *
    * @param $RAW_data Raw data to authenticate the user
@@ -672,7 +739,6 @@ class ExternalAuthenticator extends Authenticator {
       $userexists      = false;    //Does the user exist within SilverStripe?
       $userindbs       = false;    //Does the user already exist in the SStripe dbs?
       $authsuccess     = false;    //Initialization of variable 
-      self::$timestamp = date('His');
       
       //Set authentication message for failed authentication
       //Could be used by the individual drivers      
@@ -687,6 +753,7 @@ class ExternalAuthenticator extends Authenticator {
           
               // Before we continue we must check if the source is valid
               if (!self::validSource($member->External_SourceID, $Log_ID, $member)) {
+                  self::failmessage($form, $member, $Log_ID, $RAW_external_source);
                   return false;
               }
 
@@ -702,7 +769,7 @@ class ExternalAuthenticator extends Authenticator {
               
               //Check if the user was behaving nicely
               if (self::accountLockedOut($member, $Log_ID)) {
-                  $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
+                  self::failmessage($form, $member, $Log_ID, $RAW_external_source);
                   return false;
               }
           } else {
@@ -719,13 +786,13 @@ class ExternalAuthenticator extends Authenticator {
               if (self::getAutoAdd($RAW_external_source)) {
                   $userexists = true;
               } else {
-                  $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
                   self::Authlog($Log_ID . 'AutoAdd for source ' . $RAW_external_source . ' not enabled, aborting');
+                  self::failmessage($form, $member, $Log_ID, $RAW_external_source);
                   return false;
               }
           } else {
-              $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
-              self::Authlog($Log_ID . 'Illegal source ' . $RAW_external_source . ', aborting');
+              self::failmessage($form, $member, $Log_ID, $RAW_external_source);
+              self::Authlog($Log_ID . 'Illegal source ' . $RAW_external_source . ' or client not in valid IP range; aborting');
               return false;
           }
       }
@@ -750,7 +817,8 @@ class ExternalAuthenticator extends Authenticator {
           // Load the correct driver
           if (!self::validSource($RAW_external_source, $Log_ID)) {
               $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
-              self::Authlog($Log_ID . 'Illegal source ' . $RAW_external_source . ', aborting');
+              self::Authlog($Log_ID . 'Illegal source ' . $RAW_external_source . ' or client not in valid IP range; aborting');
+              self::failmessage($form, $member, $Log_ID, $RAW_external_source);
               return false;
           }
           
@@ -853,12 +921,7 @@ class ExternalAuthenticator extends Authenticator {
           self::AuditLog($member, $Log_ID, 'logon', NULL , true, $RAW_external_source); 
           return $member;
       } else {
-          if(!is_null($form)) {   
-              $form->sessionMessage(self::$authmessage,'bad');
-          }
-          
-          self::AuditLog($member, $Log_ID, 'logon', NULL , false, $RAW_external_source); 
-                                
+          self::failmessage($form, $member, $Log_ID, $RAW_external_source);                                
           return false;
       }
   }

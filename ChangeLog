@@ -19,6 +19,7 @@ External Authenticator Changelog
                 (introduced in 0.4 trunk)
 - [BUGFIX]      Fix ticket #4313
 - [BUGFIX]	Various fixes. Thanks to Ben Gribaudo.
+- [ENHANCEMENT] Use clients IP address in authentication
 
 0.3.1
 - [BUGFIX] Ticket #3649 - Syntax issue in LDAP driver
