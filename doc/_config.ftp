@@ -42,7 +42,7 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  * Set this option to false to disable (default) or a filename. Make sure the
  * file is writable by the webserver process
  **/
-//ExternalAuthenticator::setAuditLogFile('/var/www/http/sstripe_audit.log');
+//ExternalAuthenticator::setAuditLogFile('/var/log/http/sstripe_audit.log');
 
 /**
  * Silverstripe also has an internal table for auditing. You can enable or 
@@ -64,6 +64,22 @@ Authenticator::register_authenticator('ExternalAuthenticator');
  * You can create multiple sources with different of same types
  **/
 ExternalAuthenticator::createSource('localftp','FTP','Local FTP server');
+
+/**
+ * For each source you may give a set of netmasks where the client should 
+ * reside. This prevents exposing internal authentication sources on a 
+ * website that is accessible from the outside. Any failed logins from outside 
+ * the indicated IP ranges on accounts coupled to this source will never block
+ * the account (see Member::lock_out_after_incorrect_logins)
+ *
+ * If no addresses are set all clients IPs are allowed. You can set either one
+ * netmask, or an array of netmasks. The netmask may be given as a single IP or
+ * as a.b.c.d/e or a.b.c.d/e.f.g.h
+ **/ 
+//ExternalAuthenticator::setValidAddress('localftp',array('192.168.0.0/24',
+//                                                        '127.0.0.1',
+//                                                        '172.16.0.129/255.255.255.128));
+//ExternalAuthenticator::setValidAddress('localftp','127.0.0.1);
 
 /**
  * Four pieces of information come into play when authenticating
