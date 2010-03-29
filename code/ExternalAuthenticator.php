@@ -849,7 +849,7 @@ class ExternalAuthenticator extends Authenticator {
       
       // An external source verified our existence
       if ($authsuccess && !$userindbs && self::getAutoAdd($RAW_external_source)) {
-          $SQL_memberdata = createMemberArray($RAW_result, $RAW_external_anchor, $RAW_external_source, 
+          $SQL_memberdata = self::createMemberArray($RAW_result, $RAW_external_anchor, $RAW_external_source, 
                                               self::getDefaultDomain($RAW_external_source));
                          
           // First we check if the user's e-mail address has changed
