@@ -299,6 +299,28 @@ ExternalAuthenticator::setOption('localldap', 'surname_attr', 'sn');
 ExternalAuthenticator::setOption('localldap', 'email_attr', 'mail');
 
 /**
+ * If you set this attribute then the group will be mapped dynamically on 
+ * on each login.
+ *
+ * This setting only makes sense when you have more than one user group
+ * If you set this, then make sure you define the group mapping in setAutoAdd
+ * If the source returns multiple groups, the first one is used.
+ * See example below. 
+ **/
+//ExternalAuthenticator::setOption('localldap', 'group_attr', 'gidNumber');
+//ExternalAuthenticator::setAutoAdd('localldap', array(
+//                                              'groupinsrc1' => 'groupinss1',
+//                                              'groupinsrc2' => 'groupinss2',
+//                                              'groupinsrc3' => 'groupinss3'
+//                                              )
+//                                 );
+/**
+ * NOTE: If the group in the source cannot be mapped to a group in SilverStripe
+ *       then the last group in the above example is used
+ **/
+ 
+
+/**
   * If your directory doesn't support anonymous searches you can
   * specify an account below that will be used to search for the
   * attribute containing the user ID as (dn, passwd)

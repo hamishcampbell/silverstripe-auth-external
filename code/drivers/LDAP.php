@@ -229,7 +229,7 @@ class LDAP_Authenticator {
      *
      * @return array  array with keys being "shadowlastchange", "shadowmin"
      *                "shadowmax", "shadowwarning", "firstname", "surname",
-     *                and "email" and containing their
+     *                "email" and "group" and containing their
      *                respective values.
      */
     private function lookupDetails($source, $dn, $external_anchor) {
@@ -249,6 +249,9 @@ class LDAP_Authenticator {
                                                           ),
                                'anchor'           => array('value' => false, 
                                                            'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'attribute'))
+                                                          ),
+                               'group'            => array('value' => false,
+                                                           'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'group_attr'))
                                                           )
                               );
 
@@ -266,6 +269,7 @@ class LDAP_Authenticator {
                         ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $lookupdetail['attr'] . ' set to ' . 
                                                        $lookupdetails[$key]['value']); 
                     } else {
+                        $lookupdetails[$key]['value'] = null;
                         ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Attribute ' . 
                                                        $lookupdetail['attr'] . ' not set');
                     } 
@@ -389,7 +393,8 @@ class LDAP_Authenticator {
                     
                         $success = array('firstname' => $accountdetails['firstname']['value'],
                                          'surname'   => $accountdetails['surname']['value'],
-                                         'email'     => $accountdetails['email']['value']
+                                         'email'     => $accountdetails['email']['value'],
+                                         'group'     => $accountdetails['group']['value']
                                         );
 
                         // Lets be civilized and warn the user that he should 
@@ -404,7 +409,8 @@ class LDAP_Authenticator {
                     ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication success');                
                     $success = array('firstname' => $accountdetails['firstname']['value'],
                                      'surname'   => $accountdetails['surname']['value'],
-                                     'email'     => $accountdetails['email']['value']
+                                     'email'     => $accountdetails['email']['value'],
+                                     'group'     => $accountdetails['group']['value']
                                     );
                 }
             } else {
@@ -415,7 +421,8 @@ class LDAP_Authenticator {
                 ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication success');                
                 $success = array('firstname' => $accountdetails['firstname']['value'],
                                  'surname'   => $accountdetails['surname']['value'],
-                                 'email'     => $accountdetails['email']['value']
+                                 'email'     => $accountdetails['email']['value'],
+                                 'group'     => $accountdetails['group']['value']
                                 );
             }
         } else {

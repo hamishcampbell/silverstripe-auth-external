@@ -786,13 +786,13 @@ class ExternalAuthenticator extends Authenticator {
               if (self::getAutoAdd($RAW_external_source)) {
                   $userexists = true;
               } else {
-                  self::Authlog($Log_ID . 'AutoAdd for source ' . $RAW_external_source . ' not enabled, aborting');
+                  self::Authlog($Log_ID . ' - AutoAdd for source ' . $RAW_external_source . ' not enabled, aborting');
                   self::failmessage($form, $member, $Log_ID, $RAW_external_source);
                   return false;
               }
           } else {
               self::failmessage($form, $member, $Log_ID, $RAW_external_source);
-              self::Authlog($Log_ID . 'Illegal source ' . $RAW_external_source . ' or client not in valid IP range; aborting');
+              self::Authlog($Log_ID . ' - Illegal source ' . $RAW_external_source . ' or client not in valid IP range; aborting');
               return false;
           }
       }
@@ -817,7 +817,7 @@ class ExternalAuthenticator extends Authenticator {
           // Load the correct driver
           if (!self::validSource($RAW_external_source, $Log_ID)) {
               $form->sessionMessage(_t('ExternalAuthenticator.Failed'),'bad');
-              self::Authlog($Log_ID . 'Illegal source ' . $RAW_external_source . ' or client not in valid IP range; aborting');
+              self::Authlog($Log_ID . ' - Illegal source ' . $RAW_external_source . ' or client not in valid IP range; aborting');
               self::failmessage($form, $member, $Log_ID, $RAW_external_source);
               return false;
           }
