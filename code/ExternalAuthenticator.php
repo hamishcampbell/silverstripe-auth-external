@@ -664,6 +664,62 @@ class ExternalAuthenticator extends Authenticator {
   
   
   /**
+   * Check the group given against the group mapping table and return the best
+   * matching group.
+   *
+   * Also verify that the group exists in silverstripe. Return false if the 
+   * group does not exist. This mimics the the behavior of not setting AutoAdd
+   * at all
+   *
+   * @param string $source                The authentication source to use
+   * @param string $groupinsrc            The group returned by the authentication
+   *                                      source. (Could be null)
+   *
+   * @return object  An object containing the matching group or the last group from the
+   *                 mapping table if no match is found
+   **/
+  private static function getMyGroup($source, $groupinsrc) {
+      $autoadd     = self::getAutoAdd($source);
+      $returngroup = false;
+      
+      // Is autoadd enabled?
+      if (is_bool($autoadd)) {
+          return false;
+      }
+      
+      // Did the authentication source return a value?
+      if (is_null($groupinsrc) && !is_array($autoadd)) {
+          $returngroup = $autoadd;
+      }
+
+      // Return last group in the array if we didn't get any
+      if (is_null($groupinsrc) && is_array($autoadd)) {
+          $returngroup = array_pop($autoadd);
+      } 
+      
+      // A mapping array is defined. Does the given group exists in the mapping
+      // table or do we return the last group as the default      
+      if (is_array($autoadd) && !is_null($groupinsrc)) {
+          if (array_key_exists($groupinsrc, $autoadd)) {
+              $returngroup = $autoadd[$groupinsrc];
+          } else {
+              $returngroup = array_pop($autoadd);
+          }
+      } else {
+          // No mapping table was set so return the default group
+          $returngroup = $autoadd;
+      }
+      
+      // Now check if the group is valid     
+      if ($group = DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql($returngroup).'\'')) {
+          return $group;
+      } else {
+          return false;
+      }
+  }
+  
+  
+  /**
    * Create an array to use for manipulating or creting the users' Member 
    * object from the authentication results
    *
@@ -847,67 +903,95 @@ class ExternalAuthenticator extends Authenticator {
           }
       }
       
-      // An external source verified our existence
-      if ($authsuccess && !$userindbs && self::getAutoAdd($RAW_external_source)) {
-          $SQL_memberdata = self::createMemberArray($RAW_result, $RAW_external_anchor, $RAW_external_source, 
-                                              self::getDefaultDomain($RAW_external_source));
+      // Check if we need to do something with the groups
+      if ($authsuccess) {
+          // We're an array, so we need to do auto-mapping 
+          // first determine which group we should be a member of
+          $usergroup = self::getMyGroup($RAW_external_source, $RAW_result['group']);
+
+          if (!$userindbs && !is_bool($usergroup)) {
+              $SQL_memberdata = self::createMemberArray($RAW_result, $RAW_external_anchor, $RAW_external_source, 
+                                                        self::getDefaultDomain($RAW_external_source));
                          
-          // First we check if the user's e-mail address has changed
-          // we do this by checking if the anchor and source are already in the dbs
-          // we do this only if the user used his mail address to authenticate
-          // If the user does not exist we create a new member object
-          if (!self::getUseAnchor()) {
               // First we check if the user's e-mail address has changed
               // we do this by checking if the anchor and source are already in the dbs
               // we do this only if the user used his mail address to authenticate
               // If the user does not exist we create a new member object
-              if (!$member = DataObject::get_one('Member', 'Member.External_Anchor = \'' . $SQL_memberdata['External_Anchor'] .
-                                                           '\' AND Member.External_SourceID = \'' . 
-                                                           $SQL_memberdata['External_SourceID'] . '\'')) {
-                  $member = new Member;
-                  self::AuthLog($Log_ID . ' - Anchor does not exist in database.');    
+              if (!self::getUseAnchor()) {
+                  // First we check if the user's e-mail address has changed
+                  // we do this by checking if the anchor and source are already in the dbs
+                  // we do this only if the user used his mail address to authenticate
+                  // If the user does not exist we create a new member object
+                  if (!$member = DataObject::get_one('Member', 'Member.External_Anchor = \'' . $SQL_memberdata['External_Anchor'] .
+                                                               '\' AND Member.External_SourceID = \'' . 
+                                                               $SQL_memberdata['External_SourceID'] . '\'')) {
+                      $member = new Member;
+                      self::AuthLog($Log_ID . ' - Anchor does not exist in database.');    
+                  } else {
+                      self::AuthLog($Log_ID . ' - Anchor already present in the database but mail address is unknown. Changing mail address for this anchor');
+                      $userindbs = true;
+                      self::AuditLog($member, $Log_ID, 'modify', 'account exists', true, $RAW_external_source);
+                  }
               } else {
-                  self::AuthLog($Log_ID . ' - Anchor already present in the database but mail address is unknown. Changing mail address for this anchor');
-                  $userindbs = true;
-                  self::AuditLog($member, $Log_ID, 'modify', 'account exists', true, $RAW_external_source);
+                  // Now we check if the users e-mail address already exists. He 
+                  // did not authenticate himself with the mail address and we
+                  // assume that if authentication was successful, he is owner
+                  // of the address. This supports moving users from one source
+                  // to another
+                  if (!$member = DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
+                      $member = new Member;
+                      self::AuthLog($Log_ID . ' - Mail address does not exist in the database');
+                  } else {
+                      self::Authlog($Log_ID . ' - Mail address already present in the database, modifying existing account');
+                      $userindbs = true;
+                      self::AuditLog($member, $Log_ID, 'modify', 'account exists', true, $RAW_external_source);
+                  }
               }
-          } else {
-              // Now we check if the users e-mail address already exists. He 
-              // did not authenticate himself with the mail address and we
-              // assume that if authentication was successful, he is owner
-              // of the address. This supports moving users from one source
-              // to another
-              if (!$member = DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
-                  $member = new Member;
-                  self::AuthLog($Log_ID . ' - Mail address does not exist in the database');
+          
+              // But before we write ourselves to the database we must check if
+              // the group we are subscribing to exists
+              if (!is_bool($usergroup)) {
+                  $member->update($SQL_memberdata);
+                  if (!$userindbs) {
+                      $member->ID = null;
+                  }
+                  self::AuthLog($Log_ID . ' - start adding or modifying user');
+                  $member->write();
+                  self::AuthLog($Log_ID . ' - finished adding user to database'); 
+                  
+                  if (!$userindbs) {  
+                      self::AuthLog($Log_ID . ' - start setting group membership to group ' . $usergroup->Title);          
+                      $member->Groups()->add($usergroup->ID);
+                      self::AuthLog($Log_ID . ' - finished setting group membership');   
+                  }
+                  self::AuditLog($member, $Log_ID, 'creation', NULL , true, $RAW_external_source); 
               } else {
-                  self::Authlog($Log_ID . ' - Mail address already present in the database, modifying existing account');
-                  $userindbs = true;
-                  self::AuditLog($member, $Log_ID, 'modify', 'account exists', true, $RAW_external_source);
+                  self::AuthLog($Log_ID . ' - The group to add the user to did not exist');          
+                  $authsuccess = false;
               }
           }
           
-          // But before we write ourselves to the database we must check if
-          // the group we are subscribing to exists
-          if ($group = DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql(self::getAutoAdd($RAW_external_source)).'\'')) {
-              $member->update($SQL_memberdata);
-              if (!$userindbs) {
-                  $member->ID = null;
+          if ($userindbs && !is_bool($usergroup)) {
+              self::AuthLog($Log_ID . ' - Group membership will be set to ID ' . $usergroup->ID . ' name ' . $usergroup->Title);
+             
+              // User exists. We should check current group against group from config
+              $memberships = $member->Groups()->getIdList();
+             
+              if (array_key_exists($usergroup->ID, $memberships)) {
+                  self::AuthLog($Log_ID . ' - User is already a member of ' . $usergroup->Title);
+              } else {                
+                  foreach ($memberships as $membership) {
+                      self::AuthLog($Log_ID . ' - Erasing membership of group ' . $membership);
+                      $member->Groups()->remove($membership);
+                      self::AuthLog($Log_ID . ' - Done erasing membership of group ' . $membership);
+                  }
+                 
+                  self::AuthLog($Log_ID . ' - setting membership of ' . $usergroup->Title);
+                  self::Auditlog($member, $Log_ID, 'modify', 'current group membership does not match configuration', true, $RAW_external_source);
+                  $member->Groups()->add($usergroup->ID);
+                  self::AuthLog($Log_ID . ' - Done setting membership of ' . $usergroup->Title);
               }
-              self::AuthLog($Log_ID . ' - start adding or modifying user');
-              $member->write();
-              self::AuthLog($Log_ID . ' - finished adding user to database'); 
-                  
-              if (!$userindbs) {  
-                  self::AuthLog($Log_ID . ' - start setting group membership');          
-                  Group::addToGroupByName($member, $group->Code);
-                  self::AuthLog($Log_ID . ' - finished setting group membership');   
-              }
-              self::AuditLog($member, $Log_ID, 'creation', NULL , true, $RAW_external_source); 
-          } else {
-              self::AuthLog($Log_ID . ' - The group to add the user to did not exist');          
-              $authsuccess = false;
-          }
+          }   
       } 
 
       self::AuthLog('Process for user ' . $Log_ID . ' ended');

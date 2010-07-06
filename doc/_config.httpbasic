@@ -176,8 +176,9 @@ ExternalAuthenticator::setAuthServer('localhttp','localhost.localdomain');
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
  *
- * The second argument with this option is the group to add the user to. If an
- * existing account is modified, the group memberships are not changed.
+ * The second argument with this option is the group to add the user to. 
+ * If this configuration item is changed, already present users will be updated
+ * on login
  **/
 //ExternalAuthenticator::setAutoAdd('localhttp', 'Testgroup');
 ExternalAuthenticator::setAutoAdd('localhttp', false);

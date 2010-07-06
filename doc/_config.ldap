@@ -247,11 +247,6 @@ ExternalAuthenticator::setOption('localldap', 'attribute', 'uid');
  * that is constructed as [anchor value]@[present domain] or, if 'email_attr'
  * below is set, with the mail address from the source
  *
- * If an account already exists with the this mail address and authentication
- * is successful, the anchor and source are added or modified on that account
- * This helps migrating existing SilverStripe users to external authentication
- * sources.
- *
  * If 'setUseAnchor' is set to false (the default) nothing will happen if 
  * 'email_attr' is not set. If it is set, the anchor and source are determined
  * by the driver and a Silverstripe account is created. If the mail address 
@@ -268,12 +263,20 @@ ExternalAuthenticator::setOption('localldap', 'attribute', 'uid');
  * changed at the same time in the authentication source, the coupled 
  * SilverStripe account will be orphaned.
  *
+ * Note that membership of groups is always dynamic. If a source supports
+ * a group attribute, it will be verified each time the user logs in
+ * If a single group is set for AutoAdd, user records will change automatically
+ * when the user logs on
+ *
  * WARNING WARNING WARNING
  * If you do not have control over the external authentication source, you no
  * longer control who can log in. USE WITH CARE
  *
- * The second argument with this option is the group to add the user to. If an
- * existing account is modified, the group memberships are not changed.
+ * The second argument with this option is the group to add the user to. 
+ * If this configuration item is changed, already present users will be updated
+ * on login
+ *
+ * GROUPS SHOULD PRE-EXIST IN SILVERSTRIPE
  **/
 //ExternalAuthenticator::setAutoAdd('localldap', 'Testgroup');
 ExternalAuthenticator::setAutoAdd('localldap', false);
@@ -311,12 +314,16 @@ ExternalAuthenticator::setOption('localldap', 'email_attr', 'mail');
 //ExternalAuthenticator::setAutoAdd('localldap', array(
 //                                              'groupinsrc1' => 'groupinss1',
 //                                              'groupinsrc2' => 'groupinss2',
-//                                              'groupinsrc3' => 'groupinss3'
+//                                              'groupinsrc3' => 'defaultgroupinss3'
 //                                              )
 //                                 );
 /**
  * NOTE: If the group in the source cannot be mapped to a group in SilverStripe
  *       then the last group in the above example is used
+ * NOTE: If setAutoAdd is not an array (even it it contains one element, it
+ *       should be an array) not automapping will be done and the group will
+ *       only be set when the record is created
+ * NOTE: The groups are case sensitive on the source and silverstripe side
  **/
  
 
