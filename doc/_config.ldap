@@ -263,9 +263,8 @@ ExternalAuthenticator::setOption('localldap', 'attribute', 'uid');
  * changed at the same time in the authentication source, the coupled 
  * SilverStripe account will be orphaned.
  *
- * Note that membership of groups is always dynamic. If a source supports
- * a group attribute, it will be verified each time the user logs in
- * If a single group is set for AutoAdd, user records will change automatically
+ * Note that membership of groups is always dynamic. 
+ * If a single group is set for AutoAdd, user records will update automatically
  * when the user logs on
  *
  * WARNING WARNING WARNING
@@ -323,9 +322,10 @@ ExternalAuthenticator::setOption('localldap', 'email_attr', 'mail');
  * NOTE: If setAutoAdd is not an array (even it it contains one element, it
  *       should be an array) not automapping will be done and the group will
  *       only be set when the record is created
- * NOTE: The groups are case sensitive on the source and silverstripe side
+ * NOTE: The groups are case INsensitive on the source and silverstripe side
+ * NOTE: If a user is a member of multiple groups, the first group that appears
+ *       in the mapping table will be used.
  **/
- 
 
 /**
   * If your directory doesn't support anonymous searches you can

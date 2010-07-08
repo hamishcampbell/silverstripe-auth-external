@@ -700,9 +700,19 @@ class ExternalAuthenticator extends Authenticator {
       // A mapping array is defined. Does the given group exists in the mapping
       // table or do we return the last group as the default      
       if (is_array($autoadd) && !is_null($groupinsrc)) {
-          if (array_key_exists($groupinsrc, $autoadd)) {
-              $returngroup = $autoadd[$groupinsrc];
-          } else {
+          // Convert the key to uppercase for matching
+          $autoadd = array_change_key_case($autoadd, CASE_UPPER);
+          
+          for ($count = 0; $count < count($autoadd); $count++) {
+              if (array_key_exists($groupinsrc[$count], $autoadd)) {
+                  $returngroup = $autoadd[$groupinsrc[$count]];
+                  break;
+              }
+          }
+          
+          // If we didn't have a match, returngroup is still a boolean
+          // Use the default (last) group from the mapping 
+          if (is_bool($returngroup)) {
               $returngroup = array_pop($autoadd);
           }
       } else {

@@ -230,7 +230,7 @@ class LDAP_Authenticator {
      * @return array  array with keys being "shadowlastchange", "shadowmin"
      *                "shadowmax", "shadowwarning", "firstname", "surname",
      *                "email" and "group" and containing their
-     *                respective values.
+     *                respective values. (group is an array with all uppercase values)
      */
     private function lookupDetails($source, $dn, $external_anchor) {
         /* Init the return array. */
@@ -264,10 +264,20 @@ class LDAP_Authenticator {
             foreach ($lookupdetails as $key => $lookupdetail) {
                 if (!is_null($lookupdetail['attr'])) {
                     ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Looking up ' . $lookupdetail['attr']);
-                    if (isset($information[0][$lookupdetail['attr']][0])) {
-                        $lookupdetails[$key]['value'] = $information[0][$lookupdetail['attr']][0];
-                        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $lookupdetail['attr'] . ' set to ' . 
-                                                       $lookupdetails[$key]['value']); 
+                    if (array_key_exists($lookupdetail['attr'],$information[0]) &&
+                        $information[0][$lookupdetail['attr']]['count'] > 0) {
+                        if ($key != 'group') {
+                            $lookupdetails[$key]['value'] = $information[0][$lookupdetail['attr']][0];
+                            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $lookupdetail['attr'] . ' set to ' . 
+                                                           $lookupdetails[$key]['value']); 
+                        } else {
+                            $lookupdetails[$key]['value'] = array();
+                            for ($count = 0; $count < $information[0][$lookupdetail['attr']]['count']; $count++) {
+                                $lookupdetails[$key]['value'][$count] = strtoupper($information[0][$lookupdetail['attr']][$count]);
+                                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $lookupdetail['attr'] . ' set to ' . 
+                                                               $lookupdetails[$key]['value'][$count]);
+                            }
+                        }                               
                     } else {
                         $lookupdetails[$key]['value'] = null;
                         ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Attribute ' . 
