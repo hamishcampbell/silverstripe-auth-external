@@ -78,8 +78,8 @@ ExternalAuthenticator::createSource('localftp','FTP','Local FTP server');
  **/ 
 //ExternalAuthenticator::setValidAddress('localftp',array('192.168.0.0/24',
 //                                                        '127.0.0.1',
-//                                                        '172.16.0.129/255.255.255.128));
-//ExternalAuthenticator::setValidAddress('localftp','127.0.0.1);
+//                                                        '172.16.0.129/255.255.255.128'));
+//ExternalAuthenticator::setValidAddress('localftp','127.0.0.1');
 
 /**
  * Four pieces of information come into play when authenticating

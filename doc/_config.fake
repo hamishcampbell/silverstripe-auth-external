@@ -29,8 +29,8 @@ ExternalAuthenticator::createSource('fake','FAKE','test');
  **/ 
 //ExternalAuthenticator::setValidAddress('fake',array('192.168.0.0/24',
 //                                                    '127.0.0.1',
-//                                                    '172.16.0.129/255.255.255.128));
-//ExternalAuthenticator::setValidAddress('fake','127.0.0.1);
+//                                                    '172.16.0.129/255.255.255.128'));
+//ExternalAuthenticator::setValidAddress('fake','127.0.0.1');
 
 /**
  * This module has a debug option. The debug option is aimed at system 
