@@ -568,7 +568,7 @@ class ExternalAuthenticator extends Authenticator {
           }
           
           $SQL_anchor   = Convert::raw2sql($RAW_external_anchor);
-          $memberquery = "Member.External_Anchor = '$SQL_anchor' AND Member.External_SourceID = '$SQL_source'";       
+          $memberquery = "\"Member\".\"External_Anchor\" = '$SQL_anchor' AND \"Member\".\"External_SourceID\" = '$SQL_source'";       
       } else {
           if (strlen($RAW_external_mailaddr) == 0) {
               if (!is_null($form)) {
@@ -578,7 +578,7 @@ class ExternalAuthenticator extends Authenticator {
           }
           
           $SQL_mailaddr = Convert::raw2sql($RAW_external_mailaddr);
-          $memberquery = "Member.Email = '$SQL_mailaddr'";
+          $memberquery = "\"Member\".\"Email\" = '$SQL_mailaddr'";
       } 
 
       return $memberquery;
@@ -721,7 +721,7 @@ class ExternalAuthenticator extends Authenticator {
       }
       
       // Now check if the group is valid     
-      if ($group = DataObject::get_one('Group','Group.Title = \'' . Convert::raw2sql($returngroup).'\'')) {
+      if ($group = DataObject::get_one('Group','"Group"."Title" = \'' . Convert::raw2sql($returngroup).'\'')) {
           return $group;
       } else {
           return false;
@@ -932,8 +932,8 @@ class ExternalAuthenticator extends Authenticator {
                   // we do this by checking if the anchor and source are already in the dbs
                   // we do this only if the user used his mail address to authenticate
                   // If the user does not exist we create a new member object
-                  if (!$member = DataObject::get_one('Member', 'Member.External_Anchor = \'' . $SQL_memberdata['External_Anchor'] .
-                                                               '\' AND Member.External_SourceID = \'' . 
+                  if (!$member = DataObject::get_one('Member', '"Member"."External_Anchor" = \'' . $SQL_memberdata['External_Anchor'] .
+                                                               '\' AND "Member.External_SourceID" = \'' . 
                                                                $SQL_memberdata['External_SourceID'] . '\'')) {
                       $member = new Member;
                       self::AuthLog($Log_ID . ' - Anchor does not exist in database.');    
@@ -948,7 +948,7 @@ class ExternalAuthenticator extends Authenticator {
                   // assume that if authentication was successful, he is owner
                   // of the address. This supports moving users from one source
                   // to another
-                  if (!$member = DataObject::get_one('Member','Email = \'' . $SQL_memberdata['Email'] .'\'')) {
+                  if (!$member = DataObject::get_one('Member','"Email" = \'' . $SQL_memberdata['Email'] .'\'')) {
                       $member = new Member;
                       self::AuthLog($Log_ID . ' - Mail address does not exist in the database');
                   } else {

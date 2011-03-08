@@ -31,7 +31,7 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
             'has_one' => array(),
             'defaults' => array('External_Anchor' => null,
                                 'External_SourceID' => null),
-            'indexes' => array('External_Anchor' => 'index (External_Anchor)')
+            'indexes' => array('External_Anchor' => true)
         );
     }
 
@@ -126,9 +126,9 @@ class ExternalAuthenticatedRole_Validator extends Extension {
             return true;
 
         $member = DataObject::get_one('Member',
-                  'External_Anchor = \''. 
+                  '"External_Anchor" = \''. 
                   Convert::raw2sql($data['External_Anchor']) .
-                  '\' AND External_SourceID = \'' . 
+                  '\' AND "External_SourceID" = \'' . 
                   Convert::raw2sql($data['External_SourceID']) .'\'');
 
         // if we are in a complex table field popup, use ctf[childID], else use

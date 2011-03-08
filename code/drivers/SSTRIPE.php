@@ -50,9 +50,9 @@ class SSTRIPE_Authenticator {
             $SQL_source   = Convert::raw2sql($RAW_source);
             ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - Searching for user with source ' . $SQL_source . 
                                            ' in database');
-            $member = DataObject::get_one("Member","Member.External_UserID = '$SQL_identity'" .
-                                          " AND Member.External_SourceID = '$SQL_source'" .
-                                          " AND Password IS NOT NULL");
+            $member = DataObject::get_one("Member","\"Member\".\"External_UserID\" = '$SQL_identity'" .
+                                          " AND \"Member\".\"External_SourceID\" = '$SQL_source'" .
+                                          " AND \"Password\" IS NOT NULL");
                                           
             if ($member) {
                 ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - User was found in database');
