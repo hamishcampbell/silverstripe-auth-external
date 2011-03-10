@@ -933,7 +933,7 @@ class ExternalAuthenticator extends Authenticator {
                   // we do this only if the user used his mail address to authenticate
                   // If the user does not exist we create a new member object
                   if (!$member = DataObject::get_one('Member', '"Member"."External_Anchor" = \'' . $SQL_memberdata['External_Anchor'] .
-                                                               '\' AND "Member.External_SourceID" = \'' . 
+                                                               '\' AND "Member"."External_SourceID" = \'' . 
                                                                $SQL_memberdata['External_SourceID'] . '\'')) {
                       $member = new Member;
                       self::AuthLog($Log_ID . ' - Anchor does not exist in database.');    
