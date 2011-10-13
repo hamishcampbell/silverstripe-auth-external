@@ -757,16 +757,16 @@ class ExternalAuthenticator extends Authenticator {
       if (isset($RAW_result['surname']) && !is_bool($RAW_result['surname'])) {
           $SQL_memberdata['Surname']   = Convert::raw2sql($RAW_result['surname']);
       } else {
-          $SQL_memberdata['Surname']   = $SQL_anchor;
+          $SQL_memberdata['Surname']   = $RAW_external_anchor;
       }
  
       if (isset($RAW_result['email']) && !is_bool($RAW_result['email'])) {
           $SQL_memberdata['Email']     = Convert::raw2sql($RAW_result['email']);
       } else {
           if (is_null($RAW_domain)) {
-              $SQL_memberdata['Email']     = $SQL_anchor;
+              $SQL_memberdata['Email']     = $RAW_external_anchor;
           } else {
-              $SQL_memberdata['Email']     = $SQL_anchor . '@' .
+              $SQL_memberdata['Email']     = $RAW_external_anchor . '@' .
                                              Convert::raw2sql($RAW_domain);
           }
       }
