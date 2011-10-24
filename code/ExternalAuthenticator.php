@@ -721,7 +721,7 @@ class ExternalAuthenticator extends Authenticator {
       }
       
       // Now check if the group is valid     
-      if ($group = DataObject::get_one('Group','"Group"."Title" = \'' . Convert::raw2sql($returngroup).'\'')) {
+      if ($group = DataObject::get_one('Group','"Group"."Code" = \'' . Convert::raw2sql($returngroup).'\'')) {
           return $group;
       } else {
           return false;
