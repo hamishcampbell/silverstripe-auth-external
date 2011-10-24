@@ -63,11 +63,16 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      * to edit the new database fields.
      */
     function updateCMSFields(FieldSet &$fields) {
-        $sources    = ExternalAuthenticator::getIDandNames();
+    	// let make sure, this runs only once (because member and dataobject both extend updateCMSFields
+    	// 	making it run twice!)
+    	$cp = $fields->fieldByName('Root');
+    	if ($cp && $cp->fieldByName('ExternalAuthentication')) return;
+
+    	$sources    = ExternalAuthenticator::getIDandNames();
         $sources    = array_merge(array("" => "-"), $sources);
-        $fields->addFieldToTab('Root.ExternalAuthentication', 
-                               new HeaderField(_t('ExternalAuthenticator.ModFormHead',
-                                                  'ID for external authentication source')));
+		$fields->findOrMakeTab('Root.ExternalAuthentication', _t('ExternalAuthenticator.Title'));
+        $fields->addFieldToTab('Root.ExternalAuthentication',
+        						new HeaderField('External_Header', _t('ExternalAuthenticator.ModFormHead','ID for external authentication source')));
         $fields->addFieldToTab('Root.ExternalAuthentication', 
                                new LiteralField('ExternalDescription',_t('ExternalAuthenticator.EnterUser',
                                                 'Enter the user id and authentication source for this user'))
