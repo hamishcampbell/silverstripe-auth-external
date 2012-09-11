@@ -719,14 +719,27 @@ class ExternalAuthenticator extends Authenticator {
           // No mapping table was set so return the default group
           $returngroup = $autoadd;
       }
-      
-      // Now check if the group is valid     
-      if ($group = DataObject::get_one('Group','"Group"."Code" = \'' . Convert::raw2sql($returngroup).'\'')) {
-          return $group;
-      } else {
-          return false;
-      }
+     
+      return self::groupObj($returngroup);
   }
+
+
+public function groupObj($group) {
+  if(is_numeric($group)) {
+      $groupCheckObj = DataObject::get_by_id('Group', $group);
+  } elseif(is_string($group)) {
+      $SQL_group = Convert::raw2sql($group);
+      $groupCheckObj = DataObject::get_one('Group', "\"Code\" = '{$SQL_group}'");
+  } elseif($group instanceof Group) {
+      $groupCheckObj = $group;
+  } else {
+      user_error('GroupExtended::groupObj(): Wrong format for $group parameter', E_USER_ERROR);
+  }
+  
+  if(!$groupCheckObj) return false;
+  return $groupCheckObj;
+}   
+  
   
   
   /**
