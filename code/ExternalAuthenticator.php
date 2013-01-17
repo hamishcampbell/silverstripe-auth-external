@@ -725,16 +725,16 @@ class ExternalAuthenticator extends Authenticator {
 
 
   public static function groupObj($group) {
-    if(is_numeric($group)) {
-        $groupCheckObj = DataObject::get_by_id('Group', $group);
-    } elseif(is_string($group)) {
-        $SQL_group = Convert::raw2sql($group);
-        $groupCheckObj = DataObject::get_one('Group', "\"Code\" = '{$SQL_group}'");
-    } elseif($group instanceof Group) {
-        $groupCheckObj = $group;
-    } else {
-        user_error('GroupExtended::groupObj(): Wrong format for $group parameter', E_USER_ERROR);
-    }
+        if(is_numeric($group)) {
+            $groupCheckObj = DataObject::get_by_id('Group', $group);
+        } elseif(is_string($group)) {
+            $SQL_group = Convert::raw2sql($group);
+            $groupCheckObj = DataObject::get_one('Group', "\"Code\" = '{$SQL_group}'");
+        } elseif($group instanceof Group) {
+            $groupCheckObj = $group;
+        } else {
+            user_error('GroupExtended::groupObj(): Wrong format for $group parameter', E_USER_ERROR);
+        }
     
     if(!$groupCheckObj) return false;
     return $groupCheckObj;
