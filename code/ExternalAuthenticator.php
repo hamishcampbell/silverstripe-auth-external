@@ -723,7 +723,15 @@ class ExternalAuthenticator extends Authenticator {
       return self::groupObj($returngroup);
   }
 
-
+  /**
+   * Return a valid group object from flexibly input
+   *
+   * @param mixed  $group           (integer) group's ID
+   *                                (string) group's code
+   *                                (object) group object
+   *
+   * @return object                 Valid group object
+   **/
   public static function groupObj($group) {
         if(is_numeric($group)) {
             $groupCheckObj = DataObject::get_by_id('Group', $group);
