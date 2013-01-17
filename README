@@ -7,10 +7,15 @@ Maintainer Contact
 Roel Gloudemans (Nickname: lancer)
 roel@quantumfluctuations.nl or roel@gloudemans.info
 
+Contibutors
+-----------------------------------------------
+Sander van Dragt (Nickname: svandragt)
+sander.vandragt@gmail.com
+
 
 Requirements
 -----------------------------------------------
-* Silverstripe 2.3.0 or later
+* Silverstripe 3.0.0 or later
 * Some PHP modules depending on the driver used like php-imap, php-ldap or
   some specific PEAR and/or PECL modules. The module requirements are 
   documented in the configuration template for that module (see doc directory)

@@ -152,6 +152,8 @@ class LDAP_Authenticator {
             ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - BaseDN not set'); 
             return false;
         }
+
+
         
         /* Now create the search filter */
         $attribute_array = ExternalAuthenticator::getOption($source,'extra_attributes');
@@ -263,6 +265,7 @@ class LDAP_Authenticator {
 
             foreach ($lookupdetails as $key => $lookupdetail) {
                 if (!is_null($lookupdetail['attr'])) {
+                    if ((string)$lookupdetail['attr'] != ''){
                     ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Looking up ' . $lookupdetail['attr']);
                     if (array_key_exists($lookupdetail['attr'],$information[0]) &&
                         $information[0][$lookupdetail['attr']]['count'] > 0) {
@@ -283,6 +286,8 @@ class LDAP_Authenticator {
                         ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Attribute ' . 
                                                        $lookupdetail['attr'] . ' not set');
                     } 
+
+                    }
                 } else {
                     ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Dont know how to find ' . $key);
                 }

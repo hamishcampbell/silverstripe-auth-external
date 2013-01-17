@@ -14,11 +14,11 @@ class ExternalLoginForm extends LoginForm {
      *                               create the appropriate form action tag.
      * @param string $name The method on the controller that will return this
      *                     form object.
-     * @param FieldSet|FormField $fields All of the fields in the form - a
-     *                                   {@link FieldSet} of {@link FormField}
+     * @param FieldList|FormField $fields All of the fields in the form - a
+     *                                   {@link FieldList} of {@link FormField}
      *                                   objects.
-     * @param FieldSet|FormAction $actions All of the action buttons in the
-     *                                     form - a {@link FieldSet} of
+     * @param FieldList|FormAction $actions All of the action buttons in the
+     *                                     form - a {@link FieldList} of
      *                                     {@link FormAction} objects
      * @param bool $checkCurrentUser If set to TRUE, it will be checked if a
      *                               the user is currently logged in, and if
@@ -41,13 +41,13 @@ class ExternalLoginForm extends LoginForm {
         }
 
         if($checkCurrentUser && Member::currentUserID()) {
-            $fields  = new FieldSet();
-            $actions = new FieldSet(new FormAction('logout', _t('ExternalAuthenticator.LogOutIn','Log in as someone else')),
+            $fields  = new FieldList();
+            $actions = new FieldList(new FormAction('logout', _t('ExternalAuthenticator.LogOutIn','Log in as someone else')),
                                     new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this));
         } else {
             if(!$fields) {
                 if (!ExternalAuthenticator::getUseAnchor()) {
-                    $fields   = new FieldSet(
+                    $fields   = new FieldList(
                         new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this),
                         new HiddenField('External_SourceID', 'External_SourceID', 'empty'),
                         new HiddenField('External_Anchor', 'External_Anchor', 'empty'),
@@ -58,7 +58,7 @@ class ExternalLoginForm extends LoginForm {
                 } else {   
                     $userdesc = ExternalAuthenticator::getAnchorDesc();      
                     $sources  = ExternalAuthenticator::getIDandNames();
-                    $fields   = new FieldSet(
+                    $fields   = new FieldList(
                         new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this),
                         new HiddenField('External_MailAddr', 'External_MailAddr', 'empty'),
                         new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources','Authentication sources'),
@@ -79,7 +79,7 @@ class ExternalLoginForm extends LoginForm {
                 }           
             }
             if(!$actions) {
-                $actions = new FieldSet(
+                $actions = new FieldList(
                     new FormAction('dologin', _t('ExternalAuthenticator.Login','Log in'))
                 );
             }
@@ -122,9 +122,9 @@ class ExternalLoginForm extends LoginForm {
             if(isset($_REQUEST['BackURL'])) {
                 $backURL = $_REQUEST['BackURL'];
                 Session::clear('BackURL');
-                Director::redirect($backURL);
+                Controller::curr()->redirect($backURL);
             } else
-                Director::redirectBack();
+                Controller::curr()->redirectBack();
 
         } else {
             Session::set('SessionForms.ExternalLoginForm.External_Anchor', $data['External_Anchor']);
@@ -132,10 +132,10 @@ class ExternalLoginForm extends LoginForm {
             Session::set('SessionForms.ExternalLoginForm.External_SourceID', $data['External_SourceID']);
             Session::set('SessionForms.ExternalLoginForm.Remember', isset($data['Remember']));
             if($badLoginURL = Session::get("BadLoginURL")) {
-                Director::redirect($badLoginURL);
+                Controller::curr()->redirect($badLoginURL);
             } else {
                 // Show the right tab on failed login
-                Director::redirect(Director::absoluteURL(Security::Link('login')) .
+                Controller::curr()->redirect(Director::absoluteURL(Security::Link('login')) .
                                                                   '#' . $this->FormName() .'_tab');
             }
         }

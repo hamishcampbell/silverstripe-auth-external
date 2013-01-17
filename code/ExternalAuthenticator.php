@@ -719,18 +719,39 @@ class ExternalAuthenticator extends Authenticator {
           // No mapping table was set so return the default group
           $returngroup = $autoadd;
       }
-      
-      // Now check if the group is valid     
-      if ($group = DataObject::get_one('Group','"Group"."Code" = \'' . Convert::raw2sql($returngroup).'\'')) {
-          return $group;
-      } else {
-          return false;
-      }
+     
+      return self::groupObj($returngroup);
   }
+
+  /**
+   * Return a valid group object from flexibly input
+   *
+   * @param mixed  $group           (integer) group's ID
+   *                                (string) group's code
+   *                                (object) group object
+   *
+   * @return object                 Valid group object
+   **/
+  public static function groupObj($group) {
+        if(is_numeric($group)) {
+            $groupCheckObj = DataObject::get_by_id('Group', $group);
+        } elseif(is_string($group)) {
+            $SQL_group = Convert::raw2sql($group);
+            $groupCheckObj = DataObject::get_one('Group', "\"Code\" = '{$SQL_group}'");
+        } elseif($group instanceof Group) {
+            $groupCheckObj = $group;
+        } else {
+            user_error('GroupExtended::groupObj(): Wrong format for $group parameter', E_USER_ERROR);
+        }
+    
+    if(!$groupCheckObj) return false;
+    return $groupCheckObj;
+  }   
+  
   
   
   /**
-   * Create an array to use for manipulating or creting the users' Member 
+   * Create an array to use for manipulating or creating the users' Member 
    * object from the authentication results
    *
    * @param array  $RAW_result          The result from the sources' 
@@ -992,7 +1013,7 @@ class ExternalAuthenticator extends Authenticator {
               } else {                
                   foreach ($memberships as $membership) {
                       self::AuthLog($Log_ID . ' - Erasing membership of group ' . $membership);
-                      $member->Groups()->remove($membership);
+                      $member->Groups()->remove(self::groupObj($membership));
                       self::AuthLog($Log_ID . ' - Done erasing membership of group ' . $membership);
                   }
                  
@@ -1008,6 +1029,7 @@ class ExternalAuthenticator extends Authenticator {
       if ($authsuccess) {
           Session::clear('BackURL');
           
+          self::$authmessage = '';
           // Set the security message here. Else it will be shown on logout
           Session::set('Security.Message.message', self::$authmessage);
           Session::set('Security.Message.type', 'good');
