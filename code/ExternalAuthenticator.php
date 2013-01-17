@@ -724,26 +724,26 @@ class ExternalAuthenticator extends Authenticator {
   }
 
 
-public function groupObj($group) {
-  if(is_numeric($group)) {
-      $groupCheckObj = DataObject::get_by_id('Group', $group);
-  } elseif(is_string($group)) {
-      $SQL_group = Convert::raw2sql($group);
-      $groupCheckObj = DataObject::get_one('Group', "\"Code\" = '{$SQL_group}'");
-  } elseif($group instanceof Group) {
-      $groupCheckObj = $group;
-  } else {
-      user_error('GroupExtended::groupObj(): Wrong format for $group parameter', E_USER_ERROR);
-  }
-  
-  if(!$groupCheckObj) return false;
-  return $groupCheckObj;
-}   
+  public static function groupObj($group) {
+    if(is_numeric($group)) {
+        $groupCheckObj = DataObject::get_by_id('Group', $group);
+    } elseif(is_string($group)) {
+        $SQL_group = Convert::raw2sql($group);
+        $groupCheckObj = DataObject::get_one('Group', "\"Code\" = '{$SQL_group}'");
+    } elseif($group instanceof Group) {
+        $groupCheckObj = $group;
+    } else {
+        user_error('GroupExtended::groupObj(): Wrong format for $group parameter', E_USER_ERROR);
+    }
+    
+    if(!$groupCheckObj) return false;
+    return $groupCheckObj;
+  }   
   
   
   
   /**
-   * Create an array to use for manipulating or creting the users' Member 
+   * Create an array to use for manipulating or creating the users' Member 
    * object from the authentication results
    *
    * @param array  $RAW_result          The result from the sources' 
@@ -1005,7 +1005,7 @@ public function groupObj($group) {
               } else {                
                   foreach ($memberships as $membership) {
                       self::AuthLog($Log_ID . ' - Erasing membership of group ' . $membership);
-                      $member->Groups()->remove($membership);
+                      $member->Groups()->remove(self::groupObj($membership));
                       self::AuthLog($Log_ID . ' - Done erasing membership of group ' . $membership);
                   }
                  
