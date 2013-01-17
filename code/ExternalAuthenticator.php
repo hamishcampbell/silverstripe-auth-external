@@ -1021,6 +1021,7 @@ class ExternalAuthenticator extends Authenticator {
       if ($authsuccess) {
           Session::clear('BackURL');
           
+          self::$authmessage = '';
           // Set the security message here. Else it will be shown on logout
           Session::set('Security.Message.message', self::$authmessage);
           Session::set('Security.Message.type', 'good');
