@@ -1,5 +1,13 @@
 External Authenticator Changelog
 --------------------------------
+0.4.1
+- Compatibility with Silverstripe 3.x
+- [BUGFIX]      Replaced deprectated function calls
+- [BUGFIX]      Improve robustness handling lookup attributes
+- [ENHANCEMENT] Flexible group matching by calling with ID or group object 
+                in addition to group code
+- [BUGFIX]      Fix to stop authentication result string showing up on login
+                form                
 0.4
 - [MISC] Rename (External_)UserID to Anchor
 - [ENHANCEMENT] Ticket #3742. Authentication wil mail address is possible now

@@ -13,7 +13,7 @@
  * This class adds the needed fields to the default member class to support
  * authentication via the external authentication method.
  */
-class ExternalAuthenticatedRole extends DataObjectDecorator {
+class ExternalAuthenticatedRole extends DataExtension {
 
     /**
      * Define extra database fields
@@ -24,7 +24,7 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      * @return array Returns a map where the keys are db, has_one, etc, and
      *               the values are additional fields/relations to be defined
      */
-    function extraStatics() {
+    function extraStatics($class = null, $extension = null) {
         return array(
             'db' => array('External_Anchor' => 'Varchar(255)', 
                           'External_SourceID' => 'Varchar(50)'),
@@ -62,7 +62,7 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      * This method updates the form in the member dialog to make it possible
      * to edit the new database fields.
      */
-    function updateCMSFields(FieldSet &$fields) {
+    function updateCMSFields(FieldList $fields) {
     	// let make sure, this runs only once (because member and dataobject both extend updateCMSFields
     	// 	making it run twice!)
     	$cp = $fields->fieldByName('Root');
@@ -93,14 +93,14 @@ class ExternalAuthenticatedRole extends DataObjectDecorator {
      *
      * @return bool Returns TRUE if this member can be edited, FALSE otherwise
      */
-    function canEdit() {
+    function canEdit($member = null) {
         if($this->owner->ID == Member::currentUserID()) {
             return true;
         }
 
         $member = Member::currentUser();
         if($member) {
-            return $member->isAdmin();
+            return $member->inGroup('Administrators');
         }
 
         return false;
