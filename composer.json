@@ -7,9 +7,9 @@
 		{
 			"name": "Hamish Campbell",
 			"role": "Maintainer",
-			"website": "http://polemic.net.nz",
+			"homepage": "http://polemic.net.nz",
 			"email": "hn.campbell@gmail.com"
-		},
+		}
 	],
 
 	"require":
