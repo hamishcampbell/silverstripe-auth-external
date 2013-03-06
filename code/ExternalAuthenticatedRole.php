@@ -94,13 +94,15 @@ class ExternalAuthenticatedRole extends DataExtension {
      * @return bool Returns TRUE if this member can be edited, FALSE otherwise
      */
     function canEdit($member = null) {
+        if(!$member) {
+            $member = Member::currentUser();
+        }
         if($this->owner->ID == Member::currentUserID()) {
             return true;
         }
-
-        $member = Member::currentUser();
+        
         if($member) {
-            return $member->inGroup('Administrators');
+            return Permission::checkMember($member, 'ADMIN');
         }
 
         return false;
