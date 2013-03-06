@@ -131,14 +131,21 @@ class ExternalLoginForm extends LoginForm {
             Session::set('SessionForms.ExternalLoginForm.External_MailAddr', $data['External_MailAddr']);
             Session::set('SessionForms.ExternalLoginForm.External_SourceID', $data['External_SourceID']);
             Session::set('SessionForms.ExternalLoginForm.Remember', isset($data['Remember']));
-            if($badLoginURL = Session::get("BadLoginURL")) {
-                Controller::curr()->redirect($badLoginURL);
-            } else {
-                // Show the right tab on failed login
-                Controller::curr()->redirect(Director::absoluteURL(Security::Link('login')) .
-                                                                  '#' . $this->FormName() .'_tab');
-            }
-        }
+            
+			if(isset($_REQUEST['BackURL'])) $backURL = $_REQUEST['BackURL'];
+			else $backURL = null;
+
+			if($backURL) Session::set('BackURL', $backURL);
+
+			if($badLoginURL = Session::get("BadLoginURL")) {
+				$this->controller->redirect($badLoginURL);
+			} else {
+				//Show the right tab on failed login
+				$loginLink = Director::absoluteURL($this->controller->Link('login'));
+				if($backURL) $loginLink .= '?BackURL=' . urlencode($backURL);
+				$this->controller->redirect($loginLink . '#' . $this->FormName() .'_tab');
+			}
+		}
     }
 
     /**
