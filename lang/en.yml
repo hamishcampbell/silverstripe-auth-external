@@ -1,0 +1,30 @@
+en:
+  ExternalAuthenticator:
+    EnterMailAddr: "Please enter an e-Mail address"
+    EnterNewId: "ID to be used with this source"
+    EnterUID: "Please enter a %s"
+    EnterUser: "Enter the user id and authentication source for this user"
+    Failed: "Authentication failed"
+    GroupExists: "An account with your e-mail address already exists"
+    LogFailed: "Logging to debug log failed"
+    LogOutIn: "Log in as someone else"
+    Login: "Log in"
+    MailAddr: "e-Mail address"
+    ModFormHead: "ID for external authentication source"
+    Password: "Password"
+    Remember: "Remember me next time?"
+    Sources: "Authentication sources"
+    Title: "External Account"
+    UserExists: "There already exists a member with this account name"
+  FTP_Authenticator:
+    NoConnect: "Could not connect to FTP server"
+  IMAP_Authenticator:
+    Protocol: "Protocol is not set to a valid type"
+  LDAP_Authenticator:
+    Expired: "Your password has expired"
+    NoBind: "Could not bind to LDAP server."
+    NoPasswd: "Please enter a password"
+    NotConnected: "Failed to connect to LDAP server."
+    TLS: "Start TLS failed: [%d] %s"
+    Version: "Set LDAP protocol version to %d failed"
+    WillExpire: "Your password expires in %d days"

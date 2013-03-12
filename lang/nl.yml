@@ -1,0 +1,30 @@
+nl:
+  ExternalAuthenticator:
+    EnterMailAddr: "Voer een e-mail adres in a.u.b."
+    EnterNewId: "ID dat met deze bron geassocieerd moet worden"
+    EnterUID: "Voer een %s in a.u.b."
+    EnterUser: "Voer het ID en bron in voor deze gebruiker"
+    Failed: "Authenticatie mislukt"
+    GroupExists: "Er bestaat al een account met uw e-mail adres"
+    LogFailed: "Wegschrijven naar debug log mislukt"
+    LogOutIn: "Log in als iemand anders"
+    Login: "Inloggen"
+    MailAddr: "e-Mail adres"
+    ModFormHead: "ID voor externe authenticatie bron"
+    Password: "Wachtwoord"
+    Remember: "Onthoud mij voor de volgende keer"
+    Sources: "Authenticatie bronnen"
+    Title: "Extern Account"
+    UserExists: "Er bestaat al een gebruiker met dit ID"
+  FTP_Authenticator:
+    NoConnect: "Kan geen verbinding maken met FTP server"
+  IMAP_Authenticator:
+    Protocol: "Het protocol is niet ingesteld op een bekend type"
+  LDAP_Authenticator:
+    Expired: "Uw wachtwoord is verlopen"
+    NoBind: "Kan niet binden aan de LDAP server."
+    NoPasswd: "Voer a.u.b. een wachtwoord in"
+    NotConnected: "Kan geen verbinding maken met LDAP server."
+    TLS: "Starten van TLS sessie mislukt: [%d] %s"
+    Version: "Kan het LDAP protocol niet instellen op versie %d"
+    WillExpire: "Uw wachtwoord zal verlopen over %d dagen"
