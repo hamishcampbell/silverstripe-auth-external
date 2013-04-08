@@ -1,0 +1,29 @@
+de:
+  ExternalAuthenticator:
+    EnterMailAddr: "Bitte geben sie eine E-Mail Adresse ein"
+    EnterNewId: "ID, die für diese Quelle benutzt wird"
+    EnterUID: "Bitte geben sie eine %s ein"
+    EnterUser: "Geben sie die ID und die Authentifizierungsmethode für diesen Benutzer an."
+    Failed: "Authentifikation fehlgeschlagen"
+    GroupExists: "Ein Account mit ihrer E-Mail Adresse existiert bereits"
+    LogFailed: "Das mitloggen zur Debugausgabe ist fehlgeschlagen"
+    LogOutIn: "Als jemand anderes einloggen"
+    Login: "Login"
+    MailAddr: "E-Mail Adresse"
+    ModFormHead: "ID für externe Authentifizierungsquelle"
+    Password: "Passwort"
+    Remember: "Für das nächste mal merken?"
+    Sources: "Authentifikationsquellen"
+    Title: "Externer Account"
+    UserExists: "Ein account mit diesem Accountnamen existiert bereits"
+  FTP_Authenticator:
+    NoConnect: "Verbindung zum FTP-Server fehlgeschlagen"
+  IMAP_Authenticator:
+    Protocol: "Das Protokoll ist ungültig"
+  LDAP_Authenticator:
+    Expired: "Ihr Passwort ist abgelaufen"
+    NoBind: "Bindung zum LDAP-Server fehlgeschlagen."
+    NoPasswd: "Bitte geben sie ein Passwort ein"
+    NotConnected: "Verbindung zum LDAP-Server fehlgeschlagen."
+    TLS: "Start TLS fehlgeschlagen: [%d] %s"
+    Version: "LDAP zu Protokollversion %d setzen fehlgeschlagen"
