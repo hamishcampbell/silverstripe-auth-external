@@ -890,7 +890,6 @@ class ExternalAuthenticator extends Authenticator {
               if (self::getAutoAdd($source)) {
                   $auth_type = strtoupper(self::getAuthType($source));
                   self::AuthLog($Log_ID . ' - loading driver ' . $auth_type);
-                  require_once 'drivers/' . $auth_type . '.php';
           
                   //If we don't have a user yet and autoadd is on; try to find the anchor
                   if ($memberdata = self::locateAnchor($source, $RAW_external_mailaddr, $Log_ID)) {
@@ -911,7 +910,6 @@ class ExternalAuthenticator extends Authenticator {
           
           $auth_type = strtoupper(self::getAuthType($RAW_external_source));
           self::AuthLog($Log_ID . ' - loading driver ' . $auth_type);
-          require_once 'drivers/' . $auth_type . '.php';
       }
 
       if ($userexists) {   
