@@ -1,0 +1,20 @@
+{
+	"name": "hamishcampbell/auth-external",
+	"description": "Enables you to use external authentication sources for password verification to SilverStripe",
+	"type": "silverstripe-module",
+	"keywords": ["silverstripe", "authentication", "external"],
+	"authors": [
+		{
+			"name": "Hamish Campbell",
+			"role": "Maintainer",
+			"homepage": "http://polemic.net.nz",
+			"email": "hn.campbell@gmail.com"
+		}
+	],
+
+	"require":
+	{
+		"silverstripe/framework": "3.*",
+		"composer/installers": "*"
+	}
+}
