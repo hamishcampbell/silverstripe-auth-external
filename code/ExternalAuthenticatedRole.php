@@ -70,7 +70,7 @@ class ExternalAuthenticatedRole extends DataExtension {
 
     	$sources    = ExternalAuthenticator::getIDandNames();
         $sources    = array_merge(array("" => "-"), $sources);
-		$fields->findOrMakeTab('Root.ExternalAuthentication', _t('ExternalAuthenticator.Title'));
+		$fields->findOrMakeTab('Root.ExternalAuthentication', _t('ExternalAuthenticator.Title', 'External Authentication'));
         $fields->addFieldToTab('Root.ExternalAuthentication',
         						new HeaderField('External_Header', _t('ExternalAuthenticator.ModFormHead','ID for external authentication source')));
         $fields->addFieldToTab('Root.ExternalAuthentication', 
