@@ -1,0 +1,30 @@
+sl:
+  ExternalAuthenticator:
+    EnterMailAddr: "Vpišite e-naslov"
+    EnterNewId: "Uporabniško ime (ID) na zunanjem viru"
+    EnterUID: "Vpišite %s"
+    EnterUser: "Izberite vir zunanje avtentikacije in uporabniško ime (ID), ki ga ta uporabnik uporablja na tem viru"
+    Failed: "Avtentikacija ni uspela"
+    GroupExists: "Uporabniški račun s tem e-naslovom že obstaja"
+    LogFailed: "Dostop do poročil o odpravi napak ni možen"
+    LogOutIn: "Prijavite se z drugim uporabniškim računom"
+    Login: "Prijava"
+    MailAddr: "E-naslov"
+    ModFormHead: "Povezava z virom zunanje avtentikacije"
+    Password: "Geslo"
+    Remember: "Zapomni si me do prihodnjič"
+    Sources: "Zunanji vir"
+    Title: "Zunanja avtentikacija"
+    UserExists: "Uporabnik s tem uporabniškim imenom že obstaja"
+  FTP_Authenticator:
+    NoConnect: "Nimam povezave s FTP-strežnikom"
+  IMAP_Authenticator:
+    Protocol: "Protokol ni ustrezno nastavljen"
+  LDAP_Authenticator:
+    Expired: "Vaše geslo je poteklo"
+    NoBind: "Nimam povezave z LDAP-strežnikom (no bind)."
+    NoPasswd: "Vpišite geslo"
+    NotConnected: "Nimam povezave z LDAP-strežnikom (not connected)."
+    TLS: "Poganjanje TLS ni uspelo: [%d] %s"
+    Version: "Nastavljanje LDAP-protokola na različico %d ni uspelo"
+    WillExpire: "Vaše geslo bo poteklo v %d dneh"

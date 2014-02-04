@@ -84,27 +84,6 @@ class ExternalAuthenticatedRole extends DataExtension {
                                new TextField('External_Anchor', _t('ExternalAuthenticator.EnterNewId',
                                                                    'ID to be used with this source')));
     }
-
-
-    /**
-     * Can the current user edit the given member?
-     *
-     * Only the user itself or an administrator can edit an user account.
-     *
-     * @return bool Returns TRUE if this member can be edited, FALSE otherwise
-     */
-    function canEdit($member = null) {
-        if($this->owner->ID == Member::currentUserID()) {
-            return true;
-        }
-
-        $member = Member::currentUser();
-        if($member) {
-            return $member->inGroup('Administrators');
-        }
-
-        return false;
-    }
 }
 
 
