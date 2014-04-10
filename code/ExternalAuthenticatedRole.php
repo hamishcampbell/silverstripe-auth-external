@@ -24,16 +24,20 @@ class ExternalAuthenticatedRole extends DataExtension {
      * @return array Returns a map where the keys are db, has_one, etc, and
      *               the values are additional fields/relations to be defined
      */
-    function extraStatics($class = null, $extension = null) {
-        return array(
-            'db' => array('External_Anchor' => 'Varchar(255)', 
-                          'External_SourceID' => 'Varchar(50)'),
-            'has_one' => array(),
-            'defaults' => array('External_Anchor' => null,
-                                'External_SourceID' => null),
-            'indexes' => array('External_Anchor' => true)
-        );
-    }
+
+    private static $db = array(
+        'External_Anchor' => 'Varchar(255)',
+        'External_SourceID' => 'Varchar(50)'
+    );
+
+    private static $has_one = array();
+
+    private static $defaults = array(
+        'External_Anchor' => null,
+        'External_SourceID' => null
+    );
+
+    private static $indexes = array('External_Anchor' => true);
 
 
     /**
@@ -73,11 +77,11 @@ class ExternalAuthenticatedRole extends DataExtension {
 		$fields->findOrMakeTab('Root.ExternalAuthentication', _t('ExternalAuthenticator.Title'));
         $fields->addFieldToTab('Root.ExternalAuthentication',
         						new HeaderField('External_Header', _t('ExternalAuthenticator.ModFormHead','ID for external authentication source')));
-        $fields->addFieldToTab('Root.ExternalAuthentication', 
+        $fields->addFieldToTab('Root.ExternalAuthentication',
                                new LiteralField('ExternalDescription',_t('ExternalAuthenticator.EnterUser',
                                                 'Enter the user id and authentication source for this user'))
                               );
-        $fields->addFieldToTab('Root.ExternalAuthentication', 
+        $fields->addFieldToTab('Root.ExternalAuthentication',
                                new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources'),
                                                  $sources));
         $fields->addFieldToTab('Root.ExternalAuthentication',
@@ -126,14 +130,14 @@ class ExternalAuthenticatedRole_Validator extends Extension {
      *              FALSE.
      */
     function updatePHP(array $data, Form &$form) {
-        if (!isset($data['External_Anchor']) || strlen(trim($data['External_Anchor'])) == 0 || 
+        if (!isset($data['External_Anchor']) || strlen(trim($data['External_Anchor'])) == 0 ||
             !isset($data['External_SourceID']) || strlen($data['External_SourceID']) == 0)
             return true;
 
         $member = DataObject::get_one('Member',
-                  '"External_Anchor" = \''. 
+                  '"External_Anchor" = \''.
                   Convert::raw2sql($data['External_Anchor']) .
-                  '\' AND "External_SourceID" = \'' . 
+                  '\' AND "External_SourceID" = \'' .
                   Convert::raw2sql($data['External_SourceID']) .'\'');
 
         // if we are in a complex table field popup, use ctf[childID], else use

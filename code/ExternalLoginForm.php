@@ -30,6 +30,7 @@ class ExternalLoginForm extends LoginForm {
         $this->authenticator_class = 'ExternalAuthenticator';
 
         $customCSS = project() . '/css/external_login.css';
+
         if(Director::fileExists($customCSS)) {
             Requirements::css($customCSS);
         }
@@ -51,32 +52,32 @@ class ExternalLoginForm extends LoginForm {
                         new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this),
                         new HiddenField('External_SourceID', 'External_SourceID', 'empty'),
                         new HiddenField('External_Anchor', 'External_Anchor', 'empty'),
-                        new TextField('External_MailAddr', _t('ExternalAuthenticator.MailAddr','e-Mail address'), 
+                        new TextField('External_MailAddr', _t('ExternalAuthenticator.MailAddr','e-Mail address'),
                                   Session::get('SessionForms.ExternalLoginForm.External_MailAddr')),
                         new PasswordField('Password', _t('ExternalAuthenticator.Password','Password'))
                     );
-                } else {   
-                    $userdesc = ExternalAuthenticator::getAnchorDesc();      
+                } else {
+                    $userdesc = ExternalAuthenticator::getAnchorDesc();
                     $sources  = ExternalAuthenticator::getIDandNames();
                     $fields   = new FieldList(
                         new HiddenField('AuthenticationMethod', null, $this->authenticator_class, $this),
                         new HiddenField('External_MailAddr', 'External_MailAddr', 'empty'),
                         new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources','Authentication sources'),
                                       $sources, Session::get('SessionForms.ExternalLoginForm.External_SourceID')),
-                        new TextField('External_Anchor', $userdesc, 
+                        new TextField('External_Anchor', $userdesc,
                                       Session::get('SessionForms.ExternalLoginForm.External_Anchor')),
                         new PasswordField('Password', _t('ExternalAuthenticator.Password'))
                     );
                 }
-                
-                if(Security::$autologin_enabled) {
+
+                if(Config::inst()->get('Security', 'autologin_enabled')) {
                     $fields->push(new CheckboxField(
-                        "Remember", 
+                        "Remember",
                         _t('ExternalAuthenticator.Remember','Remember me next time?'),
-						Session::get('SessionForms.ExternalLoginForm.Remember'), 
+						Session::get('SessionForms.ExternalLoginForm.Remember'),
 						$this
                     ));
-                }           
+                }
             }
             if(!$actions) {
                 $actions = new FieldList(
@@ -135,8 +136,7 @@ class ExternalLoginForm extends LoginForm {
                 Controller::curr()->redirect($badLoginURL);
             } else {
                 // Show the right tab on failed login
-                Controller::curr()->redirect(Director::absoluteURL(Security::Link('login')) .
-                                                                  '#' . $this->FormName() .'_tab');
+                Controller::curr()->redirect(Director::absoluteURL(singleton('Security')->Link('login')) . '#' . $this->FormName() .'_tab');
             }
         }
     }
