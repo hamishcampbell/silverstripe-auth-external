@@ -82,7 +82,7 @@ class ExternalAuthenticatedRole extends DataExtension {
 												'Enter the user id and authentication source for this user'))
 							  );
 		$fields->addFieldToTab('Root.ExternalAuthentication',
-							   new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources'),
+							   new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources', 'Authentication sources'),
 												 $sources));
 		$fields->addFieldToTab('Root.ExternalAuthentication',
 							   new TextField('External_Anchor', _t('ExternalAuthenticator.EnterNewId',
