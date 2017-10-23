@@ -143,10 +143,12 @@ class ExternalAuthenticatedRole_Validator extends Extension {
             $id = $_REQUEST['ctf']['childID'];
         } elseif(isset($_REQUEST['ID'])) {
             $id = $_REQUEST['ID'];
+        } elseif(isset($form->getRecord()->ID)) {
+            $id = $form->getRecord()->ID;
         }
 
         if(is_object($member) && $member->ID != $id) {
-            $field = $form->dataFieldByName('External_Anchor');
+            $field = $form->Fields()->dataFieldByName('External_Anchor');
             $this->owner->validationError($field->id(),
                 _t('ExternalAuthenticator.UserExists', 'There already exists a member with this account name'),
                 'required');
