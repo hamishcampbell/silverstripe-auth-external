@@ -15,100 +15,100 @@
  */
 class ExternalAuthenticatedRole extends DataExtension {
 
-	/**
-	 * Define extra database fields
-	 *
-	 * Returns a map where the keys are db, has_one, etc, and the values are
-	 * additional fields/relations to be defined
-	 *
-	 * @return array Returns a map where the keys are db, has_one, etc, and
-	 *               the values are additional fields/relations to be defined
-	 */
+  /**
+   * Define extra database fields
+   *
+   * Returns a map where the keys are db, has_one, etc, and the values are
+   * additional fields/relations to be defined
+   *
+   * @return array Returns a map where the keys are db, has_one, etc, and
+   *               the values are additional fields/relations to be defined
+   */
 
-	private static $db = array(
-		'External_Anchor' => 'Varchar(255)',
-		'External_SourceID' => 'Varchar(50)'
-	);
+  private static $db = array(
+    'External_Anchor' => 'Varchar(255)',
+    'External_SourceID' => 'Varchar(50)'
+  );
 
-	private static $has_one = array();
+  private static $has_one = array();
 
-	private static $defaults = array(
-		'External_Anchor' => null,
-		'External_SourceID' => null
-	);
+  private static $defaults = array(
+    'External_Anchor' => null,
+    'External_SourceID' => null
+  );
 
-	private static $indexes = array('External_Anchor' => true);
-
-
-	/**
-	 * Edit the given query object to support queries for this extension
-	 *
-	 * At the moment this method does nothing.
-	 *
-	 * @param SQLQuery $query Query to augment.
-	 */
-	function augmentSQL(SQLQuery &$query) {
-	}
+  private static $indexes = array('External_Anchor' => true);
 
 
-	/**
-	 * Update the database schema as required by this extension
-	 *
-	 * At the moment this method does nothing.
-	 */
-	function augmentDatabase() {
-	}
+  /**
+   * Edit the given query object to support queries for this extension
+   *
+   * At the moment this method does nothing.
+   *
+   * @param SQLQuery $query Query to augment.
+   */
+  function augmentSQL(SQLQuery &$query) {
+  }
 
 
-	/**
-	 * Change the member dialog in the CMS
-	 *
-	 * This method updates the form in the member dialog to make it possible
-	 * to edit the new database fields.
-	 */
-	function updateCMSFields(FieldList $fields) {
-		// let make sure, this runs only once (because member and dataobject both extend updateCMSFields
-		// 	making it run twice!)
-		$cp = $fields->fieldByName('Root');
-		if ($cp && $cp->fieldByName('ExternalAuthentication')) return;
-
-		$sources    = ExternalAuthenticator::getIDandNames();
-		$sources    = array_merge(array("" => "-"), $sources);
-		$fields->findOrMakeTab('Root.ExternalAuthentication', _t('ExternalAuthenticator.Title', 'External Account'));
-		$fields->addFieldToTab('Root.ExternalAuthentication',
-								new HeaderField('External_Header', _t('ExternalAuthenticator.ModFormHead','ID for external authentication source')));
-		$fields->addFieldToTab('Root.ExternalAuthentication',
-							   new LiteralField('ExternalDescription',_t('ExternalAuthenticator.EnterUser',
-												'Enter the user id and authentication source for this user'))
-							  );
-		$fields->addFieldToTab('Root.ExternalAuthentication',
-							   new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources', 'Authentication sources'),
-												 $sources));
-		$fields->addFieldToTab('Root.ExternalAuthentication',
-							   new TextField('External_Anchor', _t('ExternalAuthenticator.EnterNewId',
-																   'ID to be used with this source')));
-	}
+  /**
+   * Update the database schema as required by this extension
+   *
+   * At the moment this method does nothing.
+   */
+  function augmentDatabase() {
+  }
 
 
-	/**
-	 * Can the current user edit the given member?
-	 *
-	 * Only the user itself or an administrator can edit an user account.
-	 *
-	 * @return bool Returns TRUE if this member can be edited, FALSE otherwise
-	 */
-	function canEdit($member = null) {
-		if($this->owner->ID == Member::currentUserID()) {
-			return true;
-		}
+  /**
+   * Change the member dialog in the CMS
+   *
+   * This method updates the form in the member dialog to make it possible
+   * to edit the new database fields.
+   */
+  function updateCMSFields(FieldList $fields) {
+    // let make sure, this runs only once (because member and dataobject both extend updateCMSFields
+    //   making it run twice!)
+    $cp = $fields->fieldByName('Root');
+    if ($cp && $cp->fieldByName('ExternalAuthentication')) return;
 
-		$member = Member::currentUser();
-		if($member) {
-			return $member->inGroup('Administrators');
-		}
+    $sources    = ExternalAuthenticator::getIDandNames();
+    $sources    = array_merge(array("" => "-"), $sources);
+    $fields->findOrMakeTab('Root.ExternalAuthentication', _t('ExternalAuthenticator.Title', 'External Account'));
+    $fields->addFieldToTab('Root.ExternalAuthentication',
+                new HeaderField('External_Header', _t('ExternalAuthenticator.ModFormHead','ID for external authentication source')));
+    $fields->addFieldToTab('Root.ExternalAuthentication',
+                 new LiteralField('ExternalDescription',_t('ExternalAuthenticator.EnterUser',
+                        'Enter the user id and authentication source for this user'))
+                );
+    $fields->addFieldToTab('Root.ExternalAuthentication',
+                 new DropdownField('External_SourceID', _t('ExternalAuthenticator.Sources', 'Authentication sources'),
+                         $sources));
+    $fields->addFieldToTab('Root.ExternalAuthentication',
+                 new TextField('External_Anchor', _t('ExternalAuthenticator.EnterNewId',
+                                   'ID to be used with this source')));
+  }
 
-		return false;
-	}
+
+  /**
+   * Can the current user edit the given member?
+   *
+   * Only the user itself or an administrator can edit an user account.
+   *
+   * @return bool Returns TRUE if this member can be edited, FALSE otherwise
+   */
+  function canEdit($member = null) {
+    if($this->owner->ID == Member::currentUserID()) {
+      return true;
+    }
+
+    $member = Member::currentUser();
+    if($member) {
+      return $member->inGroup('Administrators');
+    }
+
+    return false;
+  }
 }
 
 
@@ -119,44 +119,44 @@ class ExternalAuthenticatedRole extends DataExtension {
  */
 class ExternalAuthenticatedRole_Validator extends Extension {
 
-	/**
-	 * Server-side validation
-	 *
-	 * This method checks if the entered account identifier is unique.
-	 *
-	 * @param array $data User submitted data
-	 * @param Form $form The used form
-	 * @return bool Returns TRUE if the submitted data is valid, otherwise
-	 *              FALSE.
-	 */
-	function updatePHP(array $data, Form &$form) {
-		if (!isset($data['External_Anchor']) || strlen(trim($data['External_Anchor'])) == 0 ||
-			!isset($data['External_SourceID']) || strlen($data['External_SourceID']) == 0)
-			return true;
+  /**
+   * Server-side validation
+   *
+   * This method checks if the entered account identifier is unique.
+   *
+   * @param array $data User submitted data
+   * @param Form $form The used form
+   * @return bool Returns TRUE if the submitted data is valid, otherwise
+   *              FALSE.
+   */
+  function updatePHP(array $data, Form &$form) {
+    if (!isset($data['External_Anchor']) || strlen(trim($data['External_Anchor'])) == 0 ||
+      !isset($data['External_SourceID']) || strlen($data['External_SourceID']) == 0)
+      return true;
 
-		$member = DataObject::get_one('Member',
-				  '"External_Anchor" = \''.
-				  Convert::raw2sql($data['External_Anchor']) .
-				  '\' AND "External_SourceID" = \'' .
-				  Convert::raw2sql($data['External_SourceID']) .'\'');
+    $member = DataObject::get_one('Member',
+          '"External_Anchor" = \''.
+          Convert::raw2sql($data['External_Anchor']) .
+          '\' AND "External_SourceID" = \'' .
+          Convert::raw2sql($data['External_SourceID']) .'\'');
 
-		// if we are in a complex table field popup, use ctf[childID], else use
-		// ID
-		$id = null;
-		if (isset($_REQUEST['ctf']['childID'])) {
-			$id = $_REQUEST['ctf']['childID'];
-		} elseif(isset($_REQUEST['ID'])) {
-			$id = $_REQUEST['ID'];
-		}
+    // if we are in a complex table field popup, use ctf[childID], else use
+    // ID
+    $id = null;
+    if (isset($_REQUEST['ctf']['childID'])) {
+      $id = $_REQUEST['ctf']['childID'];
+    } elseif(isset($_REQUEST['ID'])) {
+      $id = $_REQUEST['ID'];
+    }
 
-		if(is_object($member) && $member->ID != $id) {
-			$field = $form->dataFieldByName('External_Anchor');
-			$this->owner->validationError($field->id(),
-				_t('ExternalAuthenticator.UserExists', 'There already exists a member with this account name'),
-				'required');
-			return false;
-		}
+    if(is_object($member) && $member->ID != $id) {
+      $field = $form->dataFieldByName('External_Anchor');
+      $this->owner->validationError($field->id(),
+        _t('ExternalAuthenticator.UserExists', 'There already exists a member with this account name'),
+        'required');
+      return false;
+    }
 
-		return true;
-	}
+    return true;
+  }
 }
