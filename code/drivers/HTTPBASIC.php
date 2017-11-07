@@ -6,9 +6,9 @@
  *
  * NOTE: The PEAR package HTTP_Request is mandatory
  *
- * @author Roel Gloudemans <roel@gloudemans.info> 
+ * @author Roel Gloudemans <roel@gloudemans.info>
  */
- 
+
 class HTTPBASIC_Authenticator {
     /**
      * Tries to find the anchor for a given mail address and source
@@ -30,11 +30,11 @@ class HTTPBASIC_Authenticator {
      *
      * @access public
      *
-     * @param  string $source Authentication source to be used 
+     * @param  string $source Authentication source to be used
      * @param  string $external_uid    The ID entered
      * @param  string $external_passwd The password of the user
      *
-     * @return boolean  True if the authentication was a success, false 
+     * @return boolean  True if the authentication was a success, false
      *                  otherwise
      */
     public function Authenticate($source, $external_uid, $external_passwd) {
@@ -59,7 +59,7 @@ class HTTPBASIC_Authenticator {
             $request_options['proxy_port'] = $proxy_port;
         } else {
             ExternalAuthenticator::AuthLog($external_uid.'.http - Proxy is not set');
-        }  
+        }
 
         if (!is_null($proxy_user)) {
             ExternalAuthenticator::AuthLog($external_uid.'.http - Proxy user is set to ' . $proxy_user);
@@ -93,7 +93,7 @@ class HTTPBASIC_Authenticator {
 
         $request = new HTTP_Request($url, $request_options);
         $request->setBasicAuth($external_uid, $external_passwd);
-        
+
         ExternalAuthenticator::AuthLog($external_uid.'.http - Sending authentication request');
         $request->sendRequest();
 
@@ -103,9 +103,9 @@ class HTTPBASIC_Authenticator {
             return true;
         } else {
             ExternalAuthenticator::AuthLog($external_uid.'.http - Authentication failed with HTTP code ' . $request->getResponseCode());
-            ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed'));
+            ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed', 'Authentication failed'));
             return false;
         }
     }
 }
-        
+

@@ -7,9 +7,9 @@
  * sapphire/security/MemberAuthenticator.php
  *
  * @author Markus Lanthaler <markus@silverstripe.com>
- * @author Roel Gloudemans <roel@gloudemans.info> 
+ * @author Roel Gloudemans <roel@gloudemans.info>
  */
- 
+
 class SSTRIPE_Authenticator {
     /**
      * Tries to find the anchor for a given mail address and source
@@ -32,11 +32,11 @@ class SSTRIPE_Authenticator {
      *
      * @access public
      *
-     * @param  string $source Authentication source to be used 
+     * @param  string $source Authentication source to be used
      * @param  string $external_uid    The ID entered
      * @param  string $external_passwd The password of the user
      *
-     * @return boolean  True if the authentication was a success, false 
+     * @return boolean  True if the authentication was a success, false
      *                  otherwise
      */
     public function Authenticate($RAW_source, $RAW_external_uid, $RAW_external_passwd) {
@@ -48,12 +48,12 @@ class SSTRIPE_Authenticator {
             $member = Security::findAnAdministrator();
         } else {
             $SQL_source   = Convert::raw2sql($RAW_source);
-            ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - Searching for user with source ' . $SQL_source . 
+            ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - Searching for user with source ' . $SQL_source .
                                            ' in database');
             $member = DataObject::get_one("Member","\"Member\".\"External_UserID\" = '$SQL_identity'" .
                                           " AND \"Member\".\"External_SourceID\" = '$SQL_source'" .
                                           " AND \"Password\" IS NOT NULL");
-                                          
+
             if ($member) {
                 ExternalAuthenticator::AuthLog($RAW_external_uid.'.sstripe - User was found in database');
                 if (($member->checkPassword($RAW_external_passwd) == false)) {
@@ -70,9 +70,9 @@ class SSTRIPE_Authenticator {
         if ($member) {
             return true;
         } else {
-            ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed'));
+            ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed', 'Authentication failed'));
             return false;
         }
     }
 }
-        
+

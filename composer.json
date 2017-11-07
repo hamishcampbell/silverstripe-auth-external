@@ -1,0 +1,14 @@
+{
+    "name": "silverstripe/auth-external",
+    "description": "SilverStripe External Authentication Module",
+    "require": {
+        "silverstripe/framework": "~3.1"
+    },
+    "type": "silverstripe-module",
+    "authors": [
+        {
+            "name": "Roel Gloudemans",
+            "email": "roel@quantumfluctuations.nl"
+        }
+    ]
+}

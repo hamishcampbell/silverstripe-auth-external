@@ -11,7 +11,7 @@
  *                 anonymous searches
  * bind_pw     --> Password for the previous DN
  *
- * @author Roel Gloudemans <roel@gloudemans.info> 
+ * @author Roel Gloudemans <roel@gloudemans.info>
  */
 
 class LDAP_Authenticator {
@@ -23,28 +23,28 @@ class LDAP_Authenticator {
 
     /**
      * The default LDAP portlist in case it is not defined
-     */   
+     */
     protected static $portlist   = array('tls'     => 389,
                                          'ssl'     => 636,
                                          'default' => 389);
-                                       
+
     /**
      * In this driver we specify the LDAP driver by URI
      */
     protected static $uri_header = array ('tls'     => "ldap://",
                                           'ssl'     => "ldaps://",
                                           'default' => "ldap://");
-                                          
+
     /**
      * Default version of the LDAP protocol to use
-     */    
-    protected static $version = 3;   
+     */
+    protected static $version = 3;
 
 
     /**
      * Does an ldap connect and binds as the guest user or as the optional dn.
      *
-     * @param  string $source Authentication source to be used 
+     * @param  string $source Authentication source to be used
      * @param string $external_anchor The ID entered by the user (for logging purposes only)
      * @return boolean on success, error message on fail.
      */
@@ -57,7 +57,7 @@ class LDAP_Authenticator {
         } else {
             $uri = self::$uri_header["$enc"] . $uri;
         }
-        
+
         $port = ExternalAuthenticator::getAuthPort($source);
         if (is_null($port)) {
             if (is_null($enc)) {
@@ -71,15 +71,15 @@ class LDAP_Authenticator {
         if (is_null($version))
         {
             $version = self::$version;
-        }        
+        }
 
-        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Connecting to ' . $uri . ' port ' . 
+        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Connecting to ' . $uri . ' port ' .
                                        $port . ' LDAP version ' . $version);
-        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - If process stops here, check PHP LDAP module'); 
-        
+        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - If process stops here, check PHP LDAP module');
+
         $bindas  = ExternalAuthenticator::getOption($source, "bind_as");
-        $bindpw  = ExternalAuthenticator::getOption($source, "bind_pw");            
-    
+        $bindpw  = ExternalAuthenticator::getOption($source, "bind_pw");
+
         // Revert to the PHP error handler to prevent the SilverStripe
         // error handler from interfering
         restore_error_handler();
@@ -93,7 +93,7 @@ class LDAP_Authenticator {
         } else {
             ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Connect succeeded');
         }
-        
+
         if (!ldap_set_option(self::$ds, LDAP_OPT_PROTOCOL_VERSION, $version)) {
              Debug::loadErrorHandlers();
              ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP set to prot. version ' . $version . ' failed');
@@ -101,17 +101,17 @@ class LDAP_Authenticator {
         } else {
              ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP set to protocol version ' . $version);
         }
-        
+
         if ($enc == "tls") {
             if (!@ldap_start_tls(self::$ds)) {
-                 ExternalAuthenticator::AuthLog($external_anchor.'.ldap - TLS initialization failed ' . 
+                 ExternalAuthenticator::AuthLog($external_anchor.'.ldap - TLS initialization failed ' .
                                                 ldap_errno(self::$ds) . ':' . ldap_error(self::$ds));
                  return sprintf(_t('LDAP_Authenticator.TLS','Start TLS failed: [%d] %s'),
                                 ldap_errno(self::$ds),
                                 ldap_error(self::$ds));
             } else {
                  ExternalAuthenticator::AuthLog($external_anchor.'.ldap - TLS initialization success');
-            } 
+            }
         } else {
             ExternalAuthenticator::AuthLog($external_anchor.'.ldap - TLS not set');
         }
@@ -124,15 +124,15 @@ class LDAP_Authenticator {
 
         // Reset the SilverStripe error handler
         Debug::loadErrorHandlers();
-        
+
         if (!$bind) {
-            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Bind failed ' . 
+            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Bind failed ' .
                                            ldap_errno(self::$ds) . ':' . ldap_error(self::$ds));
             return _t('LDAP_Authenticator.NoBind','Could not bind to LDAP server.');
         } else {
             ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Bind success');
         }
-        
+
         return true;
     }
 
@@ -140,7 +140,7 @@ class LDAP_Authenticator {
     /**
      * Find the user dn based on the given attribute
      *
-     * @param  string $source Authentication source to be used 
+     * @param  string $source Authentication source to be used
      * @param  string $ldapattribute attribute value to search for. The current
      *                object holds the attribute name.
      * @return string  The users full DN or boolean on fail
@@ -149,12 +149,12 @@ class LDAP_Authenticator {
         /* Check if basedn and attribute are set */
         $basedn    = ExternalAuthenticator::getOption($source, 'basedn');
         if (is_null($basedn)) {
-            ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - BaseDN not set'); 
+            ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - BaseDN not set');
             return false;
         }
 
 
-        
+
         /* Now create the search filter */
         $attribute_array = ExternalAuthenticator::getOption($source,'extra_attributes');
         if (!is_null($attribute_array) && is_array($attribute_array)) {
@@ -167,36 +167,36 @@ class LDAP_Authenticator {
         } else {
             $filter = '('.$ldapattribute.'='.$ldapattributevalue.')';
         }
-        ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - LDAP filter set to ' . $filter); 
-        
+        ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - LDAP filter set to ' . $filter);
+
         if (is_array($basedn)) {
             foreach ($basedn as $dn) {
-                ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Searching in tree ' . $dn); 
+                ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Searching in tree ' . $dn);
                 /* Search for the user's full DN. */
                 $search = @ldap_search(self::$ds, $dn,
                                        $filter,
                                        array($ldapattribute));
-              
+
                 if ($search) {
-                    ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Search succeeded'); 
-              
+                    ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Search succeeded');
+
                     # Check for count. Some LDAPs return a result with count 0
                     # when search has failed
                     $result =  @ldap_get_entries(self::$ds, $search);
                     if ($result['count'] > 0 ) {
-                        ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Found ' . $result['count'] . ' results'); 
+                        ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Found ' . $result['count'] . ' results');
                         break;
                     } else {
                         ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - No matching results');
-                    } 
+                    }
                 } else {
                     ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Search failed');
-                }  
+                }
             }
         } else {
             /* Search for the user's full DN. */
             ExternalAuthenticator::AuthLog($ldapattributevalue.'.ldap - Searching in tree ' . $basedn);
-            $search = @ldap_search(self::$ds, $basedn, 
+            $search = @ldap_search(self::$ds, $basedn,
                                    $filter,
                                    array($ldapattribute));
             if ($search) {
@@ -225,7 +225,7 @@ class LDAP_Authenticator {
      * For this lookup to succeed we need to be bound
      * to the directory
      *
-     * @param  string $source Authentication source to be used      
+     * @param  string $source Authentication source to be used
      * @param  string $dn     The dn of the user
      * @param string $external_anchor    The ID entered by the user (for logging purposes only)
      *
@@ -240,7 +240,7 @@ class LDAP_Authenticator {
                                'shadowmin'        => array('value' => false, 'attr' => 'shadowmin'),
                                'shadowmax'        => array('value' => false, 'attr' => 'shadowmax'),
                                'shadowwarning'    => array('value' => false, 'attr' => 'shadowwarning'),
-                               'firstname'        => array('value' => false, 
+                               'firstname'        => array('value' => false,
                                                            'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'firstname_attr'))
                                                           ),
                                'surname'          => array('value' => false,
@@ -249,7 +249,7 @@ class LDAP_Authenticator {
                                'email'            => array('value' => false,
                                                            'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'email_attr'))
                                                           ),
-                               'anchor'           => array('value' => false, 
+                               'anchor'           => array('value' => false,
                                                            'attr'  => strtolower(ExternalAuthenticator::getOption($source, 'attribute'))
                                                           ),
                                'group'            => array('value' => false,
@@ -271,27 +271,27 @@ class LDAP_Authenticator {
                         $information[0][$lookupdetail['attr']]['count'] > 0) {
                         if ($key != 'group') {
                             $lookupdetails[$key]['value'] = $information[0][$lookupdetail['attr']][0];
-                            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $lookupdetail['attr'] . ' set to ' . 
-                                                           $lookupdetails[$key]['value']); 
+                            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $lookupdetail['attr'] . ' set to ' .
+                                                           $lookupdetails[$key]['value']);
                         } else {
                             $lookupdetails[$key]['value'] = array();
                             for ($count = 0; $count < $information[0][$lookupdetail['attr']]['count']; $count++) {
                                 $lookupdetails[$key]['value'][$count] = strtoupper($information[0][$lookupdetail['attr']][$count]);
-                                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $lookupdetail['attr'] . ' set to ' . 
+                                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $lookupdetail['attr'] . ' set to ' .
                                                                $lookupdetails[$key]['value'][$count]);
                             }
-                        }                               
+                        }
                     } else {
                         $lookupdetails[$key]['value'] = null;
-                        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Attribute ' . 
+                        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Attribute ' .
                                                        $lookupdetail['attr'] . ' not set');
-                    } 
+                    }
 
                     }
                 } else {
                     ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Dont know how to find ' . $key);
                 }
-            }                              
+            }
         } else {
             ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Lookup of details failed');
         }
@@ -299,7 +299,7 @@ class LDAP_Authenticator {
         return $lookupdetails;
     }
 
-   
+
     /**
      * Tries to find the anchor for a given mail address and source
      *
@@ -316,7 +316,7 @@ class LDAP_Authenticator {
             ExternalAuthenticator::setAuthMessage($result);
             return false;
         }
-        
+
         if ($dn = self::findDN($source,strtolower(ExternalAuthenticator::getOption($source, 'email_attr')),$mailaddr)) {
             //We have a winner, now lookup the anchor
             ExternalAuthenticator::AuthLog($mailaddr.'.ldap - Account found. source:' . $source . ' dn:' . $dn);
@@ -327,11 +327,11 @@ class LDAP_Authenticator {
             ExternalAuthenticator::AuthLog($mailaddr.'.ldap - Account not found in source:' . $source);
             return false;
         }
-        
+
         @ldap_close(self::$ds);
     }
-    
-    
+
+
     /**
      * Tries to logon to the LDAP server with given id and password
      *
@@ -341,11 +341,11 @@ class LDAP_Authenticator {
      * @param string $external_anchor The ID entered
      * @param string $external_passwd The password of the user
      *
-     * @return mixed    Account details if succesful , false if not 
+     * @return mixed    Account details if succesful , false if not
      */
     public function Authenticate($source, $external_anchor, $external_passwd) {
         // A password should have some lenght. An empty password will result
-        // in a succesfull anonymous bind. A password should not be all spaces 
+        // in a succesfull anonymous bind. A password should not be all spaces
         if (strlen(trim($external_passwd)) == 0) {
             ExternalAuthenticator::setAuthMessage(_t('LDAP_Authenticator.NoPasswd','Please enter a password'));
             return false;
@@ -353,39 +353,39 @@ class LDAP_Authenticator {
 
         // Do we support password expiration?
         $expire = ExternalAuthenticator::getOption($source, 'passwd_expiration');
-        
+
         $result = self::Connect($source, $external_anchor);
         if (is_string($result)) {
             ExternalAuthenticator::setAuthMessage($result);
             return false;
         }
-      
+
         $dn = self::findDN($source, ExternalAuthenticator::getOption($source, 'attribute'), $external_anchor);
         if (is_bool($dn)) {
             @ldap_close(self::$ds);
-            ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed'));
+            ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed', 'Authentication failed'));
             return false;
         }
 
-        // Restore the default error handler. We dont want a red bordered 
+        // Restore the default error handler. We dont want a red bordered
         // screen on error, but a civilized message to the user
         restore_error_handler();
-		  
+
         $success = false;    //Initialize the result of the authentication
-        
-        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Binding to LDAP as ' . $dn);        
+
+        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Binding to LDAP as ' . $dn);
         $bind = @ldap_bind(self::$ds, $dn, $external_passwd);
         if ($bind != false) {
-            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP accepted password for ' . $dn);        
+            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP accepted password for ' . $dn);
             $accountdetails = self::lookupDetails($source, $dn, $external_anchor);
 
             if (!is_null($expire) && $expire) {
-                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Check if password has expired');        
+                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Check if password has expired');
                 // Reset the SilverStripe error handler
                 Debug::loadErrorHandlers();
 
                 // Do some calculations on the attributes to convert them
-                // to the interval [now]-[expires at]                
+                // to the interval [now]-[expires at]
                 if ($accountdetails['shadowmax']['value'] && $accountdetails['shadowlastchange']['value'] &&
                     $accountdetails['shadowwarning']['value']) {
 
@@ -395,33 +395,33 @@ class LDAP_Authenticator {
 
                     $toexpire = $accountdetails['shadowlastchange']['value'] +
                                 $accountdetails['shadowmax']['value'] - $today;
-                                
-                    ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $toexpire . ' before password expires ' .
-                                                   $towarn . ' days before warning');                
 
-                    // Out of luck. His password has expired.                    
-                    if ($toexpire < 0) {           
+                    ExternalAuthenticator::AuthLog($external_anchor.'.ldap - ' . $toexpire . ' before password expires ' .
+                                                   $towarn . ' days before warning');
+
+                    // Out of luck. His password has expired.
+                    if ($toexpire < 0) {
                         ExternalAuthenticator::setAuthMessage(_t('LDAP_Authenticator.Expired','Your password has expired'));
-                        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication FAILED due to expired password');                
+                        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication FAILED due to expired password');
                     } else {
-                        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication success');                
-                    
+                        ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication success');
+
                         $success = array('firstname' => $accountdetails['firstname']['value'],
                                          'surname'   => $accountdetails['surname']['value'],
                                          'email'     => $accountdetails['email']['value'],
                                          'group'     => $accountdetails['group']['value']
                                         );
 
-                        // Lets be civilized and warn the user that he should 
+                        // Lets be civilized and warn the user that he should
                         // change his password soon
                         if ($today >= $warnday) {
 		                      ExternalAuthenticator::setAuthMessage(sprintf(_t('LDAP_Authenticator.WillExpire',
-		                          'Your password expires in %d days'), $toexpire));                    
+		                          'Your password expires in %d days'), $toexpire));
                         }
                     }
                 } else {
-                    ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP password expiry enabled, but attributes not set; IGNORING');                
-                    ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication success');                
+                    ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP password expiry enabled, but attributes not set; IGNORING');
+                    ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication success');
                     $success = array('firstname' => $accountdetails['firstname']['value'],
                                      'surname'   => $accountdetails['surname']['value'],
                                      'email'     => $accountdetails['email']['value'],
@@ -429,11 +429,11 @@ class LDAP_Authenticator {
                                     );
                 }
             } else {
-                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Password expiry not enabled');        
+                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - Password expiry not enabled');
                 // Reset the SilverStripe error handler
                 Debug::loadErrorHandlers();
-                
-                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication success');                
+
+                ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP Authentication success');
                 $success = array('firstname' => $accountdetails['firstname']['value'],
                                  'surname'   => $accountdetails['surname']['value'],
                                  'email'     => $accountdetails['email']['value'],
@@ -444,13 +444,13 @@ class LDAP_Authenticator {
             // Reset the SilverStripe error handler
             Debug::loadErrorHandlers();
 
-            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP authentication for ' . $dn . ' failed');        
-            ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed'));
+            ExternalAuthenticator::AuthLog($external_anchor.'.ldap - LDAP authentication for ' . $dn . ' failed');
+            ExternalAuthenticator::setAuthMessage(_t('ExternalAuthenticator.Failed', 'Authentication failed'));
             $success =  false;
         }
-        
+
         @ldap_close(self::$ds);
         return $success;
     }
-    
+
 }
